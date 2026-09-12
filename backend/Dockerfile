@@ -23,8 +23,11 @@ COPY src ./src
 
 # Les images des produits doivent etre stockees sur un volume persistant,
 # sinon elles disparaissent a chaque redeploiement.
+#
+# On declare seulement le dossier : PAS d'instruction VOLUME. Railway rejette
+# les volumes Docker ("docker VOLUME is not supported, use Railway Volumes")
+# et le montage se configure cote plateforme, sur /app/uploads.
 RUN mkdir -p uploads/products
-VOLUME ["/app/uploads"]
 
 ENV NODE_ENV=production
 ENV PORT=4000

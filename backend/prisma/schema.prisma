@@ -38,6 +38,14 @@ enum OrderStatus {
   CANCELLED
 }
 
+// Une commande est passee depuis une table (le cas d'origine) ou emportee.
+// Une commande a emporter n'a pas de table : elle est rattachee au restaurant
+// seul et identifiee par un code de retrait annonce au comptoir.
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+}
+
 enum OptionType {
   SINGLE
   MULTIPLE
@@ -82,6 +90,13 @@ model Restaurant {
   primaryColor   String   @default("#E4572E")
   welcomeMessage String?  @db.Text
   isActive       Boolean  @default(true)
+
+  // Vente a emporter : desactivee tant que le restaurant ne l'ouvre pas.
+  // Le jeton est celui de l'affiche posee au comptoir, l'equivalent du jeton
+  // d'une table mais pour un client qui n'en occupe aucune.
+  takeawayEnabled Boolean @default(false)
+  takeawayToken   String? @unique
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -286,13 +301,16 @@ model Customer {
 model Order {
   id            Int         @id @default(autoincrement())
   restaurantId  Int
-  tableId       Int
+  tableId       Int?
   customerId    Int?
   serverId      Int?
   orderNumber   String      @unique
   trackingToken String      @unique
+  type          OrderType   @default(DINE_IN)
+  pickupCode    String?
   status        OrderStatus @default(NEW)
   customerName  String?
+  customerPhone String?
   comment       String?     @db.Text
   subtotal      Decimal     @db.Decimal(12, 2)
   total         Decimal     @db.Decimal(12, 2)
@@ -306,7 +324,11 @@ model Order {
   updatedAt     DateTime    @updatedAt
 
   restaurant    Restaurant           @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  table         RestaurantTable      @relation(fields: [tableId], references: [id])
+  // Restrict explicite : tableId est devenu optionnel pour la vente a emporter,
+  // mais supprimer une table qui a servi doit rester impossible. Sans cela
+  // Prisma basculerait sur SET NULL et ces commandes passees se confondraient
+  // avec des commandes a emporter.
+  table         RestaurantTable?     @relation(fields: [tableId], references: [id], onDelete: Restrict)
   customer      Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
   server        User?                @relation("OrderServer", fields: [serverId], references: [id], onDelete: SetNull)
   items         OrderItem[]

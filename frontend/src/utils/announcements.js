@@ -1,14 +1,14 @@
 /**
- * Phrases lues a voix haute au personnel.
+ * Phrases lues à voix haute au personnel.
  *
- * Ecrites pour l'oreille, pas pour l'ecran : on ne lit ni le numero de commande
- * (« CMD-20260912-0004 » est incomprehensible a l'oral) ni le sigle FCFA, et on
- * s'arrete a trois plats pour que l'annonce reste courte.
+ * Écrites pour l'oreille, pas pour l'écran : on ne lit ni le numéro de commande
+ * (« CMD-20260912-0004 » est incomprehensible à l'oral) ni le sigle FCFA, et on
+ * s'arrêté a trois plats pour que l'annonce reste courte.
  */
 
 /**
  * « 01 » se lit « zero un » par une synthese vocale : on enleve le zero initial
- * pour entendre « table un ». L'affichage a l'ecran, lui, garde « Table 01 ».
+ * pour entendre « table un ». L'affichage à l'écran, lui, garde « Table 01 ».
  */
 function numeroDeTable(numero) {
   if (numero === undefined || numero === null) return null;
@@ -33,17 +33,40 @@ function resumerPlats(items = []) {
   return liste;
 }
 
-/** « Vous avez recu une commande. Table 3. Poulet braise, 2 Alloco. Total 6000 francs. » */
+/**
+ * Un code de retrait « 0042 » doit s'entendre chiffre par chiffre : lu tel
+ * quel, la synthese vocale annonce « quarante-deux » et le comptoir cherche
+ * un code qui n'existe pas.
+ */
+function codeEpelle(code) {
+  if (!code) return null;
+  return String(code).split('').join(' ');
+}
+
+/**
+ * « Vous avez recu une commande. Table 3. Poulet braise. Total 6000 francs. »
+ * « Vous avez recu une commande à emporter. Code 0 0 4 2. ... »
+ */
 export function annonceCommande(order) {
-  const numero = numeroDeTable(order?.table?.number);
-  const table = numero ? `Table ${numero}.` : '';
+  const emporter = order?.type === 'TAKEAWAY';
+  const entree = emporter
+    ? 'Vous avez reçu une commande à emporter.'
+    : 'Vous avez reçu une commande.';
+
+  let provenance = '';
+  if (emporter) {
+    const code = codeEpelle(order?.pickupCode);
+    provenance = code ? `Code ${code}.` : '';
+  } else {
+    const numero = numeroDeTable(order?.table?.number);
+    provenance = numero ? `Table ${numero}.` : '';
+  }
+
   const plats = resumerPlats(order?.items);
   const total = Number(order?.total);
   const montant = Number.isFinite(total) && total > 0 ? `Total ${Math.round(total)} francs.` : '';
 
-  return ['Vous avez recu une commande.', table, plats ? `${plats}.` : '', montant]
-    .filter(Boolean)
-    .join(' ');
+  return [entree, provenance, plats ? `${plats}.` : '', montant].filter(Boolean).join(' ');
 }
 
 /** « Table 3 demande l'addition. » / « Table 3 appelle une serveuse. » */

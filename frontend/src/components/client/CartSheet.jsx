@@ -6,17 +6,30 @@ import { formatMoney } from '../../utils/format';
 import { Button, EmptyState } from '../ui';
 
 /**
- * Panier du client, en deux etapes :
+ * Panier du client, en deux étapes :
  *   1. recapitulatif modifiable
  *   2. confirmation (nom + commentaire facultatifs)
  */
-export default function CartSheet({ open, onClose, currency, tableNumber, onConfirm, submitting }) {
+export default function CartSheet({
+  open,
+  onClose,
+  currency,
+  destination,
+  takeaway = false,
+  onConfirm,
+  submitting,
+}) {
   const { items, updateQuantity, removeItem, clear, total, count } = useCart();
   const [step, setStep] = useState('cart');
   const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [comment, setComment] = useState('');
 
   if (!open) return null;
+
+  // À emporter, le nom est le seul moyen d'appeler le bon client au comptoir :
+  // il devient obligatoire. A table, le numéro de table suffit.
+  const nomManquant = takeaway && customerName.trim().length < 2;
 
   const close = () => {
     setStep('cart');
@@ -24,7 +37,12 @@ export default function CartSheet({ open, onClose, currency, tableNumber, onConf
   };
 
   const handleConfirm = () => {
-    onConfirm({ customerName: customerName.trim(), comment: comment.trim() });
+    if (nomManquant) return;
+    onConfirm({
+      customerName: customerName.trim(),
+      customerPhone: takeaway ? customerPhone.trim() : '',
+      comment: comment.trim(),
+    });
   };
 
   return createPortal(
@@ -48,7 +66,7 @@ export default function CartSheet({ open, onClose, currency, tableNumber, onConf
               <h2 className="text-lg font-bold text-ink-900">
                 {step === 'cart' ? 'Votre panier' : 'Confirmer la commande'}
               </h2>
-              <p className="text-xs text-ink-500">Table {tableNumber}</p>
+              <p className="text-xs text-ink-500">{destination}</p>
             </div>
           </div>
 
@@ -139,7 +157,7 @@ export default function CartSheet({ open, onClose, currency, tableNumber, onConf
             <div className="space-y-5">
               <div className="rounded-2xl bg-ink-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
-                  Table {tableNumber}
+                  {destination}
                 </p>
                 <ul className="mt-3 space-y-2">
                   {items.map((item) => (
@@ -166,7 +184,7 @@ export default function CartSheet({ open, onClose, currency, tableNumber, onConf
 
               <div>
                 <label className="label" htmlFor="customer-name">
-                  Votre nom (facultatif)
+                  Votre nom {takeaway ? '' : '(facultatif)'}
                 </label>
                 <input
                   id="customer-name"
@@ -176,7 +194,33 @@ export default function CartSheet({ open, onClose, currency, tableNumber, onConf
                   value={customerName}
                   onChange={(event) => setCustomerName(event.target.value)}
                 />
+                {takeaway && (
+                  <p className="mt-1 text-xs text-ink-500">
+                    C&apos;est ce nom qui sera appele au comptoir quand votre commande sera prête.
+                  </p>
+                )}
               </div>
+
+              {takeaway && (
+                <div>
+                  <label className="label" htmlFor="customer-phone">
+                    Votre numéro (facultatif)
+                  </label>
+                  <input
+                    id="customer-phone"
+                    className="input"
+                    type="tel"
+                    inputMode="tel"
+                    maxLength={30}
+                    placeholder="Ex : 07 00 00 00 00"
+                    value={customerPhone}
+                    onChange={(event) => setCustomerPhone(event.target.value)}
+                  />
+                  <p className="mt-1 text-xs text-ink-500">
+                    Pour vous prévenir si vous n&apos;êtes pas la quand c&apos;est prêt.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="label" htmlFor="order-comment">
@@ -187,7 +231,7 @@ export default function CartSheet({ open, onClose, currency, tableNumber, onConf
                   className="input"
                   rows={3}
                   maxLength={500}
-                  placeholder="Ex : sans piment, servir en meme temps..."
+                  placeholder="Ex : sans piment, servir en même temps..."
                   value={comment}
                   onChange={(event) => setComment(event.target.value)}
                 />
@@ -215,9 +259,21 @@ export default function CartSheet({ open, onClose, currency, tableNumber, onConf
                 </Button>
               </div>
             ) : (
-              <Button onClick={handleConfirm} loading={submitting} className="w-full">
-                Confirmer la commande
-              </Button>
+              <div>
+                <Button
+                  onClick={handleConfirm}
+                  loading={submitting}
+                  disabled={nomManquant}
+                  className="w-full"
+                >
+                  Confirmer la commande
+                </Button>
+                {nomManquant && (
+                  <p className="mt-2 text-center text-xs text-ink-500">
+                    Indiquez votre nom pour valider une commande à emporter.
+                  </p>
+                )}
+              </div>
             )}
           </div>
         )}

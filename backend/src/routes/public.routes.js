@@ -6,12 +6,13 @@ const { tokenParam } = require('../validators');
 
 /**
  * Routes publiques accessibles sans compte : c'est le parcours du client
- * apres le scan du QR Code de sa table.
+ * après le scan du QR Code de sa table.
  * Montees sous /api/menu.
  */
 const router = express.Router();
 
 router.get('/table/:token', validate({ params: tokenParam }), controller.getMenuByTableToken);
+router.get('/emporter/:token', validate({ params: tokenParam }), controller.getTakeawayMenu);
 router.get('/table/:token/orders', validate({ params: tokenParam }), controller.getTableOrders);
 router.get(
   '/table/:token/service-requests',

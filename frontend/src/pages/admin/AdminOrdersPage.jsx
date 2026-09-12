@@ -18,12 +18,13 @@ import {
   StatCard,
 } from '../../components/ui';
 import { formatMoney } from '../../utils/format';
+import { libelleProvenance } from '../../utils/order';
 
 const COLUMNS = [
   { key: 'NEW', title: 'Nouvelles', accent: 'border-t-sky-400' },
-  { key: 'ACCEPTED', title: 'Acceptees', accent: 'border-t-indigo-400' },
-  { key: 'PREPARING', title: 'En preparation', accent: 'border-t-amber-400' },
-  { key: 'READY', title: 'Pretes', accent: 'border-t-emerald-400' },
+  { key: 'ACCEPTED', title: 'Acceptées', accent: 'border-t-indigo-400' },
+  { key: 'PREPARING', title: 'En préparation', accent: 'border-t-amber-400' },
+  { key: 'READY', title: 'Prêtes', accent: 'border-t-emerald-400' },
 ];
 
 /** Suivi en direct des commandes du jour + attribution aux serveuses. */
@@ -75,8 +76,8 @@ export default function AdminOrdersPage() {
   const cancel = async () => {
     setBusy(cancelTarget.id);
     try {
-      await orderApi.updateStatus(cancelTarget.id, 'CANCELLED', 'Annulee par l\'administrateur');
-      toast.success('Commande annulee');
+      await orderApi.updateStatus(cancelTarget.id, 'CANCELLED', 'Annulée par l\'administrateur');
+      toast.success('Commande annulée');
       setCancelTarget(null);
       await load();
     } catch (err) {
@@ -95,7 +96,7 @@ export default function AdminOrdersPage() {
     setBusy(assignTarget.id);
     try {
       await orderApi.assign(assignTarget.id, assignValue ? Number(assignValue) : null);
-      toast.success(assignValue ? 'Commande attribuee' : 'Attribution retiree');
+      toast.success(assignValue ? 'Commande attribuée' : 'Attribution retirée');
       setAssignTarget(null);
       await load();
     } catch (err) {
@@ -137,7 +138,7 @@ export default function AdminOrdersPage() {
     <div>
       <PageHeader
         title="Commandes en cours"
-        subtitle="Mise a jour automatique en temps reel"
+        subtitle="Mise à jour automatique en temps réel"
         icon={ShoppingBag}
         action={
           <Button variant="secondary" icon={RefreshCw} onClick={load}>
@@ -148,9 +149,9 @@ export default function AdminOrdersPage() {
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard label="Nouvelles" value={board.stats.new} tone="sky" />
-        <StatCard label="Acceptees" value={board.stats.accepted} tone="indigo" />
-        <StatCard label="En preparation" value={board.stats.preparing} tone="amber" />
-        <StatCard label="Pretes" value={board.stats.ready} tone="emerald" />
+        <StatCard label="Acceptées" value={board.stats.accepted} tone="indigo" />
+        <StatCard label="En préparation" value={board.stats.preparing} tone="amber" />
+        <StatCard label="Prêtes" value={board.stats.ready} tone="emerald" />
         <StatCard label="Montant en cours" value={formatMoney(pendingRevenue, currency)} tone="brand" />
       </div>
 
@@ -158,7 +159,7 @@ export default function AdminOrdersPage() {
         <div className="card">
           <EmptyState
             title="Aucune commande en cours"
-            description="Les commandes des clients apparaitront ici des qu'elles seront passees."
+            description="Les commandes des clients apparaîtront ici des qu'elles seront passées."
           />
         </div>
       ) : (
@@ -215,7 +216,7 @@ export default function AdminOrdersPage() {
         open={Boolean(assignTarget)}
         onClose={() => setAssignTarget(null)}
         title="Attribuer la commande"
-        subtitle={assignTarget ? `${assignTarget.orderNumber} - Table ${assignTarget.table?.number}` : ''}
+        subtitle={assignTarget ? `${assignTarget.orderNumber} - ${libelleProvenance(assignTarget)}` : ''}
         size="sm"
         footer={
           <>
@@ -244,7 +245,7 @@ export default function AdminOrdersPage() {
           ))}
         </Select>
         <p className="mt-2 text-xs text-ink-500">
-          La serveuse choisie recevra immediatement une notification et verra la commande dans son espace.
+          La serveuse choisie recevra immédiatement une notification et verra la commande dans son espace.
         </p>
       </Modal>
 
@@ -255,7 +256,7 @@ export default function AdminOrdersPage() {
         title="Annuler la commande"
         message={
           cancelTarget
-            ? `Annuler definitivement la commande ${cancelTarget.orderNumber} (table ${cancelTarget.table?.number}) ?`
+            ? `Annuler définitivement la commande ${cancelTarget.orderNumber} (${libelleProvenance(cancelTarget)}) ?`
             : ''
         }
         confirmLabel="Annuler la commande"

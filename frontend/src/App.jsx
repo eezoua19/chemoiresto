@@ -11,6 +11,7 @@ import ClientMenuPage from './pages/client/ClientMenuPage';
 import OrderTrackingPage from './pages/client/OrderTrackingPage';
 
 import ServerDashboardPage from './pages/server/ServerDashboardPage';
+import ServerMenuPage from './pages/server/ServerMenuPage';
 import ServerOrdersPage from './pages/server/ServerOrdersPage';
 import ServerRequestsPage from './pages/server/ServerRequestsPage';
 
@@ -36,6 +37,7 @@ export default function App() {
 
       {/* ------------------ Client (QR Code) ---------------- */}
       <Route path="/menu/table/:token" element={<ClientMenuPage />} />
+      <Route path="/menu/emporter/:token" element={<ClientMenuPage service="TAKEAWAY" />} />
       <Route path="/commande/:trackingToken" element={<OrderTrackingPage />} />
 
       {/* --------------------- Serveuse --------------------- */}
@@ -51,6 +53,7 @@ export default function App() {
         <Route path="dashboard" element={<ServerDashboardPage />} />
         <Route path="commandes" element={<ServerOrdersPage />} />
         <Route path="demandes" element={<ServerRequestsPage />} />
+        <Route path="carte" element={<ServerMenuPage />} />
       </Route>
 
       {/* ------------------ Administration ------------------ */}

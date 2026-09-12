@@ -2,15 +2,24 @@ const QRCodeLib = require('qrcode');
 const env = require('../config/env');
 const prisma = require('../config/prisma');
 
-/** URL publique encodee dans le QR Code d'une table. */
-function buildTableUrl(token) {
-  const base = env.frontendUrl.split(',')[0].trim().replace(/\/$/, '');
-  return `${base}/menu/table/${token}`;
+/** Racine publique du site client, sans barre oblique finale. */
+function frontendBase() {
+  return env.frontendUrl.split(',')[0].trim().replace(/\/$/, '');
 }
 
-/** Genere l'image PNG (data URL) du QR Code d'une table. */
-async function renderDataUrl(token) {
-  return QRCodeLib.toDataURL(buildTableUrl(token), {
+/** URL publique encodee dans le QR Code d'une table. */
+function buildTableUrl(token) {
+  return `${frontendBase()}/menu/table/${token}`;
+}
+
+/** URL de l'affiche "a emporter" posee au comptoir. */
+function buildTakeawayUrl(token) {
+  return `${frontendBase()}/menu/emporter/${token}`;
+}
+
+/** Génère l'image PNG (data URL) d'un QR Code à partir de son URL. */
+async function renderUrl(url) {
+  return QRCodeLib.toDataURL(url, {
     errorCorrectionLevel: 'M',
     margin: 1,
     width: 512,
@@ -18,9 +27,14 @@ async function renderDataUrl(token) {
   });
 }
 
+/** Génère l'image PNG (data URL) du QR Code d'une table. */
+async function renderDataUrl(token) {
+  return renderUrl(buildTableUrl(token));
+}
+
 /**
- * Cree ou met a jour le QR Code d'une table.
- * Incremente la version a chaque regeneration pour tracer les reimpressions.
+ * Crée ou met à jour le QR Code d'une table.
+ * Incremente la version à chaque regeneration pour tracer les reimpressions.
  */
 async function upsertQRCode(tableId, token) {
   const url = buildTableUrl(token);
@@ -38,4 +52,10 @@ async function upsertQRCode(tableId, token) {
   return prisma.qRCode.create({ data: { tableId, url, dataUrl } });
 }
 
-module.exports = { buildTableUrl, renderDataUrl, upsertQRCode };
+module.exports = {
+  buildTableUrl,
+  buildTakeawayUrl,
+  renderUrl,
+  renderDataUrl,
+  upsertQRCode,
+};

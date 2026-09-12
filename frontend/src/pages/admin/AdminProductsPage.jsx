@@ -6,6 +6,7 @@ import {
   Pencil,
   Trash2,
   ImageOff,
+  Camera,
   Upload,
   X,
   ListPlus,
@@ -58,7 +59,7 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
 
-  // Creation de categorie a la volee depuis le formulaire produit
+  // Creation de catégorie à la volee depuis le formulaire produit
   const [newCategory, setNewCategory] = useState('');
   const [creatingCategory, setCreatingCategory] = useState(false);
   const [addToTodayMenu, setAddToTodayMenu] = useState(true);
@@ -141,7 +142,7 @@ export default function AdminProductsPage() {
     setModalOpen(true);
   };
 
-  /** Cree une categorie sans quitter le formulaire produit. */
+  /** Crée une catégorie sans quitter le formulaire produit. */
   const createCategoryInline = async () => {
     const name = newCategory.trim();
     if (name.length < 2) return;
@@ -152,7 +153,7 @@ export default function AdminProductsPage() {
       setCategories((current) => [...current, { ...category, productCount: 0 }]);
       setForm((current) => ({ ...current, categoryId: String(category.id) }));
       setNewCategory('');
-      toast.success(`Categorie "${category.name}" creee`);
+      toast.success(`Catégorie "${category.name}" créée`);
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -291,7 +292,7 @@ export default function AdminProductsPage() {
         ? await productApi.update(editing.id, formData)
         : await productApi.create(formData);
 
-      // Met immediatement le plat au menu du jour (ou l'en retire) selon le choix.
+      // Met immédiatement le plat au menu du jour (ou l'en retire) selon le choix.
       const alreadyInMenu = todayMenuIds.has(product.id);
       if (addToTodayMenu && !alreadyInMenu) {
         await menuApi.addProductToToday(product.id);
@@ -301,10 +302,10 @@ export default function AdminProductsPage() {
 
       toast.success(
         editing
-          ? 'Produit mis a jour'
+          ? 'Produit mis à jour'
           : addToTodayMenu
-            ? `"${product.name}" est cree et deja commandable par les clients`
-            : `"${product.name}" est cree (pas encore au menu du jour)`
+            ? `"${product.name}" est créé et déjà commandable par les clients`
+            : `"${product.name}" est créé (pas encore au menu du jour)`
       );
 
       setModalOpen(false);
@@ -379,7 +380,7 @@ export default function AdminProductsPage() {
           />
         </div>
         <Select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-          <option value="">Toutes les categories</option>
+          <option value="">Toutes les catégories</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -392,13 +393,13 @@ export default function AdminProductsPage() {
         <Card>
           <EmptyState
             icon={UtensilsCrossed}
-            title={products.length === 0 ? 'Aucun produit' : 'Aucun resultat'}
+            title={products.length === 0 ? 'Aucun produit' : 'Aucun résultat'}
             description={
               products.length === 0
-                ? 'Creez vos premiers plats : ils pourront ensuite etre ajoutes aux menus quotidiens.'
-                : 'Modifiez votre recherche ou le filtre de categorie.'
+                ? 'Créez vos premiers plats : ils pourront ensuite être ajoutés aux menus quotidiens.'
+                : 'Modifiez votre recherche ou le filtre de catégorie.'
             }
-            action={products.length === 0 && <Button onClick={openCreate}>Creer un produit</Button>}
+            action={products.length === 0 && <Button onClick={openCreate}>Créer un produit</Button>}
           />
         </Card>
       ) : (
@@ -425,7 +426,7 @@ export default function AdminProductsPage() {
                     <h3 className="truncate font-semibold text-ink-900">{product.name}</h3>
                     {!product.isActive && <span className="badge bg-ink-100 text-ink-500">Archive</span>}
                   </div>
-                  <p className="text-xs text-ink-500">{product.category?.name || 'Sans categorie'}</p>
+                  <p className="text-xs text-ink-500">{product.category?.name || 'Sans catégorie'}</p>
                   <p className="mt-1 font-bold text-ink-900">
                     {formatMoney(product.basePrice, currency)}
                   </p>
@@ -502,7 +503,7 @@ export default function AdminProductsPage() {
               Annuler
             </Button>
             <Button type="submit" form="product-form" loading={saving}>
-              {editing ? 'Enregistrer' : 'Creer'}
+              {editing ? 'Enregistrer' : 'Créer'}
             </Button>
           </>
         }
@@ -544,12 +545,12 @@ export default function AdminProductsPage() {
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Categorie" hint="Vous pouvez en creer une nouvelle ici meme">
+            <Field label="Catégorie" hint="Vous pouvez en créer une nouvelle ici même">
               <Select
                 value={form.categoryId}
                 onChange={(event) => setForm({ ...form, categoryId: event.target.value })}
               >
-                <option value="">Sans categorie</option>
+                <option value="">Sans catégorie</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -559,7 +560,7 @@ export default function AdminProductsPage() {
 
               <div className="mt-2 flex gap-2">
                 <Input
-                  placeholder="Nouvelle categorie (ex : Poissons)"
+                  placeholder="Nouvelle catégorie (ex : Poissons)"
                   value={newCategory}
                   maxLength={60}
                   onChange={(event) => setNewCategory(event.target.value)}
@@ -578,16 +579,32 @@ export default function AdminProductsPage() {
                   disabled={newCategory.trim().length < 2}
                   onClick={createCategoryInline}
                 >
-                  Creer
+                  Créer
                 </Button>
               </div>
             </Field>
 
-            <Field label="Photo" hint="JPG, PNG ou WEBP - 5 Mo maximum">
-              <div className="flex items-center gap-3">
+            <Field label="Photo" hint="Photographiez le plat tel qu'il est servi - JPG, PNG ou WEBP, 5 Mo maximum">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Sur telephone, `capture` ouvre directement l'appareil photo :
+                    le restaurateur photographie l'assiette sans passer par la
+                    galerie. Sur ordinateur l'attribut est ignore et le
+                    selecteur de fichiers s'ouvre normalement. */}
+                <label className="btn-primary cursor-pointer">
+                  <Camera size={16} />
+                  Prendre une photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={pickImage}
+                  />
+                </label>
+
                 <label className="btn-secondary cursor-pointer">
                   <Upload size={16} />
-                  Choisir
+                  Choisir un fichier
                   <input type="file" accept="image/*" className="hidden" onChange={pickImage} />
                 </label>
 
@@ -595,7 +612,7 @@ export default function AdminProductsPage() {
                   <div className="relative">
                     <img
                       src={imagePreview}
-                      alt="Apercu"
+                      alt="Aperçu"
                       className="h-12 w-12 rounded-lg object-cover"
                     />
                     <button
@@ -621,7 +638,7 @@ export default function AdminProductsPage() {
               <Toggle
                 checked={form.isAvailable}
                 onChange={(value) => setForm({ ...form, isAvailable: value })}
-                label="Disponible a la commande"
+                label="Disponible à la commande"
               />
               <Toggle
                 checked={form.isActive}
@@ -638,7 +655,7 @@ export default function AdminProductsPage() {
               />
               <p className="mt-2 text-xs text-ink-500">
                 Un plat n&apos;est visible et commandable par les clients que s&apos;il figure au
-                menu du jour. Laissez cette option activee pour le proposer des maintenant.
+                menu du jour. Laissez cette option activée pour le proposer dès maintenant.
               </p>
             </div>
           </div>
@@ -649,7 +666,7 @@ export default function AdminProductsPage() {
               <div>
                 <h3 className="font-semibold text-ink-900">Options et supplements</h3>
                 <p className="text-xs text-ink-500">
-                  Ex : &laquo; Accompagnement &raquo; (choix unique) ou &laquo; Supplements &raquo; (choix multiple)
+                  Ex : &laquo; Accompagnement &raquo; (choix unique) ou &laquo; Suppléments &raquo; (choix multiple)
                 </p>
               </div>
               <Button type="button" variant="secondary" icon={ListPlus} onClick={addOptionGroup}>
@@ -764,7 +781,7 @@ export default function AdminProductsPage() {
         title="Supprimer le produit"
         message={
           deleteTarget
-            ? `Supprimer "${deleteTarget.name}" ? S'il figure deja dans des commandes, il sera simplement archive afin de preserver l'historique.`
+            ? `Supprimer "${deleteTarget.name}" ? S'il figure déjà dans des commandes, il sera simplement archivé afin de préserver l'historique.`
             : ''
         }
         confirmLabel="Supprimer"

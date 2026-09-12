@@ -1,4 +1,4 @@
-import { Plus, Star, ImageOff } from 'lucide-react';
+import { Plus, Star, UtensilsCrossed } from 'lucide-react';
 import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
 
@@ -19,8 +19,10 @@ export default function ProductCard({ item, currency, onSelect }) {
         {image ? (
           <img src={image} alt={item.name} className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-ink-300">
-            <ImageOff size={22} />
+          // Un plat sans photo n'est pas une image cassee : couverts sur fond
+          // creme, la carte reste presentable tant que la photo n'est pas prise.
+          <div className="flex h-full w-full items-center justify-center bg-brand-50 text-brand-300">
+            <UtensilsCrossed size={26} />
           </div>
         )}
         {item.isDishOfDay && (

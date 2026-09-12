@@ -8,8 +8,9 @@ import OrderStatusTracker from '../../components/client/OrderStatusTracker';
 import { EmptyState, ErrorState, Footer, LoadingState } from '../../components/ui';
 import { formatDateTime, formatMoney } from '../../utils/format';
 import { ORDER_STATUS } from '../../utils/constants';
+import { libelleProvenance } from '../../utils/order';
 
-/** Suivi en temps reel d'une commande, accessible via son jeton. */
+/** Suivi en temps réel d'une commande, accessible via son jeton. */
 export default function OrderTrackingPage() {
   const { trackingToken } = useParams();
   const [order, setOrder] = useState(null);
@@ -90,7 +91,7 @@ export default function OrderTrackingPage() {
           <p className="mt-5 text-xs uppercase tracking-wide text-white/70">Votre commande</p>
           <h1 className="text-2xl font-extrabold">{order.orderNumber}</h1>
           <p className="mt-1 text-sm text-white/85">
-            Table {order.table?.number} - {formatDateTime(order.createdAt)}
+            {libelleProvenance(order)} - {formatDateTime(order.createdAt)}
           </p>
         </div>
       </header>
@@ -110,7 +111,7 @@ export default function OrderTrackingPage() {
         </section>
 
         <section className="card p-5">
-          <h2 className="mb-3 font-semibold text-ink-900">Detail</h2>
+          <h2 className="mb-3 font-semibold text-ink-900">Détail</h2>
           <ul className="space-y-3">
             {order.items.map((item) => (
               <li key={item.id} className="flex justify-between gap-3">

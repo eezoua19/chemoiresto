@@ -2,7 +2,7 @@ import api from './api';
 
 /**
  * Toutes les requetes HTTP de l'application sont regroupees ici.
- * Chaque fonction renvoie directement le champ "data" de la reponse standard.
+ * Chaque fonction renvoie directement le champ "data" de la réponse standard.
  */
 
 const unwrap = (response) => response.data.data;
@@ -17,6 +17,7 @@ export const authApi = {
 // ------------------------------ Client (public) ----------------------------
 export const publicApi = {
   getMenuByTable: (token) => api.get(`/menu/table/${token}`).then((r) => r.data),
+  getTakeawayMenu: (token) => api.get(`/menu/emporter/${token}`).then((r) => r.data),
   getTableOrders: (token) => api.get(`/menu/table/${token}/orders`).then(unwrap),
   getTableServiceRequests: (token) => api.get(`/menu/table/${token}/service-requests`).then(unwrap),
   createOrder: (payload) => api.post('/orders', payload).then(unwrap),
@@ -24,7 +25,7 @@ export const publicApi = {
   createServiceRequest: (payload) => api.post('/service-requests', payload).then((r) => r.data),
 };
 
-// ------------------------------- Categories --------------------------------
+// ------------------------------- Catégories --------------------------------
 export const categoryApi = {
   list: () => api.get('/categories').then(unwrap),
   create: (payload) => api.post('/categories', payload).then(unwrap),
@@ -122,4 +123,5 @@ export const restaurantApi = {
   detail: () => api.get('/restaurant').then(unwrap),
   update: (formData) =>
     api.put('/restaurant', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(unwrap),
+  setTakeaway: (payload) => api.patch('/restaurant/emporter', payload).then(unwrap),
 };

@@ -14,7 +14,13 @@ export default function ServerOrdersPage() {
   const { restaurant } = useAuth();
   const toast = useToast();
 
-  const [filters, setFilters] = useState({ period: 'today', status: '', search: '', mine: 'false' });
+  const [filters, setFilters] = useState({
+    period: 'today',
+    status: '',
+    type: '',
+    search: '',
+    mine: 'false',
+  });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,6 +31,7 @@ export default function ServerOrdersPage() {
     try {
       const params = { period: filters.period, pageSize: 100 };
       if (filters.status) params.status = filters.status;
+      if (filters.type) params.type = filters.type;
       if (filters.search.trim()) params.search = filters.search.trim();
       if (filters.mine === 'true') params.mine = 'true';
 
@@ -109,6 +116,15 @@ export default function ServerOrdersPage() {
         </Select>
 
         <Select
+          value={filters.type}
+          onChange={(event) => setFilters({ ...filters, type: event.target.value })}
+        >
+          <option value="">Salle et emporter</option>
+          <option value="DINE_IN">En salle seulement</option>
+          <option value="TAKEAWAY">À emporter seulement</option>
+        </Select>
+
+        <Select
           value={filters.mine}
           onChange={(event) => setFilters({ ...filters, mine: event.target.value })}
         >
@@ -129,7 +145,7 @@ export default function ServerOrdersPage() {
         <div className="card">
           <EmptyState
             title="Aucune commande"
-            description="Aucune commande ne correspond a ces filtres."
+            description="Aucune commande ne correspond à ces filtres."
           />
         </div>
       ) : (

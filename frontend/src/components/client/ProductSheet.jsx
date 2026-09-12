@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Minus, Plus, ImageOff, Star } from 'lucide-react';
+import { X, Minus, Plus, UtensilsCrossed, Star } from 'lucide-react';
 import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
 
 /**
- * Fiche produit : choix des options, des supplements, de la quantite.
- * Le prix affiche est recalcule en direct a chaque changement.
+ * Fiche produit : choix des options, des supplements, de la quantité.
+ * Le prix affiche est recalcule en direct à chaque changement.
  */
 export default function ProductSheet({ item, currency, open, onClose, onAdd }) {
   const [selected, setSelected] = useState({});
@@ -14,7 +14,7 @@ export default function ProductSheet({ item, currency, open, onClose, onAdd }) {
   const [note, setNote] = useState('');
   const [error, setError] = useState(null);
 
-  // Reinitialise a chaque ouverture, en pre-selectionnant les choix obligatoires.
+  // Reinitialise à chaque ouverture, en pre-selectionnant les choix obligatoires.
   useEffect(() => {
     if (!open || !item) return;
     const initial = {};
@@ -93,8 +93,8 @@ export default function ProductSheet({ item, currency, open, onClose, onAdd }) {
           {image ? (
             <img src={image} alt={item.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-ink-300">
-              <ImageOff size={34} />
+            <div className="flex h-full w-full items-center justify-center bg-brand-50 text-brand-300">
+              <UtensilsCrossed size={40} />
             </div>
           )}
           <button
@@ -170,7 +170,7 @@ export default function ProductSheet({ item, currency, open, onClose, onAdd }) {
 
           <div className="mt-6">
             <label className="label" htmlFor="product-note">
-              Precision (facultatif)
+              Précision (facultatif)
             </label>
             <input
               id="product-note"

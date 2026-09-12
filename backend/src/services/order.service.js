@@ -4,7 +4,7 @@ const { randomToken, toNumber, money, dayRange } = require('../utils/helpers');
 const { resolveUnitPrice } = require('./menu.service');
 
 // ---------------------------------------------------------------------------
-// Inclusions Prisma reutilisees
+// Inclusions Prisma réutilisées
 // ---------------------------------------------------------------------------
 
 const orderInclude = {
@@ -22,11 +22,11 @@ const orderInclude = {
 };
 
 // ---------------------------------------------------------------------------
-// Numero de commande
+// Numéro de commande
 // ---------------------------------------------------------------------------
 
 /**
- * Genere un numero lisible : CMD-20260911-0042
+ * Génère un numéro lisible : CMD-20260911-0042
  * Le compteur est quotidien et par restaurant.
  */
 async function generateOrderNumber(tx, restaurantId) {
@@ -44,12 +44,12 @@ async function generateOrderNumber(tx, restaurantId) {
 }
 
 // ---------------------------------------------------------------------------
-// Calcul du montant cote serveur
+// Calcul du montant côté serveur
 // ---------------------------------------------------------------------------
 
 /**
- * Verifie chaque ligne demandee et recalcule integralement le montant a partir
- * de la base de donnees. Les prix envoyes par le frontend sont ignores.
+ * Vérifie chaque ligne demandee et recalcule intégralement le montant a partir
+ * de la base de données. Les prix envoyes par le frontend sont ignores.
  *
  * @param {object} params
  * @param {object} params.menu menu du jour charge (avec items + produits)
@@ -125,7 +125,7 @@ async function buildOrderLines({ menu, requestedItems }) {
         throw ApiError.badRequest(`Veuillez choisir "${option.name}" pour ${product.name}`);
       }
       if (option.type === 'SINGLE' && chosenCount > 1) {
-        throw ApiError.badRequest(`Un seul choix est autorise pour "${option.name}"`);
+        throw ApiError.badRequest(`Un seul choix est autorisé pour "${option.name}"`);
       }
     }
 
@@ -154,34 +154,54 @@ async function buildOrderLines({ menu, requestedItems }) {
 // ---------------------------------------------------------------------------
 
 /**
- * Cree une commande complete (commande + lignes + options + historique)
+ * Crée une commande complete (commande + lignes + options + historique)
  * dans une seule transaction.
  */
-async function createOrder({ restaurant, table, lines, subtotal, total, customerName, comment }) {
+async function createOrder({
+  restaurant,
+  table = null,
+  type = 'DINE_IN',
+  lines,
+  subtotal,
+  total,
+  customerName,
+  customerPhone = null,
+  comment,
+}) {
   return prisma.$transaction(async (tx) => {
     const numberFor = await generateOrderNumber(tx, restaurant.id);
 
     let customerId = null;
-    if (customerName && customerName.trim()) {
+    if ((customerName && customerName.trim()) || (customerPhone && customerPhone.trim())) {
       const customer = await tx.customer.create({
-        data: { restaurantId: restaurant.id, name: customerName.trim() },
+        data: {
+          restaurantId: restaurant.id,
+          name: customerName ? customerName.trim() : null,
+          phone: customerPhone ? customerPhone.trim() : null,
+        },
       });
       customerId = customer.id;
     }
 
-    // En cas de collision de numero (deux commandes simultanees), on reessaie.
+    // En cas de collision de numéro (deux commandes simultanees), on réessaie.
     let order = null;
     for (let attempt = 1; attempt <= 5 && !order; attempt += 1) {
+      const orderNumber = numberFor(attempt);
       try {
         order = await tx.order.create({
           data: {
             restaurantId: restaurant.id,
-            tableId: table.id,
+            tableId: table ? table.id : null,
             customerId,
-            orderNumber: numberFor(attempt),
+            orderNumber,
             trackingToken: randomToken(16),
+            type,
+            // Le code de retrait est la fin du numéro du jour : court, unique
+            // sur la journée, et facile a annoncer à voix haute au comptoir.
+            pickupCode: type === 'TAKEAWAY' ? orderNumber.slice(-4) : null,
             status: 'NEW',
             customerName: customerName ? customerName.trim() : null,
+            customerPhone: customerPhone ? customerPhone.trim() : null,
             comment: comment ? comment.trim() : null,
             subtotal,
             total,
@@ -205,7 +225,7 @@ async function createOrder({ restaurant, table, lines, subtotal, total, customer
                 },
               })),
             },
-            statusHistory: { create: { status: 'NEW', comment: 'Commande recue' } },
+            statusHistory: { create: { status: 'NEW', comment: 'Commande reçue' } },
           },
           include: orderInclude,
         });
@@ -244,13 +264,13 @@ function assertTransition(current, next) {
   const allowed = ALLOWED_TRANSITIONS[current] || [];
   if (!allowed.includes(next)) {
     throw ApiError.badRequest(
-      `Transition impossible : une commande "${current}" ne peut pas passer a "${next}"`
+      `Transition impossible : une commande "${current}" ne peut pas passer à "${next}"`
     );
   }
 }
 
 /**
- * Change le statut d'une commande, enregistre l'historique et, si la commande
+ * Change le statut d'une commande, enregistré l'historique et, si la commande
  * n'avait pas encore de serveuse, l'attribue automatiquement a celle qui agit.
  */
 async function changeStatus({ order, nextStatus, user, comment = null }) {
@@ -277,6 +297,22 @@ async function changeStatus({ order, nextStatus, user, comment = null }) {
 }
 
 // ---------------------------------------------------------------------------
+// Provenance
+// ---------------------------------------------------------------------------
+
+/**
+ * D'ou vient la commande, en une ligne lisible par le personnel.
+ * Accepte aussi bien une commande Prisma qu'une commande sérialisée.
+ */
+function libelleProvenance(order) {
+  if (!order) return 'Provenance inconnue';
+  if (order.type === 'TAKEAWAY') {
+    return order.pickupCode ? `À emporter - code ${order.pickupCode}` : 'À emporter';
+  }
+  return order.table ? `Table ${order.table.number}` : 'Table inconnue';
+}
+
+// ---------------------------------------------------------------------------
 // Serialisation
 // ---------------------------------------------------------------------------
 
@@ -287,8 +323,11 @@ function serializeOrder(order) {
     id: order.id,
     orderNumber: order.orderNumber,
     trackingToken: order.trackingToken,
+    type: order.type,
+    pickupCode: order.pickupCode,
     status: order.status,
     customerName: order.customerName,
+    customerPhone: order.customerPhone,
     comment: order.comment,
     subtotal: toNumber(order.subtotal),
     total: toNumber(order.total),
@@ -338,7 +377,7 @@ function serializeOrder(order) {
   };
 }
 
-/** Version publique, destinee au suivi client (pas de donnees internes). */
+/** Version publique, destinee au suivi client (pas de données internes). */
 function serializeOrderForClient(order) {
   const full = serializeOrder(order);
   if (!full) return null;
@@ -359,6 +398,7 @@ module.exports = {
   createOrder,
   changeStatus,
   assertTransition,
+  libelleProvenance,
   serializeOrder,
   serializeOrderForClient,
   ALLOWED_TRANSITIONS,

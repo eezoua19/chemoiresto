@@ -4,6 +4,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const { success, created } = require('../utils/response');
 const { toNumber } = require('../utils/helpers');
 const { removeProductImage } = require('../middleware/upload');
+const { emitToStaff } = require('../sockets');
 
 const include = {
   category: { select: { id: true, name: true, slug: true, icon: true } },
@@ -24,7 +25,7 @@ function serialize(product) {
   };
 }
 
-/** Remplace integralement les groupes d'options d'un produit. */
+/** Remplace intégralement les groupes d'options d'un produit. */
 async function replaceOptions(tx, productId, options) {
   await tx.productOption.deleteMany({ where: { productId } });
   for (const [index, option] of options.entries()) {
@@ -64,7 +65,7 @@ const list = asyncHandler(async (req, res) => {
     include,
   });
 
-  return success(res, products.map(serialize), 'Produits recuperes');
+  return success(res, products.map(serialize), 'Produits récupérés');
 });
 
 /** GET /api/products/:id */
@@ -74,7 +75,7 @@ const detail = asyncHandler(async (req, res) => {
     include,
   });
   if (!product) throw ApiError.notFound('Produit introuvable');
-  return success(res, serialize(product), 'Produit recupere');
+  return success(res, serialize(product), 'Produit récupéré');
 });
 
 /** POST /api/products (multipart : champ "image" optionnel) */
@@ -84,7 +85,7 @@ const create = asyncHandler(async (req, res) => {
 
   if (categoryId) {
     const category = await prisma.category.findFirst({ where: { id: categoryId, restaurantId } });
-    if (!category) throw ApiError.badRequest('Categorie invalide');
+    if (!category) throw ApiError.badRequest('Catégorie invalide');
   }
 
   const product = await prisma.$transaction(async (tx) => {
@@ -107,7 +108,7 @@ const create = asyncHandler(async (req, res) => {
     return tx.product.findUnique({ where: { id: createdProduct.id }, include });
   });
 
-  return created(res, serialize(product), 'Produit cree');
+  return created(res, serialize(product), 'Produit créé');
 });
 
 /** PUT /api/products/:id */
@@ -135,7 +136,7 @@ const update = asyncHandler(async (req, res) => {
       const category = await prisma.category.findFirst({
         where: { id: body.categoryId, restaurantId },
       });
-      if (!category) throw ApiError.badRequest('Categorie invalide');
+      if (!category) throw ApiError.badRequest('Catégorie invalide');
       data.categoryId = body.categoryId;
     }
   }
@@ -157,13 +158,13 @@ const update = asyncHandler(async (req, res) => {
 
   if (imageToDelete) removeProductImage(imageToDelete);
 
-  return success(res, serialize(product), 'Produit mis a jour');
+  return success(res, serialize(product), 'Produit mis à jour');
 });
 
 /**
  * DELETE /api/products/:id
- * Un produit deja commande est desactive plutot que supprime afin de
- * preserver l'historique des commandes.
+ * Un produit déjà commande est désactivé plutot que supprime afin de
+ * préserver l'historique des commandes.
  */
 const remove = asyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -182,13 +183,13 @@ const remove = asyncHandler(async (req, res) => {
     return success(
       res,
       serialize(archived),
-      'Ce produit figure dans des commandes passees : il a ete archive (desactive) au lieu d\'etre supprime'
+      'Ce produit figure dans des commandes passées : il a été archivé (désactivé) au lieu d\'être supprimé'
     );
   }
 
   if (product.image) removeProductImage(product.image);
   await prisma.product.delete({ where: { id } });
-  return success(res, null, 'Produit supprime');
+  return success(res, null, 'Produit supprimé');
 });
 
 /** PATCH /api/products/:id/availability */
@@ -203,6 +204,14 @@ const toggleAvailability = asyncHandler(async (req, res) => {
     where: { id },
     data: { isAvailable: !product.isAvailable },
     include,
+  });
+
+  // Une rupture déclarée en salle doit apparaitre sur tous les appareils du
+  // personnel : la serveuse d'a côté ne doit pas continuer a proposer le plat.
+  emitToStaff(req.user.restaurantId, 'product_availability', {
+    id: updated.id,
+    name: updated.name,
+    isAvailable: updated.isAvailable,
   });
 
   return success(

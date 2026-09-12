@@ -23,6 +23,7 @@ import useSocketEvent from '../hooks/useSocketEvent';
 import useNotificationSound from '../hooks/useNotificationSound';
 import useVoiceAnnouncer from '../hooks/useVoiceAnnouncer';
 import { annonceCommande, annonceDemande } from '../utils/announcements';
+import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import { initials } from '../utils/format';
@@ -33,13 +34,13 @@ const LINKS = [
   { to: '/admin/commandes', label: 'Commandes', icon: ShoppingBag },
   { to: '/admin/menus', label: 'Menus', icon: CalendarDays },
   { to: '/admin/produits', label: 'Produits', icon: UtensilsCrossed },
-  { to: '/admin/categories', label: 'Categories', icon: Tags },
+  { to: '/admin/categories', label: 'Catégories', icon: Tags },
   { to: '/admin/tables', label: 'Tables', icon: Table2 },
   { to: '/admin/qrcodes', label: 'QR Codes', icon: QrCode },
   { to: '/admin/serveuses', label: 'Serveuses', icon: Users },
   { to: '/admin/historique', label: 'Historique', icon: History },
   { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
-  { to: '/admin/parametres', label: 'Parametres', icon: Settings },
+  { to: '/admin/parametres', label: 'Paramètres', icon: Settings },
 ];
 
 export default function AdminLayout() {
@@ -51,20 +52,20 @@ export default function AdminLayout() {
   const voice = useVoiceAnnouncer();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Applique la couleur du restaurant a toute l'interface.
+  // Applique la couleur du restaurant à toute l'interface.
   useEffect(() => {
     applyBrandColor(restaurant?.primaryColor);
   }, [restaurant]);
 
   useEffect(() => setSidebarOpen(false), [location.pathname]);
 
-  // Le signal sonore attire l'attention, la voix donne le detail, et l'alerte
-  // reste a l'ecran tant qu'elle n'a pas ete fermee a la main.
+  // Le signal sonore attire l'attention, la voix donne le détail, et l'alerte
+  // reste à l'écran tant qu'elle n'a pas été fermee à la main.
   useSocketEvent('new_order', (order) => {
     playSound('order');
     voice.announce(annonceCommande(order));
     toast.alerte(
-      `Nouvelle commande ${order.orderNumber} - Table ${order.table?.number}`,
+      `Nouvelle commande ${order.orderNumber} - ${libelleProvenance(order)}`,
       'info',
       voice.stop
     );
@@ -126,7 +127,7 @@ export default function AdminLayout() {
         </div>
         <button type="button" onClick={handleLogout} className="sidebar-link w-full text-red-600 hover:bg-red-50">
           <LogOut size={18} />
-          Deconnexion
+          Déconnexion
         </button>
       </div>
     </div>
@@ -134,7 +135,7 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-ink-50">
-      {/* Barre laterale fixe sur grand ecran */}
+      {/* Barre laterale fixe sur grand écran */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-ink-100 bg-white lg:block">
         {sidebar}
       </aside>

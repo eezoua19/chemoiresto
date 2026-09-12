@@ -1,11 +1,12 @@
-import { Clock, User, StickyNote, Printer, ChevronRight } from 'lucide-react';
+import { Clock, User, StickyNote, Printer, ChevronRight, ShoppingBag, Phone } from 'lucide-react';
 import { ORDER_STATUS } from '../../utils/constants';
 import { formatMoney, timeAgo } from '../../utils/format';
+import { estAEmporter } from '../../utils/order';
 import { Button } from '../ui';
 
 /**
- * Carte de commande utilisee par la serveuse et par l'administrateur.
- * Le bouton d'action reflete la prochaine etape autorisee du workflow.
+ * Carte de commande utilisée par la serveuse et par l'administrateur.
+ * Le bouton d'action reflete la prochaine étape autorisée du workflow.
  */
 export default function OrderCard({
   order,
@@ -18,13 +19,26 @@ export default function OrderCard({
   compact = false,
 }) {
   const config = ORDER_STATUS[order.status];
+  const emporter = estAEmporter(order);
 
   return (
     <article className="card overflow-hidden">
       <div className="flex items-start justify-between gap-3 border-b border-ink-100 px-4 py-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-bold text-ink-900">Table {order.table?.number}</h3>
+            {emporter ? (
+              // Le code de retrait est ce que la serveuse annonce à voix haute :
+              // il doit se lire d'un coup d'oeil, comme un numéro de table.
+              <h3 className="flex items-center gap-1.5 font-bold text-ink-900">
+                <ShoppingBag size={15} className="text-brand-600" />
+                Emporter
+                <span className="rounded-lg bg-brand-100 px-2 py-0.5 tracking-widest text-brand-800">
+                  {order.pickupCode}
+                </span>
+              </h3>
+            ) : (
+              <h3 className="font-bold text-ink-900">Table {order.table?.number}</h3>
+            )}
             <span className={`badge ${config.badge}`}>{config.label}</span>
           </div>
           <p className="mt-0.5 truncate text-xs text-ink-500">{order.orderNumber}</p>
@@ -70,6 +84,14 @@ export default function OrderCard({
               <User size={12} /> {order.customerName}
             </span>
           )}
+          {order.customerPhone && (
+            <a
+              href={`tel:${order.customerPhone}`}
+              className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline"
+            >
+              <Phone size={12} /> {order.customerPhone}
+            </a>
+          )}
           {order.server && (
             <span className="inline-flex items-center gap-1">
               Serveuse : <span className="font-medium text-ink-700">{order.server.firstName}</span>
@@ -92,7 +114,7 @@ export default function OrderCard({
 
           {onOpen && (
             <Button variant="secondary" onClick={() => onOpen(order)} icon={ChevronRight}>
-              Detail
+              Détail
             </Button>
           )}
 

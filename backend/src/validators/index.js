@@ -20,8 +20,8 @@ const trimmed = (min, max, label) =>
   z
     .string()
     .trim()
-    .min(min, `${label} : ${min} caractere(s) minimum`)
-    .max(max, `${label} : ${max} caracteres maximum`);
+    .min(min, `${label} : ${min} caractère(s) minimum`)
+    .max(max, `${label} : ${max} caractères maximum`);
 
 const optionalText = (max) =>
   z.string().trim().max(max).optional().nullable().or(z.literal('')).transform((v) => (v === '' ? null : v));
@@ -41,7 +41,7 @@ const loginSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
-// Categories
+// Catégories
 // ---------------------------------------------------------------------------
 
 const createCategorySchema = z.object({
@@ -89,7 +89,7 @@ const productOptionSchema = z.object({
 const createProductSchema = z.object({
   name: trimmed(2, 120, 'Nom'),
   description: optionalText(2000),
-  basePrice: z.coerce.number().min(0, 'Le prix doit etre positif').max(100000000),
+  basePrice: z.coerce.number().min(0, 'Le prix doit être positif').max(100000000),
   categoryId: z.coerce.number().int().positive().optional().nullable(),
   isAvailable: booleanish.optional(),
   isActive: booleanish.optional(),
@@ -121,7 +121,7 @@ const updateProductSchema = createProductSchema.partial().extend({
 // ---------------------------------------------------------------------------
 
 const createTableSchema = z.object({
-  number: trimmed(1, 20, 'Numero de table'),
+  number: trimmed(1, 20, 'Numéro de table'),
   label: optionalText(60),
   capacity: z.coerce.number().int().min(1).max(50).optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
@@ -186,22 +186,33 @@ const dashboardQuerySchema = z.object({
 // Commandes
 // ---------------------------------------------------------------------------
 
-const createOrderSchema = z.object({
-  tableToken: z.string().regex(/^[a-f0-9]{16,64}$/i, 'Table invalide'),
-  customerName: optionalText(80),
-  comment: optionalText(500),
-  items: z
-    .array(
-      z.object({
-        productId: z.coerce.number().int().positive(),
-        quantity: z.coerce.number().int().min(1, 'Quantite minimale : 1').max(50),
-        note: optionalText(200),
-        optionValueIds: z.array(z.coerce.number().int().positive()).max(20).optional().default([]),
-      })
-    )
-    .min(1, 'Votre panier est vide')
-    .max(60),
-});
+const jetonClient = z.string().regex(/^[a-f0-9]{16,64}$/i, 'Jeton invalide');
+
+const createOrderSchema = z
+  .object({
+    tableToken: jetonClient.optional(),
+    takeawayToken: jetonClient.optional(),
+    customerName: optionalText(80),
+    customerPhone: optionalText(30),
+    comment: optionalText(500),
+    items: z
+      .array(
+        z.object({
+          productId: z.coerce.number().int().positive(),
+          quantity: z.coerce.number().int().min(1, 'Quantité minimale : 1').max(50),
+          note: optionalText(200),
+          optionValueIds: z.array(z.coerce.number().int().positive()).max(20).optional().default([]),
+        })
+      )
+      .min(1, 'Votre panier est vide')
+      .max(60),
+  })
+  // Une commande vient d'une table OU du comptoir, jamais des deux : accepter
+  // les deux jetons laisserait le doute sur ce qu'il faut facturer a qui.
+  .refine((body) => Boolean(body.tableToken) !== Boolean(body.takeawayToken), {
+    message: 'Indiquez soit une table, soit une commande à emporter',
+    path: ['tableToken'],
+  });
 
 const updateOrderStatusSchema = z.object({
   status: z.enum(['ACCEPTED', 'PREPARING', 'READY', 'SERVED', 'CANCELLED']),
@@ -223,6 +234,7 @@ const ordersQuerySchema = z.object({
   from: dateString.optional(),
   to: dateString.optional(),
   tableId: z.coerce.number().int().positive().optional(),
+  type: z.enum(['DINE_IN', 'TAKEAWAY']).optional(),
   serverId: z.coerce.number().int().positive().optional(),
   search: z.string().trim().max(80).optional(),
   mine: z.enum(['true', 'false']).optional(),
@@ -235,13 +247,13 @@ const ordersQuerySchema = z.object({
 // ---------------------------------------------------------------------------
 
 const createServerSchema = z.object({
-  firstName: trimmed(2, 60, 'Prenom'),
+  firstName: trimmed(2, 60, 'Prénom'),
   lastName: trimmed(2, 60, 'Nom'),
   email: z.string().trim().toLowerCase().email('Adresse email invalide'),
   phone: optionalText(30),
   password: z
     .string()
-    .min(8, 'Le mot de passe doit contenir au moins 8 caracteres')
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
     .max(72, 'Mot de passe trop long'),
   role: z.enum(['ADMIN', 'SERVER']).optional().default('SERVER'),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
@@ -250,7 +262,7 @@ const createServerSchema = z.object({
 const updateServerSchema = createServerSchema.partial().omit({ password: true });
 
 const resetPasswordSchema = z.object({
-  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caracteres').max(72),
+  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères').max(72),
 });
 
 // ---------------------------------------------------------------------------
@@ -286,6 +298,15 @@ const updateRestaurantSchema = z.object({
   welcomeMessage: optionalText(300),
 });
 
+// z.boolean() et non z.coerce.boolean() : la coercition transformerait la
+// chaine "false" en true, et fermer la vente à emporter deviendrait impossible.
+const takeawaySchema = z.object({
+  enabled: z.boolean(),
+  // Ne sert qu'au cas ou l'affiche du comptoir a été photographiee ou diffusee
+  // par erreur : on change le jeton, l'ancienne adresse cesse de fonctionner.
+  regenerate: z.boolean().optional().default(false),
+});
+
 module.exports = {
   idParam,
   tokenParam,
@@ -315,4 +336,5 @@ module.exports = {
   createServiceRequestSchema,
   updateServiceRequestSchema,
   updateRestaurantSchema,
+  takeawaySchema,
 };

@@ -27,16 +27,23 @@ import { formatLongDate, formatMoney } from '../../utils/format';
 import { ORDER_STATUS, ordersKey } from '../../utils/constants';
 import { applyBrandColor } from '../../utils/color';
 
-export default function ClientMenuPage() {
+/**
+ * Le même écran sert les deux parcours :
+ *   - service "DINE_IN"   : le client a scanne le QR Code de sa table
+ *   - service "TAKEAWAY"  : il a scanne l'affiche du comptoir et emporte
+ * Seuls le point d'entrée, l'en-tete et les boutons d'appel different.
+ */
+export default function ClientMenuPage({ service = 'DINE_IN' }) {
   const { token } = useParams();
   return (
     <CartProvider tableToken={token}>
-      <ClientMenuContent token={token} />
+      <ClientMenuContent token={token} service={service} />
     </CartProvider>
   );
 }
 
-function ClientMenuContent({ token }) {
+function ClientMenuContent({ token, service }) {
+  const emporter = service === 'TAKEAWAY';
   const toast = useToast();
   const cart = useCart();
 
@@ -58,21 +65,25 @@ function ClientMenuContent({ token }) {
   const load = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
-      const response = await publicApi.getMenuByTable(token);
+      const response = emporter
+        ? await publicApi.getTakeawayMenu(token)
+        : await publicApi.getMenuByTable(token);
       setState({ loading: false, error: null, data: response.data });
 
       applyBrandColor(response.data.restaurant?.primaryColor);
-      document.title = `${response.data.restaurant.name} - Table ${response.data.table.number}`;
+      document.title = `${response.data.restaurant.name} - ${
+        emporter ? 'À emporter' : `Table ${response.data.table.number}`
+      }`;
 
       // Retire du panier ce qui n'est plus au menu.
       const removed = syncRef.current(response.data.menu?.items);
       if (removed.length) {
-        toast.warning(`Retire du panier (indisponible) : ${removed.join(', ')}`);
+        toast.warning(`Retiré du panier (indisponible) : ${removed.join(', ')}`);
       }
     } catch (error) {
       setState({ loading: false, error, data: null });
     }
-  }, [token, toast]);
+  }, [token, emporter, toast]);
 
   useEffect(() => {
     load();
@@ -80,9 +91,12 @@ function ClientMenuContent({ token }) {
 
   // ------------------- Commandes en cours de la table -------------------
   const loadOrders = useCallback(async () => {
+    // À emporter il n'y a pas de table a interroger : les commandes passees
+    // depuis ce téléphone restent affichées en memoire après l'envoi.
+    if (emporter) return;
     try {
       const tableOrders = await publicApi.getTableOrders(token);
-      // On n'affiche que les commandes passees depuis CE telephone.
+      // On n'affiche que les commandes passees depuis CE téléphone.
       let mine = [];
       try {
         mine = JSON.parse(localStorage.getItem(ordersKey(token)) || '[]');
@@ -91,34 +105,38 @@ function ClientMenuContent({ token }) {
       }
       setOrders(tableOrders.filter((order) => mine.includes(order.trackingToken)));
     } catch {
-      // Sans commande en cours l'ecran reste simplement vide.
+      // Sans commande en cours l'écran reste simplement vide.
     }
-  }, [token]);
+  }, [token, emporter]);
 
   const loadRequests = useCallback(async () => {
+    if (emporter) return;
     try {
       setRequests(await publicApi.getTableServiceRequests(token));
     } catch {
       setRequests([]);
     }
-  }, [token]);
+  }, [token, emporter]);
 
   useEffect(() => {
     loadOrders();
     loadRequests();
   }, [loadOrders, loadRequests]);
 
-  // -------------------------- Temps reel --------------------------------
+  // -------------------------- Temps réel --------------------------------
   useEffect(() => {
     const socket = connectSocket(null);
+    // Le salon d'une table n'existe que pour le service en salle. À emporter,
+    // le suivi passe par le salon de la commande (track_order).
+    if (emporter) return undefined;
     const join = () => socket.emit('join_table', token);
     join();
     socket.on('connect', join);
     return () => socket.off('connect', join);
-  }, [token]);
+  }, [token, emporter]);
 
   useSocketEvent('order_status', (updated) => {
-    // Seules les commandes passees depuis ce telephone declenchent une alerte.
+    // Seules les commandes passees depuis ce téléphone declenchent une alerte.
     if (!ordersRef.current.some((order) => order.id === updated.id)) return;
     setOrders((current) => current.map((order) => (order.id === updated.id ? updated : order)));
     toast.success(
@@ -130,12 +148,13 @@ function ClientMenuContent({ token }) {
   useSocketEvent('menu_updated', () => load());
 
   // --------------------------- Commande ---------------------------------
-  const handleConfirmOrder = async ({ customerName, comment }) => {
+  const handleConfirmOrder = async ({ customerName, customerPhone, comment }) => {
     setSubmitting(true);
     try {
       const order = await publicApi.createOrder({
-        tableToken: token,
+        ...(emporter ? { takeawayToken: token } : { tableToken: token }),
         customerName: customerName || undefined,
+        customerPhone: customerPhone || undefined,
         comment: comment || undefined,
         items: cart.items.map((item) => ({
           productId: item.productId,
@@ -145,7 +164,7 @@ function ClientMenuContent({ token }) {
         })),
       });
 
-      // Memorise la commande pour pouvoir la suivre depuis ce telephone.
+      // Memorise la commande pour pouvoir la suivre depuis ce téléphone.
       try {
         const saved = JSON.parse(localStorage.getItem(ordersKey(token)) || '[]');
         localStorage.setItem(ordersKey(token), JSON.stringify([...saved, order.trackingToken]));
@@ -194,12 +213,16 @@ function ClientMenuContent({ token }) {
             <EmptyState
               icon={QrCode}
               title="QR Code invalide"
-              description="Ce QR Code ne correspond a aucune table. Demandez a une serveuse de verifier celui pose sur votre table."
+              description={
+                emporter
+                  ? 'Ce QR Code n\'est plus valable. Demandez l\'affiche à jour au comptoir.'
+                  : 'Ce QR Code ne correspond à aucune table. Demandez à une serveuse de vérifier celui posé sur votre table.'
+              }
             />
           ) : status === 403 ? (
             <EmptyState
               icon={QrCode}
-              title="Table indisponible"
+              title={emporter ? 'Commandes à emporter fermées' : 'Table indisponible'}
               description={state.error.message}
             />
           ) : (
@@ -256,8 +279,14 @@ function ClientMenuContent({ token }) {
 
           <div className="mt-5 flex items-center justify-between rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
             <div>
-              <p className="text-xs uppercase tracking-wide text-white/70">Vous etes a la</p>
-              <p className="text-2xl font-extrabold">TABLE {table.number}</p>
+              <p className="text-xs uppercase tracking-wide text-white/70">
+                {emporter ? 'Votre commande' : 'Vous êtes à la'}
+              </p>
+              {/* "À EMPORTER" est long : sans nowrap il se coupe apres le "A"
+                  sur un telephone etroit. */}
+              <p className={`font-extrabold ${emporter ? 'whitespace-nowrap text-xl' : 'text-2xl'}`}>
+                {emporter ? 'À EMPORTER' : `TABLE ${table.number}`}
+              </p>
             </div>
             <div className="text-right">
               <p className="text-xs text-white/70">Menu du</p>
@@ -326,7 +355,21 @@ function ClientMenuContent({ token }) {
           </section>
         )}
 
+        {/* ------------------ Rappel du retrait au comptoir ------------------ */}
+        {emporter && (
+          <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3">
+            <p className="flex items-center gap-2 text-sm font-semibold text-brand-800">
+              <ShoppingBag size={16} /> Commande à emporter
+            </p>
+            <p className="mt-1 text-xs text-brand-900/70">
+              Vous recevrez un code de retrait. Présentez-le au comptoir pour récupérer votre
+              commande et regler.
+            </p>
+          </section>
+        )}
+
         {/* --------------------- Appels serveuse ------------------- */}
+        {!emporter && (
         <section className="mt-5 grid grid-cols-2 gap-3">
           <button
             type="button"
@@ -336,7 +379,7 @@ function ClientMenuContent({ token }) {
               ${openCall ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-ink-200 bg-white text-ink-700 hover:border-amber-300 hover:bg-amber-50'}`}
           >
             <Bell size={20} />
-            {openCall ? 'Serveuse appelee' : 'Appeler une serveuse'}
+            {openCall ? 'Serveuse appelée' : 'Appeler une serveuse'}
           </button>
 
           <button
@@ -350,6 +393,7 @@ function ClientMenuContent({ token }) {
             {openBill ? 'Addition demandee' : 'Demander l\'addition'}
           </button>
         </section>
+        )}
 
         {/* ------------------------ Le menu ------------------------ */}
         {!menu ? (
@@ -357,7 +401,7 @@ function ClientMenuContent({ token }) {
             <EmptyState
               icon={CalendarX2}
               title="Le menu du jour n'est pas encore disponible"
-              description="Le restaurant n'a pas encore publie le menu de cette journee. Appelez une serveuse ou reessayez dans un instant."
+              description="Le restaurant n'a pas encore publié le menu de cette journée. Appelez une serveuse ou réessayez dans un instant."
               action={
                 <Button variant="secondary" onClick={load}>
                   Actualiser
@@ -409,7 +453,7 @@ function ClientMenuContent({ token }) {
             <section className="mt-2 space-y-3">
               {visibleItems.length === 0 ? (
                 <div className="card">
-                  <EmptyState title="Aucun plat dans cette categorie" description="Choisissez une autre categorie." />
+                  <EmptyState title="Aucun plat dans cette catégorie" description="Choisissez une autre catégorie." />
                 </div>
               ) : (
                 visibleItems.map((item) => (
@@ -451,7 +495,7 @@ function ClientMenuContent({ token }) {
         onClose={() => setSelectedItem(null)}
         onAdd={(item, options) => {
           cart.addItem(item, options);
-          toast.success(`${item.name} ajoute au panier`);
+          toast.success(`${item.name} ajouté au panier`);
         }}
       />
 
@@ -459,7 +503,8 @@ function ClientMenuContent({ token }) {
         open={cartOpen}
         onClose={() => setCartOpen(false)}
         currency={currency}
-        tableNumber={table.number}
+        destination={emporter ? 'À emporter' : `Table ${table.number}`}
+        takeaway={emporter}
         onConfirm={handleConfirmOrder}
         submitting={submitting}
       />
@@ -468,7 +513,7 @@ function ClientMenuContent({ token }) {
       <Modal
         open={Boolean(confirmation)}
         onClose={() => setConfirmation(null)}
-        title="Commande envoyee !"
+        title="Commande envoyée !"
         size="sm"
         footer={
           <>
@@ -488,9 +533,27 @@ function ClientMenuContent({ token }) {
             <span className="mx-auto mb-3 inline-flex rounded-2xl bg-emerald-50 p-3 text-emerald-600">
               <PartyPopper size={28} />
             </span>
-            <p className="text-sm text-ink-600">Votre commande a bien ete transmise a la serveuse.</p>
+            <p className="text-sm text-ink-600">
+              {emporter
+                ? 'Votre commande est partie en cuisine. Gardez ce code, il vous sera demande au comptoir.'
+                : 'Votre commande a bien été transmise à la serveuse.'}
+            </p>
+
+            {emporter && confirmation.pickupCode && (
+              <div className="mt-4 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+                  Votre code de retrait
+                </p>
+                <p className="text-4xl font-extrabold tracking-widest text-brand-800">
+                  {confirmation.pickupCode}
+                </p>
+              </div>
+            )}
+
             <p className="mt-4 text-lg font-bold text-ink-900">{confirmation.orderNumber}</p>
-            <p className="text-sm text-ink-500">Table {table.number}</p>
+            <p className="text-sm text-ink-500">
+              {emporter ? 'À emporter' : `Table ${table.number}`}
+            </p>
             <p className="mt-2 text-xl font-extrabold" style={{ color: 'var(--brand)' }}>
               {formatMoney(confirmation.total, currency)}
             </p>
@@ -503,7 +566,7 @@ function ClientMenuContent({ token }) {
   );
 }
 
-/** Squelette de chargement, calque sur la mise en page reelle. */
+/** Squelette de chargement, calque sur la mise en page réelle. */
 function MenuSkeleton() {
   return (
     <div className="min-h-screen bg-ink-50">

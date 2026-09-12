@@ -7,15 +7,16 @@ import useSocketEvent from '../../hooks/useSocketEvent';
 import OrderCard from '../../components/orders/OrderCard';
 import { printOrderTicket } from '../../components/orders/printOrder';
 import { Button, ConfirmDialog, EmptyState, ErrorState, Skeleton, StatCard } from '../../components/ui';
+import { libelleProvenance } from '../../utils/order';
 
 const COLUMNS = [
   { key: 'NEW', title: 'Nouvelles', accent: 'border-t-sky-400' },
-  { key: 'ACCEPTED', title: 'Acceptees', accent: 'border-t-indigo-400' },
-  { key: 'PREPARING', title: 'En preparation', accent: 'border-t-amber-400' },
-  { key: 'READY', title: 'Pretes', accent: 'border-t-emerald-400' },
+  { key: 'ACCEPTED', title: 'Acceptées', accent: 'border-t-indigo-400' },
+  { key: 'PREPARING', title: 'En préparation', accent: 'border-t-amber-400' },
+  { key: 'READY', title: 'Prêtes', accent: 'border-t-emerald-400' },
 ];
 
-/** Tableau Kanban temps reel de la serveuse. */
+/** Tableau Kanban temps réel de la serveuse. */
 export default function ServerDashboardPage() {
   const { user, restaurant } = useAuth();
   const toast = useToast();
@@ -41,7 +42,7 @@ export default function ServerDashboardPage() {
     load();
   }, [load]);
 
-  // Toute evolution cote serveur rafraichit le tableau.
+  // Toute evolution côté serveur rafraichit le tableau.
   useSocketEvent('new_order', load);
   useSocketEvent('order_updated', load);
   useSocketEvent('order_assigned', load);
@@ -61,8 +62,8 @@ export default function ServerDashboardPage() {
   const cancel = async () => {
     setBusy(cancelTarget.id);
     try {
-      await orderApi.updateStatus(cancelTarget.id, 'CANCELLED', 'Annulee par la serveuse');
-      toast.success('Commande annulee');
+      await orderApi.updateStatus(cancelTarget.id, 'CANCELLED', 'Annulée par la serveuse');
+      toast.success('Commande annulée');
       setCancelTarget(null);
       await load();
     } catch (err) {
@@ -115,8 +116,8 @@ export default function ServerDashboardPage() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Nouvelles" value={board.stats.new} icon={Inbox} tone="sky" />
-        <StatCard label="En preparation" value={board.stats.preparing} icon={ChefHat} tone="amber" />
-        <StatCard label="Pretes" value={board.stats.ready} icon={CheckCircle2} tone="emerald" />
+        <StatCard label="En préparation" value={board.stats.preparing} icon={ChefHat} tone="amber" />
+        <StatCard label="Prêtes" value={board.stats.ready} icon={CheckCircle2} tone="emerald" />
         <StatCard label="Servies" value={board.stats.served} icon={ClipboardCheck} tone="ink" />
       </div>
 
@@ -161,7 +162,7 @@ export default function ServerDashboardPage() {
         <div className="card">
           <EmptyState
             title="Aucune commande en cours"
-            description="Les nouvelles commandes apparaitront ici automatiquement, avec une alerte sonore."
+            description="Les nouvelles commandes apparaîtront ici automatiquement, avec une alerte sonore."
           />
         </div>
       )}
@@ -173,7 +174,7 @@ export default function ServerDashboardPage() {
         title="Annuler la commande"
         message={
           cancelTarget
-            ? `Voulez-vous vraiment annuler la commande ${cancelTarget.orderNumber} (table ${cancelTarget.table?.number}) ? Cette action est definitive.`
+            ? `Voulez-vous vraiment annuler la commande ${cancelTarget.orderNumber} (${libelleProvenance(cancelTarget)}) ? Cette action est définitive.`
             : ''
         }
         confirmLabel="Annuler la commande"

@@ -18,6 +18,7 @@ import {
 } from '../../components/ui';
 import { ORDER_STATUS, PERIOD_OPTIONS } from '../../utils/constants';
 import { formatDateTime, formatMoney } from '../../utils/format';
+import { libelleCourt, libelleProvenance } from '../../utils/order';
 
 const INITIAL_FILTERS = {
   period: 'today',
@@ -165,14 +166,14 @@ export default function AdminHistoryPage() {
           )}
 
           <Button variant="secondary" onClick={() => updateFilter(INITIAL_FILTERS)}>
-            Reinitialiser les filtres
+            Réinitialiser les filtres
           </Button>
         </div>
       </Card>
 
       {pagination && (
         <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
-          <StatCard label="Commandes trouvees" value={pagination.total} tone="brand" />
+          <StatCard label="Commandes trouvées" value={pagination.total} tone="brand" />
           <StatCard label="CA sur cette page" value={formatMoney(revenue, currency)} tone="emerald" />
           <StatCard
             label="Page"
@@ -188,7 +189,7 @@ export default function AdminHistoryPage() {
         <ErrorState message={error.message} onRetry={load} isNetwork={error.isNetwork} />
       ) : orders.length === 0 ? (
         <Card>
-          <EmptyState title="Aucune commande" description="Aucune commande ne correspond a ces criteres." />
+          <EmptyState title="Aucune commande" description="Aucune commande ne correspond à ces critères." />
         </Card>
       ) : (
         <>
@@ -197,7 +198,7 @@ export default function AdminHistoryPage() {
               <thead>
                 <tr className="border-b border-ink-100 text-left text-xs uppercase tracking-wide text-ink-500">
                   <th className="px-4 py-3 font-semibold">Commande</th>
-                  <th className="px-4 py-3 font-semibold">Table</th>
+                  <th className="px-4 py-3 font-semibold">Origine</th>
                   <th className="px-4 py-3 font-semibold">Client</th>
                   <th className="px-4 py-3 font-semibold">Serveuse</th>
                   <th className="px-4 py-3 font-semibold">Statut</th>
@@ -212,7 +213,7 @@ export default function AdminHistoryPage() {
                       <p className="font-semibold text-ink-900">{order.orderNumber}</p>
                       <p className="text-xs text-ink-500">{formatDateTime(order.createdAt)}</p>
                     </td>
-                    <td className="px-4 py-3 text-ink-700">{order.table?.number}</td>
+                    <td className="px-4 py-3 text-ink-700">{libelleCourt(order)}</td>
                     <td className="px-4 py-3 text-ink-700">{order.customerName || '-'}</td>
                     <td className="px-4 py-3 text-ink-700">{order.server?.fullName || '-'}</td>
                     <td className="px-4 py-3">
@@ -229,7 +230,7 @@ export default function AdminHistoryPage() {
                           type="button"
                           onClick={() => setDetail(order)}
                           className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
-                          aria-label="Voir le detail"
+                          aria-label="Voir le détail"
                         >
                           <Eye size={16} />
                         </button>
@@ -257,7 +258,7 @@ export default function AdminHistoryPage() {
                 disabled={page <= 1}
                 onClick={() => setPage((value) => value - 1)}
               >
-                Precedent
+                Précédent
               </Button>
               <span className="px-3 text-sm text-ink-600">
                 Page {pagination.page} sur {pagination.totalPages}
@@ -279,7 +280,7 @@ export default function AdminHistoryPage() {
         open={Boolean(detail)}
         onClose={() => setDetail(null)}
         title={detail?.orderNumber}
-        subtitle={detail ? `Table ${detail.table?.number} - ${formatDateTime(detail.createdAt)}` : ''}
+        subtitle={detail ? `${libelleProvenance(detail)} - ${formatDateTime(detail.createdAt)}` : ''}
         footer={
           detail && (
             <Button icon={Printer} onClick={() => print(detail)}>

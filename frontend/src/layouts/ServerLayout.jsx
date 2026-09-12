@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutGrid, ClipboardList, BellRing, LogOut, ChefHat } from 'lucide-react';
+import { LayoutGrid, ClipboardList, BellRing, UtensilsCrossed, LogOut, ChefHat } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useSocketEvent from '../hooks/useSocketEvent';
 import useNotificationSound from '../hooks/useNotificationSound';
 import useVoiceAnnouncer from '../hooks/useVoiceAnnouncer';
 import { annonceCommande, annonceDemande } from '../utils/announcements';
+import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import { initials } from '../utils/format';
@@ -16,9 +17,10 @@ const LINKS = [
   { to: '/serveuse/dashboard', label: 'Tableau', icon: LayoutGrid },
   { to: '/serveuse/commandes', label: 'Commandes', icon: ClipboardList },
   { to: '/serveuse/demandes', label: 'Demandes', icon: BellRing },
+  { to: '/serveuse/carte', label: 'Carte', icon: UtensilsCrossed },
 ];
 
-/** Interface de la serveuse : pensee pour un usage tablette / telephone. */
+/** Interface de la serveuse : pensee pour un usage tablette / téléphone. */
 export default function ServerLayout() {
   const { user, restaurant, logout } = useAuth();
   const toast = useToast();
@@ -30,13 +32,13 @@ export default function ServerLayout() {
     applyBrandColor(restaurant?.primaryColor);
   }, [restaurant]);
 
-  // Le signal sonore attire l'attention, la voix donne le detail, et l'alerte
-  // reste a l'ecran tant qu'elle n'a pas ete fermee a la main.
+  // Le signal sonore attire l'attention, la voix donne le détail, et l'alerte
+  // reste à l'écran tant qu'elle n'a pas été fermee à la main.
   useSocketEvent('new_order', (order) => {
     playSound('order');
     voice.announce(annonceCommande(order));
     toast.alerte(
-      `Nouvelle commande ${order.orderNumber} - Table ${order.table?.number}`,
+      `Nouvelle commande ${order.orderNumber} - ${libelleProvenance(order)}`,
       'info',
       voice.stop
     );
@@ -55,7 +57,7 @@ export default function ServerLayout() {
   });
 
   useSocketEvent('order_assigned', (order) => {
-    toast.info(`La commande ${order.orderNumber} vous a ete attribuee`);
+    toast.info(`La commande ${order.orderNumber} vous a été attribuée`);
   });
 
   const handleLogout = async () => {
@@ -87,13 +89,13 @@ export default function ServerLayout() {
             type="button"
             onClick={handleLogout}
             className="rounded-xl p-2.5 text-ink-500 transition hover:bg-red-50 hover:text-red-600"
-            aria-label="Deconnexion"
+            aria-label="Déconnexion"
           >
             <LogOut size={18} />
           </button>
         </div>
 
-        {/* Navigation principale : onglets en haut sur grand ecran */}
+        {/* Navigation principale : onglets en haut sur grand écran */}
         <nav className="mx-auto hidden max-w-6xl gap-1 px-4 pb-2 sm:flex">
           {LINKS.map((link) => (
             <NavLink

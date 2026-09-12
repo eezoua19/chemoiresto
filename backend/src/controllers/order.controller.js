@@ -11,12 +11,13 @@ const {
   changeStatus,
   serializeOrder,
   serializeOrderForClient,
+  libelleProvenance,
 } = require('../services/order.service');
-const { loadTableByToken } = require('./public.controller');
+const { loadTableByToken, loadRestaurantByTakeawayToken } = require('./public.controller');
 const { createNotification } = require('../services/notification.service');
 const { emitToStaff, emitToUser, emitToOrder, emitToTable } = require('../sockets');
 
-/** Evenement Socket.IO associe a chaque statut. */
+/** Événement Socket.IO associe à chaque statut. */
 const STATUS_EVENT = {
   ACCEPTED: 'order_accepted',
   PREPARING: 'order_preparing',
@@ -27,11 +28,11 @@ const STATUS_EVENT = {
 
 const STATUS_LABEL = {
   NEW: 'Nouvelle',
-  ACCEPTED: 'Acceptee',
-  PREPARING: 'En preparation',
-  READY: 'Prete',
+  ACCEPTED: 'Acceptée',
+  PREPARING: 'En préparation',
+  READY: 'Prête',
   SERVED: 'Servie',
-  CANCELLED: 'Annulee',
+  CANCELLED: 'Annulée',
 };
 
 // ---------------------------------------------------------------------------
@@ -41,16 +42,20 @@ const STATUS_LABEL = {
 /**
  * POST /api/orders  (route publique)
  *
- * Le serveur revalide integralement la demande :
+ * Le serveur revalide intégralement la demande :
  * table active -> produits existants -> presents au menu du jour ->
  * disponibles -> prix relus en base -> total recalcule.
  * Aucun montant envoye par le frontend n'est utilise.
  */
 const create = asyncHandler(async (req, res) => {
-  const { tableToken, items, customerName, comment } = req.body;
+  const { tableToken, takeawayToken, items, customerName, customerPhone, comment } = req.body;
 
-  const table = await loadTableByToken(tableToken);
-  const restaurant = table.restaurant;
+  // Le validateur garantit qu'un seul des deux jetons est present.
+  const emporter = Boolean(takeawayToken);
+  const table = emporter ? null : await loadTableByToken(tableToken);
+  const restaurant = emporter
+    ? await loadRestaurantByTakeawayToken(takeawayToken)
+    : table.restaurant;
 
   const menu = await getMenuByDate(restaurant.id, new Date());
   if (!menu || !menu.isPublished) {
@@ -62,33 +67,42 @@ const create = asyncHandler(async (req, res) => {
   const order = await createOrder({
     restaurant,
     table,
+    type: emporter ? 'TAKEAWAY' : 'DINE_IN',
     lines,
     subtotal,
     total,
     customerName,
+    customerPhone: emporter ? customerPhone : null,
     comment,
   });
 
   const payload = serializeOrder(order);
+  const provenance = libelleProvenance(payload);
 
-  // Temps reel : le personnel recoit la commande immediatement.
+  // Temps réel : le personnel reçoit la commande immédiatement.
   emitToStaff(restaurant.id, 'new_order', payload);
   await createNotification({
     restaurantId: restaurant.id,
     type: 'NEW_ORDER',
-    title: `Nouvelle commande - Table ${table.number}`,
+    title: `Nouvelle commande - ${provenance}`,
     body: `${payload.orderNumber} - ${payload.total} ${payload.currency}`,
-    data: { orderId: order.id, orderNumber: order.orderNumber, tableNumber: table.number },
+    data: {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      type: order.type,
+      pickupCode: order.pickupCode,
+      tableNumber: table ? table.number : null,
+    },
   });
 
-  return created(res, serializeOrderForClient(order), 'Commande envoyee');
+  return created(res, serializeOrderForClient(order), 'Commande envoyée');
 });
 
 // ---------------------------------------------------------------------------
 // PERSONNEL : consultation
 // ---------------------------------------------------------------------------
 
-/** Construit le filtre de periode a partir des parametres de requete. */
+/** Construit le filtre de période à partir des paramètres de requete. */
 function buildPeriodFilter({ period, from, to }) {
   if (!period || period === 'all') {
     if (from || to) {
@@ -148,7 +162,7 @@ function buildPeriodFilter({ period, from, to }) {
 /** GET /api/orders */
 const list = asyncHandler(async (req, res) => {
   const restaurantId = req.user.restaurantId;
-  const { status, tableId, serverId, search, mine, page, pageSize } = req.query;
+  const { status, tableId, type, serverId, search, mine, page, pageSize } = req.query;
 
   const createdAt = buildPeriodFilter(req.query);
   const statusList = status ? (Array.isArray(status) ? status : [status]) : undefined;
@@ -158,6 +172,7 @@ const list = asyncHandler(async (req, res) => {
     ...(statusList ? { status: { in: statusList } } : {}),
     ...(createdAt ? { createdAt } : {}),
     ...(tableId ? { tableId } : {}),
+    ...(type ? { type } : {}),
     ...(serverId ? { serverId } : {}),
     ...(mine === 'true' ? { serverId: req.user.id } : {}),
     ...(search
@@ -165,6 +180,7 @@ const list = asyncHandler(async (req, res) => {
           OR: [
             { orderNumber: { contains: search } },
             { customerName: { contains: search } },
+            { pickupCode: { contains: search } },
             { table: { number: { contains: search } } },
           ],
         }
@@ -188,7 +204,7 @@ const list = asyncHandler(async (req, res) => {
       orders: orders.map(serializeOrder),
       pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) || 1 },
     },
-    'Commandes recuperees'
+    'Commandes récupérées'
   );
 });
 
@@ -233,7 +249,7 @@ const board = asyncHandler(async (req, res) => {
         served: servedCount,
       },
     },
-    'Tableau des commandes recupere'
+    'Tableau des commandes récupéré'
   );
 });
 
@@ -244,7 +260,7 @@ const detail = asyncHandler(async (req, res) => {
     include: orderInclude,
   });
   if (!order) throw ApiError.notFound('Commande introuvable');
-  return success(res, serializeOrder(order), 'Commande recuperee');
+  return success(res, serializeOrder(order), 'Commande récupérée');
 });
 
 // ---------------------------------------------------------------------------
@@ -261,15 +277,15 @@ const updateStatus = asyncHandler(async (req, res) => {
 
   const { status, comment } = req.body;
 
-  // Une serveuse ne traite que ses commandes ou celles encore libres.
+  // Une serveuse ne traité que ses commandes ou celles encore libres.
   if (req.user.role === 'SERVER' && order.serverId && order.serverId !== req.user.id) {
-    throw ApiError.forbidden('Cette commande est attribuee a une autre serveuse');
+    throw ApiError.forbidden('Cette commande est attribuée à une autre serveuse');
   }
 
   const updated = await changeStatus({ order, nextStatus: status, user: req.user, comment });
   const payload = serializeOrder(updated);
 
-  // Temps reel : personnel + client suivant la commande + table.
+  // Temps réel : personnel + client suivant la commande + table.
   emitToStaff(order.restaurantId, 'order_updated', payload);
   emitToStaff(order.restaurantId, STATUS_EVENT[status], payload);
   emitToOrder(updated.trackingToken, 'order_status', serializeOrderForClient(updated));
@@ -293,7 +309,7 @@ const assign = asyncHandler(async (req, res) => {
     const server = await prisma.user.findFirst({
       where: { id: serverId, restaurantId, status: 'ACTIVE' },
     });
-    if (!server) throw ApiError.badRequest('Serveuse invalide ou desactivee');
+    if (!server) throw ApiError.badRequest('Serveuse invalide ou désactivée');
   }
 
   const updated = await prisma.order.update({
@@ -311,13 +327,13 @@ const assign = asyncHandler(async (req, res) => {
       restaurantId,
       userId: serverId,
       type: 'SYSTEM',
-      title: `Commande ${updated.orderNumber} vous a ete attribuee`,
-      body: `Table ${payload.table ? payload.table.number : '?'}`,
+      title: `Commande ${updated.orderNumber} vous a été attribuée`,
+      body: libelleProvenance(payload),
       data: { orderId: updated.id },
     });
   }
 
-  return success(res, payload, serverId ? 'Commande attribuee' : 'Attribution retiree');
+  return success(res, payload, serverId ? 'Commande attribuée' : 'Attribution retirée');
 });
 
 module.exports = { create, list, board, detail, updateStatus, assign, buildPeriodFilter };

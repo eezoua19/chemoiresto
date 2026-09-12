@@ -7,7 +7,7 @@ const { getMenuByDate, serializeMenuForClient } = require('../services/menu.serv
 const { serializeOrderForClient, orderInclude } = require('../services/order.service');
 
 /**
- * Charge une table a partir de son jeton QR Code et verifie qu'elle est active.
+ * Charge une table à partir de son jeton QR Code et vérifie qu'elle est active.
  * Fonction partagee par toutes les routes publiques (menu, commande, appel).
  */
 async function loadTableByToken(token) {
@@ -18,18 +18,54 @@ async function loadTableByToken(token) {
 
   if (!table) throw ApiError.notFound('QR Code invalide ou table inconnue');
   if (table.status !== 'ACTIVE') {
-    throw ApiError.forbidden('Cette table est actuellement desactivee. Appelez un serveur.');
+    throw ApiError.forbidden('Cette table est actuellement désactivée. Appelez un serveur.');
   }
   if (!table.restaurant.isActive) {
-    throw ApiError.forbidden('Ce restaurant est momentanement ferme');
+    throw ApiError.forbidden('Ce restaurant est momentanément fermé');
   }
 
   return table;
 }
 
 /**
+ * Charge un restaurant à partir du jeton de l'affiche "a emporter".
+ * Meme role que loadTableByToken, mais pour un client qui n'occupe aucune table.
+ */
+async function loadRestaurantByTakeawayToken(token) {
+  const restaurant = await prisma.restaurant.findUnique({ where: { takeawayToken: token } });
+
+  if (!restaurant) throw ApiError.notFound('QR Code invalide');
+  if (!restaurant.isActive) {
+    throw ApiError.forbidden('Ce restaurant est momentanément fermé');
+  }
+  if (!restaurant.takeawayEnabled) {
+    throw ApiError.forbidden(
+      'Les commandes à emporter sont fermées pour le moment. Adressez-vous au comptoir.'
+    );
+  }
+
+  return restaurant;
+}
+
+/** Partie commune aux deux entrées publiques : la fiche du restaurant. */
+function ficheRestaurant(restaurant) {
+  return {
+    id: restaurant.id,
+    name: restaurant.name,
+    logo: restaurant.logo,
+    description: restaurant.description,
+    address: restaurant.address,
+    phone: restaurant.phone,
+    currency: restaurant.currency,
+    primaryColor: restaurant.primaryColor,
+    welcomeMessage: restaurant.welcomeMessage,
+    openingHours: restaurant.openingHours,
+  };
+}
+
+/**
  * GET /api/menu/table/:token
- * Point d'entree du client apres le scan du QR Code.
+ * Point d'entrée du client après le scan du QR Code.
  * Identifie la table, le restaurant, puis renvoie le menu de la date du jour.
  */
 const getMenuByTableToken = asyncHandler(async (req, res) => {
@@ -43,18 +79,8 @@ const getMenuByTableToken = asyncHandler(async (req, res) => {
   return success(
     res,
     {
-      restaurant: {
-        id: restaurant.id,
-        name: restaurant.name,
-        logo: restaurant.logo,
-        description: restaurant.description,
-        address: restaurant.address,
-        phone: restaurant.phone,
-        currency: restaurant.currency,
-        primaryColor: restaurant.primaryColor,
-        welcomeMessage: restaurant.welcomeMessage,
-        openingHours: restaurant.openingHours,
-      },
+      restaurant: ficheRestaurant(restaurant),
+      service: 'DINE_IN',
       table: {
         id: table.id,
         number: table.number,
@@ -64,14 +90,40 @@ const getMenuByTableToken = asyncHandler(async (req, res) => {
       date: formatDate(date),
       menu: serializeMenuForClient(published, restaurant),
     },
-    published ? 'Menu du jour recupere' : 'Le menu du jour n\'est pas encore disponible'
+    published ? 'Menu du jour récupéré' : 'Le menu du jour n\'est pas encore disponible'
+  );
+});
+
+/**
+ * GET /api/menu/emporter/:token
+ * Meme menu que celui des tables, mais sans table : le client commande au
+ * comptoir et repart avec un code de retrait.
+ */
+const getTakeawayMenu = asyncHandler(async (req, res) => {
+  const restaurant = await loadRestaurantByTakeawayToken(req.params.token);
+
+  const date = today();
+  const menu = await getMenuByDate(restaurant.id, date);
+  const published = menu && menu.isPublished ? menu : null;
+
+  return success(
+    res,
+    {
+      restaurant: ficheRestaurant(restaurant),
+      service: 'TAKEAWAY',
+      table: null,
+      takeawayToken: restaurant.takeawayToken,
+      date: formatDate(date),
+      menu: serializeMenuForClient(published, restaurant),
+    },
+    published ? 'Menu du jour récupéré' : 'Le menu du jour n\'est pas encore disponible'
   );
 });
 
 /**
  * GET /api/menu/table/:token/orders
  * Commandes en cours passees depuis cette table aujourd'hui.
- * Permet au client de retrouver son suivi meme apres avoir ferme la page.
+ * Permet au client de retrouver son suivi même après avoir ferme la page.
  */
 const getTableOrders = asyncHandler(async (req, res) => {
   const table = await loadTableByToken(req.params.token);
@@ -86,7 +138,7 @@ const getTableOrders = asyncHandler(async (req, res) => {
     include: orderInclude,
   });
 
-  return success(res, orders.map(serializeOrderForClient), 'Commandes de la table recuperees');
+  return success(res, orders.map(serializeOrderForClient), 'Commandes de la table récupérées');
 });
 
 /**
@@ -100,7 +152,14 @@ const trackOrder = asyncHandler(async (req, res) => {
   });
   if (!order) throw ApiError.notFound('Commande introuvable');
 
-  return success(res, serializeOrderForClient(order), 'Commande recuperee');
+  return success(res, serializeOrderForClient(order), 'Commande récupérée');
 });
 
-module.exports = { loadTableByToken, getMenuByTableToken, getTableOrders, trackOrder };
+module.exports = {
+  loadTableByToken,
+  loadRestaurantByTakeawayToken,
+  getMenuByTableToken,
+  getTakeawayMenu,
+  getTableOrders,
+  trackOrder,
+};

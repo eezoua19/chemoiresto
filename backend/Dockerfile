@@ -16,7 +16,7 @@ RUN npm ci --omit=dev
 
 # Client Prisma : genere a partir du schema
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN ./node_modules/.bin/prisma generate
 
 # Code applicatif
 COPY src ./src
@@ -31,4 +31,4 @@ ENV PORT=4000
 EXPOSE 4000
 
 # Applique les migrations en attente avant de demarrer l'API.
-CMD ["sh", "-c", "npx prisma migrate deploy && node src/server.js"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node src/server.js"]

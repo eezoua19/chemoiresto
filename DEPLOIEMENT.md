@@ -59,6 +59,18 @@ Railway héberge **la base MySQL et l'API au même endroit** : un seul compte, e
 2. **New Project** → **Provision MySQL**
 3. La base est créée avec ses variables (`MYSQL_URL`, `MYSQLHOST`, …)
 
+### Autoriser Railway sur le dépôt (dépôt privé)
+
+Si votre dépôt GitHub est **privé**, Railway ne le voit pas tant que son application GitHub n'y a pas accès. Sans cette étape, le build échoue immédiatement, sans aucun log Docker — le builder est programmé puis abandonne avant même de récupérer la source.
+
+https://github.com/apps/railway-app/installations/new → sélectionnez le dépôt.
+
+Symptôme en ligne de commande :
+
+```
+User does not have access to the repo
+```
+
 ### Créer le service API
 
 1. Dans le même projet : **New** → **GitHub Repo** → sélectionnez votre dépôt

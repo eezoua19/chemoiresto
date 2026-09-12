@@ -13,7 +13,8 @@
     "prisma:studio": "prisma studio",
     "seed": "node prisma/seed.js",
     "test": "node --test --test-concurrency=1 tests/*.test.js",
-    "test:e2e": "node tests/workflow.e2e.js"
+    "test:e2e": "node tests/workflow.e2e.js",
+    "backup": "node scripts/backup.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

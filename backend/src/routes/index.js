@@ -12,6 +12,7 @@ const serviceRequestRoutes = require('./serviceRequest.routes');
 const notificationRoutes = require('./notification.routes');
 const restaurantRoutes = require('./restaurant.routes');
 const publicRoutes = require('./public.routes');
+const backupRoutes = require('./backup.routes');
 
 const router = express.Router();
 
@@ -34,5 +35,6 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/service-requests', serviceRequestRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/restaurant', restaurantRoutes);
+router.use('/backup', backupRoutes);
 
 module.exports = router;

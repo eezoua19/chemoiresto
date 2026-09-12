@@ -35,7 +35,7 @@ const login = asyncHandler(async (req, res) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw ApiError.unauthorized('Email ou mot de passe incorrect');
 
-  if (user.status !== 'ACTIVE') throw ApiError.forbidden('Ce compte est desactive');
+  if (user.status !== 'ACTIVE') throw ApiError.forbidden('Ce compte est désactivé');
 
   await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
 
@@ -46,7 +46,7 @@ const login = asyncHandler(async (req, res) => {
   return success(
     res,
     { token, user: publicUser(user), restaurant: user.restaurant },
-    'Connexion reussie'
+    'Connexion réussie'
   );
 });
 
@@ -56,14 +56,14 @@ const me = asyncHandler(async (req, res) => {
     where: { id: req.user.restaurantId },
     select: { id: true, name: true, slug: true, currency: true, logo: true, primaryColor: true },
   });
-  return success(res, { user: publicUser(req.user), restaurant }, 'Profil recupere');
+  return success(res, { user: publicUser(req.user), restaurant }, 'Profil récupéré');
 });
 
 /**
  * POST /api/auth/logout
- * Les JWT sont sans etat : la deconnexion se fait cote client en supprimant le
+ * Les JWT sont sans état : la deconnexion se fait côté client en supprimant le
  * jeton. Cette route existe pour tracer l'action et uniformiser le contrat API.
  */
-const logout = asyncHandler(async (_req, res) => success(res, null, 'Deconnexion reussie'));
+const logout = asyncHandler(async (_req, res) => success(res, null, 'Déconnexion réussie'));
 
 module.exports = { login, me, logout, publicUser };

@@ -27,7 +27,7 @@ function toNumber(value) {
 
 /**
  * Normalise une date (chaine "YYYY-MM-DD" ou Date) vers minuit UTC.
- * Les menus quotidiens sont stockes en colonne DATE : on evite ainsi
+ * Les menus quotidiens sont stockes en colonne DATE : on évite ainsi
  * tout decalage de fuseau horaire entre le client et le serveur.
  */
 function normalizeDate(input) {
@@ -54,7 +54,7 @@ function formatDate(date) {
   return `${y}-${m}-${day}`;
 }
 
-/** Bornes [debut, fin[ d'une journee locale, pour filtrer les commandes. */
+/** Bornes [debut, fin[ d'une journée locale, pour filtrer les commandes. */
 function dayRange(dateInput) {
   const base = dateInput ? new Date(dateInput) : new Date();
   const start = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 0, 0, 0, 0);

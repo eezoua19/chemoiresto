@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { startServer, stopServer, api, login } = require('./helpers');
 
-test('Tableau de bord : periode mensuelle', async (suite) => {
+test('Tableau de bord : période mensuelle', async (suite) => {
   await startServer();
   suite.after(() => stopServer());
 
@@ -12,7 +12,7 @@ test('Tableau de bord : periode mensuelle', async (suite) => {
   const maintenant = new Date();
   const moisCourant = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}`;
 
-  await suite.test('une serveuse n\'accede pas au tableau de bord', async () => {
+  await suite.test('une serveuse n\'accède pas au tableau de bord', async () => {
     const result = await api('/api/dashboard/stats', { token: serveuse.token });
     assert.equal(result.status, 403);
   });
@@ -24,7 +24,7 @@ test('Tableau de bord : periode mensuelle', async (suite) => {
     assert.equal(result.data.period.isCurrent, true);
   });
 
-  await suite.test('un mois passe est accepte et n\'est pas marque courant', async () => {
+  await suite.test('un mois passe est accepté et n\'est pas marque courant', async () => {
     const result = await api('/api/dashboard/stats?month=2026-01', { token: admin.token });
     assert.equal(result.status, 200);
     assert.equal(result.data.period.month, '2026-01');
@@ -34,7 +34,7 @@ test('Tableau de bord : periode mensuelle', async (suite) => {
 
   await suite.test('le graphique couvre tous les jours du mois demande', async () => {
     // Janvier a 31 jours, fevrier 2026 en a 28 : la grille doit suivre le
-    // calendrier reel et non une fenetre fixe.
+    // calendrier réel et non une fenêtre fixe.
     const janvier = await api('/api/dashboard/stats?month=2026-01', { token: admin.token });
     const fevrier = await api('/api/dashboard/stats?month=2026-02', { token: admin.token });
     assert.equal(janvier.data.charts.daily.length, 31);
@@ -50,8 +50,8 @@ test('Tableau de bord : periode mensuelle', async (suite) => {
     }
   });
 
-  await suite.test('un mois sans activite renvoie des compteurs a zero', async () => {
-    // Mois anterieur a toute commande : les totaux doivent etre nuls, pas nuls
+  await suite.test('un mois sans activité renvoie des compteurs a zero', async () => {
+    // Mois anterieur à toute commande : les totaux doivent être nuls, pas nuls
     // au sens absent.
     const result = await api('/api/dashboard/stats?month=2020-05', { token: admin.token });
     assert.equal(result.status, 200);
@@ -62,14 +62,14 @@ test('Tableau de bord : periode mensuelle', async (suite) => {
     assert.equal(result.data.period.bestDay, null);
   });
 
-  await suite.test('un mois mal forme est refuse', async () => {
+  await suite.test('un mois mal forme est refusé', async () => {
     for (const invalide of ['2026-13', '2026-00', 'septembre', '26-09', '2026-9']) {
       const result = await api(`/api/dashboard/stats?month=${invalide}`, { token: admin.token });
-      assert.equal(result.status, 400, `${invalide} aurait du etre refuse`);
+      assert.equal(result.status, 400, `${invalide} aurait du être refusé`);
     }
   });
 
-  await suite.test('le bloc du jour reste celui du jour reel', async () => {
+  await suite.test('le bloc du jour reste celui du jour réel', async () => {
     // Meme en consultant un mois passe : ce bloc sert au service en cours.
     const result = await api('/api/dashboard/stats?month=2026-01', { token: admin.token });
     const aujourdhui = new Date().toISOString().slice(0, 10);

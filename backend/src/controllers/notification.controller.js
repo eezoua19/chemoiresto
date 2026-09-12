@@ -15,20 +15,20 @@ const list = asyncHandler(async (req, res) => {
       ...notification,
       data: notification.data ? JSON.parse(notification.data) : null,
     })),
-    'Notifications recuperees'
+    'Notifications récupérées'
   );
 });
 
 /** PUT /api/notifications/:id/read */
 const markRead = asyncHandler(async (req, res) => {
   await service.markAsRead(Number(req.params.id), req.user.restaurantId);
-  return success(res, null, 'Notification marquee comme lue');
+  return success(res, null, 'Notification marquée comme lue');
 });
 
 /** PUT /api/notifications/read-all */
 const markAllRead = asyncHandler(async (req, res) => {
   await service.markAllAsRead(req.user.restaurantId, req.user.id);
-  return success(res, null, 'Toutes les notifications ont ete marquees comme lues');
+  return success(res, null, 'Toutes les notifications ont été marquées comme lues');
 });
 
 module.exports = { list, markRead, markAllRead };

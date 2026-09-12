@@ -66,7 +66,7 @@ export default function AdminQRCodesPage() {
     <div>
       <PageHeader
         title="QR Codes"
-        subtitle="A imprimer et poser sur chaque table"
+        subtitle="À imprimer et poser sur chaque table"
         icon={QrCode}
         action={
           tables.length > 0 && (
@@ -82,7 +82,7 @@ export default function AdminQRCodesPage() {
           <EmptyState
             icon={QrCode}
             title="Aucun QR Code"
-            description="Creez d'abord vos tables : chacune recoit automatiquement un QR Code."
+            description="Créez d'abord vos tables : chacune reçoit automatiquement un QR Code."
           />
         </Card>
       ) : (
@@ -103,7 +103,7 @@ export default function AdminQRCodesPage() {
               <p className="text-xs text-ink-500">Scannez pour consulter le menu</p>
 
               {table.status !== 'ACTIVE' && (
-                <span className="badge mt-2 bg-ink-100 text-ink-500">Table desactivee</span>
+                <span className="badge mt-2 bg-ink-100 text-ink-500">Table désactivée</span>
               )}
 
               <div className="mt-4 flex w-full flex-wrap justify-center gap-1.5">
@@ -115,7 +115,7 @@ export default function AdminQRCodesPage() {
                   download={`qr-table-${table.number}.png`}
                   className="btn-secondary text-xs"
                 >
-                  <Download size={14} /> Telecharger
+                  <Download size={14} /> Télécharger
                 </a>
                 <Button variant="secondary" className="text-xs" onClick={() => printAll([table])}>
                   <Printer size={14} /> Imprimer
@@ -139,7 +139,7 @@ export default function AdminQRCodesPage() {
                 download={`qr-table-${preview.number}.png`}
                 className="btn-secondary"
               >
-                <Download size={16} /> Telecharger
+                <Download size={16} /> Télécharger
               </a>
               <Button icon={Printer} onClick={() => printAll([preview])}>
                 Imprimer

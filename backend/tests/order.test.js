@@ -11,7 +11,7 @@ const {
   prisma,
 } = require('./helpers');
 
-test('Commandes : calcul, temps reel, workflow et historique des prix', async (suite) => {
+test('Commandes : calcul, temps réel, workflow et historique des prix', async (suite) => {
   await startServer();
   suite.after(() => stopServer());
 
@@ -24,10 +24,10 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     where: { restaurantId: admin.user.restaurantId, status: 'ACTIVE' },
     orderBy: { number: 'asc' },
   });
-  assert.ok(table, 'le seed doit avoir cree des tables');
+  assert.ok(table, 'le seed doit avoir créé des tables');
 
   const menuResponse = await api(`/api/menu/table/${table.token}`);
-  assert.ok(menuResponse.data.menu, 'un menu du jour doit etre publie');
+  assert.ok(menuResponse.data.menu, 'un menu du jour doit être publié');
 
   const menuItems = menuResponse.data.menu.items;
   const withOptions = menuItems.find((item) => item.options.some((group) => group.values.length > 0));
@@ -79,27 +79,27 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     });
 
     assert.equal(result.status, 201);
-    assert.equal(result.data.total, expectedTotal, 'le total doit etre recalcule cote serveur');
+    assert.equal(result.data.total, expectedTotal, 'le total doit être recalcule côté serveur');
     assert.match(result.data.orderNumber, /^CMD-\d{8}-\d{4}$/);
-    assert.ok(result.data.trackingToken, 'un jeton de suivi doit etre fourni');
+    assert.ok(result.data.trackingToken, 'un jeton de suivi doit être fourni');
 
     order = result.data;
     createdOrderIds.push(order.id);
 
-    // -- temps reel : la serveuse recoit la commande
+    // -- temps réel : la serveuse reçoit la commande
     const event = await notified;
     assert.equal(event.orderNumber, order.orderNumber);
     assert.equal(event.table.number, table.number);
   });
 
-  await suite.test('le prix des options est bien ajoute a chaque ligne', async () => {
+  await suite.test('le prix des options est bien ajouté a chaque ligne', async () => {
     const line = order.items.find((item) => item.productId === withOptions.productId);
     assert.equal(line.quantity, 2);
     assert.equal(line.lineTotal, (line.unitPrice + line.optionsTotal) * 2);
-    assert.ok(line.options.length > 0, 'les options choisies doivent etre enregistrees');
+    assert.ok(line.options.length > 0, 'les options choisies doivent être enregistrées');
   });
 
-  await suite.test('panier vide refuse (400)', async () => {
+  await suite.test('panier vide refusé (400)', async () => {
     const result = await api('/api/orders', {
       method: 'POST',
       body: { tableToken: table.token, items: [] },
@@ -107,7 +107,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     assert.equal(result.status, 400);
   });
 
-  await suite.test('quantite invalide refusee (400)', async () => {
+  await suite.test('quantité invalide refusée (400)', async () => {
     const result = await api('/api/orders', {
       method: 'POST',
       body: { tableToken: table.token, items: [{ productId: simple.productId, quantity: 0 }] },
@@ -115,13 +115,13 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     assert.equal(result.status, 400);
   });
 
-  await suite.test('produit absent du menu du jour refuse (400)', async () => {
+  await suite.test('produit absent du menu du jour refusé (400)', async () => {
     const menuProductIds = new Set(menuItems.map((item) => item.productId));
     const outside = await prisma.product.findFirst({
       where: { restaurantId: admin.user.restaurantId, id: { notIn: [...menuProductIds] } },
     });
 
-    if (!outside) return; // tous les produits sont au menu : rien a verifier
+    if (!outside) return; // tous les produits sont au menu : rien à vérifier
 
     const result = await api('/api/orders', {
       method: 'POST',
@@ -131,7 +131,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     assert.match(result.message, /menu du jour/i);
   });
 
-  await suite.test('produit indisponible refuse (400)', async () => {
+  await suite.test('produit indisponible refusé (400)', async () => {
     await api(`/api/products/${simple.productId}/availability`, {
       method: 'PATCH',
       token: admin.token,
@@ -151,7 +151,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     });
   });
 
-  await suite.test('option inconnue refusee (400)', async () => {
+  await suite.test('option inconnue refusée (400)', async () => {
     const result = await api('/api/orders', {
       method: 'POST',
       body: {
@@ -162,7 +162,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     assert.equal(result.status, 400);
   });
 
-  await suite.test('le client suit sa commande en temps reel', async () => {
+  await suite.test('le client suit sa commande en temps réel', async () => {
     clientSocket = await connectSocket(null);
     clientSocket.emit('track_order', order.trackingToken);
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -187,7 +187,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     }
   });
 
-  await suite.test('transition de statut invalide refusee (400)', async () => {
+  await suite.test('transition de statut invalide refusée (400)', async () => {
     const result = await api(`/api/orders/${order.id}/status`, {
       method: 'PUT',
       token: server.token,
@@ -197,7 +197,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     assert.match(result.message, /Transition impossible/i);
   });
 
-  await suite.test('la commande est attribuee automatiquement a la serveuse qui accepte', async () => {
+  await suite.test('la commande est attribuée automatiquement à la serveuse qui accepté', async () => {
     const result = await api(`/api/orders/${order.id}`, { token: admin.token });
     assert.equal(result.data.server.id, server.user.id);
   });
@@ -208,7 +208,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     assert.deepEqual(statuses, ['NEW', 'ACCEPTED', 'PREPARING', 'READY', 'SERVED']);
   });
 
-  await suite.test('historique des prix : changer le prix ne modifie pas les commandes passees', async () => {
+  await suite.test('historique des prix : changer le prix ne modifie pas les commandes passées', async () => {
     const productId = withOptions.productId;
     const before = await api(`/api/products/${productId}`, { token: admin.token });
     const oldPrice = before.data.basePrice;
@@ -225,7 +225,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     const orderAfter = await api(`/api/orders/${order.id}`, { token: admin.token });
     const lineAfter = orderAfter.data.items.find((item) => item.productId === productId);
 
-    assert.equal(lineAfter.unitPrice, lineBefore.unitPrice, 'le prix enregistre ne doit pas bouger');
+    assert.equal(lineAfter.unitPrice, lineBefore.unitPrice, 'le prix enregistré ne doit pas bouger');
     assert.equal(orderAfter.data.total, orderBefore.data.total, 'le total ne doit pas bouger');
 
     await api(`/api/products/${productId}`, {
@@ -235,7 +235,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     });
   });
 
-  await suite.test('l\'administrateur attribue une commande a une serveuse', async () => {
+  await suite.test('l\'administrateur attribue une commande à une serveuse', async () => {
     const fresh = await api('/api/orders', {
       method: 'POST',
       body: { tableToken: table.token, items: [{ productId: simple.productId, quantity: 1 }] },
@@ -270,7 +270,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     const result = await api(`/api/orders/track/${order.trackingToken}`);
     assert.equal(result.success, true);
     assert.equal(result.data.orderNumber, order.orderNumber);
-    assert.equal(result.data.statusHistory, undefined, 'pas de donnees internes cote client');
+    assert.equal(result.data.statusHistory, undefined, 'pas de données internes côté client');
   });
 
   await suite.test('le tableau Kanban regroupe les commandes par statut', async () => {
@@ -281,7 +281,7 @@ test('Commandes : calcul, temps reel, workflow et historique des prix', async (s
     assert.equal(typeof result.data.stats.served, 'number');
   });
 
-  await suite.test('des notifications ont ete enregistrees', async () => {
+  await suite.test('des notifications ont été enregistrées', async () => {
     const result = await api('/api/notifications', { token: server.token });
     assert.equal(result.success, true);
     assert.ok(result.data.length > 0);

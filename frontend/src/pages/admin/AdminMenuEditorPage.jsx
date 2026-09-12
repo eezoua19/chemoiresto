@@ -31,8 +31,8 @@ import {
 import { formatLongDate, formatMoney, todayString } from '../../utils/format';
 
 /**
- * Editeur du menu d'une journee.
- * Chaque ligne peut avoir son prix du jour, sa description et son etat
+ * Editeur du menu d'une journée.
+ * Chaque ligne peut avoir son prix du jour, sa description et son état
  * "plat du jour" ; le prix laisse vide reprend le prix de base du produit.
  */
 export default function AdminMenuEditorPage() {
@@ -78,7 +78,7 @@ export default function AdminMenuEditorPage() {
         setItems(
           menuResult.menu.items.map((item) => ({
             productId: item.productId,
-            name: item.product?.name || 'Produit supprime',
+            name: item.product?.name || 'Produit supprimé',
             basePrice: item.product?.basePrice ?? 0,
             price: item.price ?? '',
             description: item.description || '',
@@ -172,10 +172,10 @@ export default function AdminMenuEditorPage() {
 
       if (menu) {
         await menuApi.update(menu.id, payload);
-        toast.success('Menu mis a jour');
+        toast.success('Menu mis à jour');
       } else {
         await menuApi.create({ ...payload, date });
-        toast.success('Menu cree');
+        toast.success('Menu créé');
       }
       await load();
     } catch (err) {
@@ -222,7 +222,7 @@ export default function AdminMenuEditorPage() {
     setSaving(true);
     try {
       await menuApi.remove(menu.id);
-      toast.success('Menu supprime');
+      toast.success('Menu supprimé');
       setDeleteOpen(false);
       navigate('/admin/menus');
     } catch (err) {
@@ -267,7 +267,7 @@ export default function AdminMenuEditorPage() {
               </h1>
               <p className="mt-0.5 text-sm text-ink-500">
                 {menu ? `${items.length} produit(s) au menu` : 'Aucun menu pour cette date'}
-                {isPast && ' - date passee'}
+                {isPast && ' - date passée'}
               </p>
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function AdminMenuEditorPage() {
               </>
             )}
             <Button icon={Save} onClick={save} loading={saving}>
-              {menu ? 'Enregistrer' : 'Creer le menu'}
+              {menu ? 'Enregistrer' : 'Créer le menu'}
             </Button>
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function AdminMenuEditorPage() {
         <Card className="h-fit xl:col-span-1">
           <CardHeader title="Informations" />
           <div className="space-y-4 p-5">
-            <Field label="Titre du menu" hint="Ex : Menu du jour, Special week-end">
+            <Field label="Titre du menu" hint="Ex : Menu du jour, Spécial week-end">
               <Input
                 value={title}
                 maxLength={120}
@@ -322,10 +322,10 @@ export default function AdminMenuEditorPage() {
               <Toggle
                 checked={isPublished}
                 onChange={setIsPublished}
-                label="Menu publie (visible par les clients)"
+                label="Menu publié (visible par les clients)"
               />
               <p className="mt-2 text-xs text-ink-500">
-                Un menu non publie reste modifiable sans etre visible par les clients qui scannent le
+                Un menu non publié reste modifiable sans être visible par les clients qui scannent le
                 QR Code.
               </p>
             </div>
@@ -349,7 +349,7 @@ export default function AdminMenuEditorPage() {
           {items.length === 0 ? (
             <EmptyState
               title="Aucun produit dans ce menu"
-              description="Ajoutez les plats proposes ce jour-la. Seuls ces produits pourront etre commandes."
+              description="Ajoutez les plats proposes ce jour-la. Seuls ces produits pourront être commandes."
               action={<Button onClick={() => setPickerOpen(true)}>Ajouter des produits</Button>}
             />
           ) : (
@@ -474,7 +474,7 @@ export default function AdminMenuEditorPage() {
         {filteredProducts.length === 0 ? (
           <EmptyState
             title="Aucun produit"
-            description="Creez d'abord des produits dans la section Produits."
+            description="Créez d'abord des produits dans la section Produits."
           />
         ) : (
           <div className="space-y-2">
@@ -498,7 +498,7 @@ export default function AdminMenuEditorPage() {
                     <span>
                       <span className="block text-sm font-medium text-ink-900">{product.name}</span>
                       <span className="block text-xs text-ink-500">
-                        {product.category?.name || 'Sans categorie'}
+                        {product.category?.name || 'Sans catégorie'}
                         {!product.isAvailable && ' - indisponible'}
                       </span>
                     </span>
@@ -539,7 +539,7 @@ export default function AdminMenuEditorPage() {
           />
         </Field>
         <p className="mt-3 text-sm text-ink-500">
-          Le menu source reste inchange. Vous pourrez ensuite modifier la copie librement.
+          Le menu source reste inchangé. Vous pourrez ensuite modifier la copie librement.
         </p>
       </Modal>
 
@@ -548,7 +548,7 @@ export default function AdminMenuEditorPage() {
         onClose={() => setDeleteOpen(false)}
         onConfirm={remove}
         title="Supprimer le menu"
-        message={`Supprimer definitivement le menu du ${formatLongDate(date)} ? Les commandes deja passees ne sont pas affectees.`}
+        message={`Supprimer définitivement le menu du ${formatLongDate(date)} ? Les commandes déjà passées ne sont pas affectées.`}
         confirmLabel="Supprimer"
         loading={saving}
       />

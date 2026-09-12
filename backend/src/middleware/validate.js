@@ -2,7 +2,7 @@ const ApiError = require('../utils/apiError');
 
 /**
  * Middleware de validation Zod.
- * Valide et remplace req.body / req.query / req.params par les donnees
+ * Valide et remplace req.body / req.query / req.params par les données
  * nettoyees (types convertis, champs inconnus retires).
  *
  *   router.post('/', validate({ body: createProductSchema }), controller)
@@ -18,7 +18,7 @@ function validate(schemas) {
             field: issue.path.join('.') || key,
             message: issue.message,
           }));
-          throw ApiError.badRequest('Donnees invalides', details);
+          throw ApiError.badRequest('Données invalides', details);
         }
         // req.query est en lecture seule sur Express 5 : on assigne proprement.
         if (key === 'query') {

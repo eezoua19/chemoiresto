@@ -21,7 +21,7 @@ const ALLOWED_STATUSES = {
 
 const TYPE_LABEL = { CALL_SERVER: 'Appel serveuse', BILL: 'Demande d\'addition' };
 
-/** Delai minimum entre deux demandes identiques depuis la meme table. */
+/** Delai minimum entre deux demandes identiques depuis la même table. */
 const ANTI_SPAM_SECONDS = 60;
 
 function serialize(request) {
@@ -52,7 +52,7 @@ const include = {
 /**
  * POST /api/service-requests  (route publique)
  * Le client appelle une serveuse ou demande l'addition.
- * Protection anti-spam : une demande ouverte du meme type bloque les suivantes.
+ * Protection anti-spam : une demande ouverte du même type bloque les suivantes.
  */
 const create = asyncHandler(async (req, res) => {
   const { tableToken, type, message } = req.body;
@@ -69,8 +69,8 @@ const create = asyncHandler(async (req, res) => {
       res,
       serialize(existingOpen),
       type === 'BILL'
-        ? 'Votre demande d\'addition a deja ete transmise'
-        : 'Une serveuse a deja ete appelee et arrive'
+        ? 'Votre demande d\'addition a déjà été transmise'
+        : 'Une serveuse a déjà été appelée et arrive'
     );
   }
 
@@ -82,7 +82,7 @@ const create = asyncHandler(async (req, res) => {
     },
   });
   if (recent) {
-    throw ApiError.tooMany('Votre demande vient d\'etre envoyee. Patientez un instant.');
+    throw ApiError.tooMany('Votre demande vient d\'être envoyée. Patientez un instant.');
   }
 
   const request = await prisma.serviceRequest.create({
@@ -110,11 +110,11 @@ const create = asyncHandler(async (req, res) => {
   return created(
     res,
     payload,
-    type === 'BILL' ? 'Votre demande d\'addition a ete envoyee' : 'Votre demande a ete envoyee'
+    type === 'BILL' ? 'Votre demande d\'addition a été envoyée' : 'Votre demande a été envoyée'
   );
 });
 
-/** GET /api/service-requests/table/:token - etat des demandes cote client */
+/** GET /api/service-requests/table/:token - état des demandes côté client */
 const listForTable = asyncHandler(async (req, res) => {
   const table = await loadTableByToken(req.params.token);
 
@@ -127,7 +127,7 @@ const listForTable = asyncHandler(async (req, res) => {
     include,
   });
 
-  return success(res, requests.map(serialize), 'Demandes recuperees');
+  return success(res, requests.map(serialize), 'Demandes récupérées');
 });
 
 /** GET /api/service-requests  (personnel) */
@@ -144,7 +144,7 @@ const list = asyncHandler(async (req, res) => {
     include,
   });
 
-  return success(res, requests.map(serialize), 'Demandes recuperees');
+  return success(res, requests.map(serialize), 'Demandes récupérées');
 });
 
 /** PUT /api/service-requests/:id/status  (personnel) */
@@ -178,7 +178,7 @@ const updateStatus = asyncHandler(async (req, res) => {
   emitToStaff(req.user.restaurantId, 'service_request_updated', payload);
   if (request.table) emitToTable(request.table.token, 'service_request_updated', payload);
 
-  return success(res, payload, 'Demande mise a jour');
+  return success(res, payload, 'Demande mise à jour');
 });
 
 module.exports = { create, list, listForTable, updateStatus };

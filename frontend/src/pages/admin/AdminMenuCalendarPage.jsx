@@ -71,7 +71,7 @@ export default function AdminMenuCalendarPage() {
     <div>
       <PageHeader
         title="Calendrier des menus"
-        subtitle="Programmez le menu de chaque journee, plusieurs jours a l'avance"
+        subtitle="Programmez le menu de chaque journée, plusieurs jours à l'avance"
         icon={CalendarDays}
         action={
           <Button icon={Plus} onClick={() => navigate(`/admin/menus/${today}`)}>
@@ -86,7 +86,7 @@ export default function AdminMenuCalendarPage() {
             type="button"
             onClick={() => shiftMonth(-1)}
             className="rounded-xl p-2 text-ink-600 transition hover:bg-ink-100"
-            aria-label="Mois precedent"
+            aria-label="Mois précédent"
           >
             <ChevronLeft size={20} />
           </button>
@@ -178,7 +178,7 @@ export default function AdminMenuCalendarPage() {
                 <CircleDot size={14} className="text-red-400" /> Aucun menu
               </span>
               <span className="text-ink-400">
-                Cliquez sur une date pour creer ou modifier son menu.
+                Cliquez sur une date pour créer ou modifier son menu.
               </span>
             </div>
           </div>

@@ -96,10 +96,10 @@ export default function AdminServersPage() {
 
       if (editing) {
         await userApi.update(editing.id, payload);
-        toast.success('Compte mis a jour');
+        toast.success('Compte mis à jour');
       } else {
         await userApi.create({ ...payload, password: form.password });
-        toast.success('Compte cree');
+        toast.success('Compte créé');
       }
       setModalOpen(false);
       await load();
@@ -114,7 +114,7 @@ export default function AdminServersPage() {
     setSaving(true);
     try {
       await userApi.resetPassword(passwordTarget.id, newPassword);
-      toast.success(`Mot de passe de ${passwordTarget.firstName} reinitialise`);
+      toast.success(`Mot de passe de ${passwordTarget.firstName} réinitialisé`);
       setPasswordTarget(null);
       setNewPassword('');
     } catch (err) {
@@ -174,7 +174,7 @@ export default function AdminServersPage() {
 
       {users.length === 0 ? (
         <Card>
-          <EmptyState icon={Users} title="Aucun compte" description="Creez le compte de vos serveuses." />
+          <EmptyState icon={Users} title="Aucun compte" description="Créez le compte de vos serveuses." />
         </Card>
       ) : (
         <Card className="overflow-x-auto">
@@ -183,9 +183,9 @@ export default function AdminServersPage() {
               <tr className="border-b border-ink-100 text-left text-xs uppercase tracking-wide text-ink-500">
                 <th className="px-4 py-3 font-semibold">Personne</th>
                 <th className="px-4 py-3 font-semibold">Contact</th>
-                <th className="px-4 py-3 font-semibold">Role</th>
+                <th className="px-4 py-3 font-semibold">Rôle</th>
                 <th className="px-4 py-3 font-semibold">Statut</th>
-                <th className="px-4 py-3 font-semibold">Derniere connexion</th>
+                <th className="px-4 py-3 font-semibold">Dernière connexion</th>
                 <th className="px-4 py-3 text-right font-semibold">Actions</th>
               </tr>
             </thead>
@@ -224,7 +224,7 @@ export default function AdminServersPage() {
                           : 'bg-ink-100 text-ink-500'
                       }`}
                     >
-                      {user.status === 'ACTIVE' ? 'Actif' : 'Desactive'}
+                      {user.status === 'ACTIVE' ? 'Actif' : 'Désactivé'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-ink-500">
@@ -236,7 +236,7 @@ export default function AdminServersPage() {
                         type="button"
                         onClick={() => showActivity(user)}
                         className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
-                        aria-label="Activite"
+                        aria-label="Activité"
                       >
                         <Activity size={16} />
                       </button>
@@ -244,7 +244,7 @@ export default function AdminServersPage() {
                         type="button"
                         onClick={() => setPasswordTarget(user)}
                         className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
-                        aria-label="Reinitialiser le mot de passe"
+                        aria-label="Réinitialiser le mot de passe"
                       >
                         <KeyRound size={16} />
                       </button>
@@ -285,14 +285,14 @@ export default function AdminServersPage() {
               Annuler
             </Button>
             <Button type="submit" form="user-form" loading={saving}>
-              {editing ? 'Enregistrer' : 'Creer'}
+              {editing ? 'Enregistrer' : 'Créer'}
             </Button>
           </>
         }
       >
         <form id="user-form" onSubmit={submit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Prenom" required>
+            <Field label="Prénom" required>
               <Input
                 required
                 minLength={2}
@@ -319,7 +319,7 @@ export default function AdminServersPage() {
                 onChange={(event) => setForm({ ...form, email: event.target.value })}
               />
             </Field>
-            <Field label="Telephone">
+            <Field label="Téléphone">
               <Input
                 value={form.phone}
                 onChange={(event) => setForm({ ...form, phone: event.target.value })}
@@ -329,7 +329,7 @@ export default function AdminServersPage() {
           </div>
 
           {!editing && (
-            <Field label="Mot de passe" required hint="8 caracteres minimum">
+            <Field label="Mot de passe" required hint="8 caractères minimum">
               <Input
                 type="password"
                 required
@@ -341,7 +341,7 @@ export default function AdminServersPage() {
           )}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Role" hint="Une serveuse n'accede jamais a l'administration">
+            <Field label="Rôle" hint="Une serveuse n'accède jamais à l'administration">
               <Select
                 value={form.role}
                 disabled={editing?.id === currentUser?.id}
@@ -359,7 +359,7 @@ export default function AdminServersPage() {
                 onChange={(event) => setForm({ ...form, status: event.target.value })}
               >
                 <option value="ACTIVE">Actif</option>
-                <option value="INACTIVE">Desactive</option>
+                <option value="INACTIVE">Désactivé</option>
               </Select>
             </Field>
           </div>
@@ -373,7 +373,7 @@ export default function AdminServersPage() {
           setPasswordTarget(null);
           setNewPassword('');
         }}
-        title="Reinitialiser le mot de passe"
+        title="Réinitialiser le mot de passe"
         subtitle={passwordTarget?.fullName}
         size="sm"
         footer={
@@ -388,12 +388,12 @@ export default function AdminServersPage() {
               Annuler
             </Button>
             <Button onClick={resetPassword} loading={saving} disabled={newPassword.length < 8}>
-              Reinitialiser
+              Réinitialiser
             </Button>
           </>
         }
       >
-        <Field label="Nouveau mot de passe" required hint="8 caracteres minimum">
+        <Field label="Nouveau mot de passe" required hint="8 caractères minimum">
           <Input
             type="text"
             minLength={8}
@@ -403,7 +403,7 @@ export default function AdminServersPage() {
           />
         </Field>
         <p className="mt-3 text-xs text-ink-500">
-          Communiquez ce mot de passe a la personne concernee. Il remplace immediatement l&apos;ancien.
+          Communiquez ce mot de passe à la personne concernée. Il remplace immédiatement l&apos;ancien.
         </p>
       </Modal>
 
@@ -411,7 +411,7 @@ export default function AdminServersPage() {
       <Modal
         open={Boolean(activity)}
         onClose={() => setActivity(null)}
-        title={activity ? `Activite de ${activity.user.fullName}` : ''}
+        title={activity ? `Activité de ${activity.user.fullName}` : ''}
       >
         {activity && (
           <div className="space-y-5">
@@ -433,10 +433,10 @@ export default function AdminServersPage() {
             </div>
 
             <div>
-              <h3 className="mb-2 font-semibold text-ink-900">Dernieres commandes</h3>
+              <h3 className="mb-2 font-semibold text-ink-900">Dernières commandes</h3>
               {activity.recentOrders.length === 0 ? (
                 <p className="rounded-xl bg-ink-50 px-4 py-6 text-center text-sm text-ink-500">
-                  Aucune commande traitee
+                  Aucune commande traitée
                 </p>
               ) : (
                 <ul className="divide-y divide-ink-100">
@@ -467,7 +467,7 @@ export default function AdminServersPage() {
         title="Supprimer le compte"
         message={
           deleteTarget
-            ? `Supprimer le compte de ${deleteTarget.fullName} ? S'il a deja traite des commandes, il sera simplement desactive pour preserver l'historique.`
+            ? `Supprimer le compte de ${deleteTarget.fullName} ? S'il a déjà traité des commandes, il sera simplement désactivé pour préserver l'historique.`
             : ''
         }
         confirmLabel="Supprimer"

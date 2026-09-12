@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
         title="Tableau de bord"
         subtitle={
           period?.isCurrent
-            ? `Activite du ${formatShortDate(today.date)}`
+            ? `Activité du ${formatShortDate(today.date)}`
             : `Mois consulte : ${period?.label ?? mois}`
         }
         icon={ShoppingBag}
@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
           type="button"
           onClick={() => setMois((actuel) => decalerMois(actuel, -1))}
           className="rounded-xl p-2 text-ink-600 transition hover:bg-ink-100"
-          aria-label="Mois precedent"
+          aria-label="Mois précédent"
         >
           <ChevronLeft size={20} />
         </button>
@@ -146,7 +146,7 @@ export default function AdminDashboardPage() {
             value={formatMoney(period.revenue, currency)}
             icon={Wallet}
             tone="emerald"
-            hint={period.cancelled ? `${period.cancelled} annulee(s)` : undefined}
+            hint={period.cancelled ? `${period.cancelled} annulée(s)` : undefined}
           />
           <StatCard
             label="Panier moyen"
@@ -176,12 +176,12 @@ export default function AdminDashboardPage() {
             <div>
               <p className="font-semibold text-amber-900">Aucun menu programme aujourd&apos;hui</p>
               <p className="text-sm text-amber-700">
-                Les clients qui scannent un QR Code voient un ecran vide. Creez le menu du jour.
+                Les clients qui scannent un QR Code voient un écran vide. Créez le menu du jour.
               </p>
             </div>
           </div>
           <Link to={`/admin/menus/${todayString()}`} className="btn-primary">
-            Creer le menu du jour <ArrowRight size={16} />
+            Créer le menu du jour <ArrowRight size={16} />
           </Link>
         </div>
       )}
@@ -285,7 +285,7 @@ export default function AdminDashboardPage() {
           <CardHeader title="Produits les plus commandes" subtitle={period?.label} />
           <div className="p-4">
             {charts.topProducts.length === 0 ? (
-              <EmptyState title="Pas encore de donnees" description="Les statistiques apparaitront des les premieres commandes." />
+              <EmptyState title="Pas encore de données" description="Les statistiques apparaîtront dès les premières commandes." />
             ) : (
               <ul className="space-y-3">
                 {charts.topProducts.map((product, index) => {
@@ -318,7 +318,7 @@ export default function AdminDashboardPage() {
           <CardHeader title="Performance des serveuses" subtitle={period?.label} />
           <div className="p-4">
             {charts.serverPerformance.length === 0 ? (
-              <EmptyState title="Pas encore de donnees" description="Aucune commande attribuee sur la periode." />
+              <EmptyState title="Pas encore de données" description="Aucune commande attribuée sur la période." />
             ) : (
               <ul className="divide-y divide-ink-100">
                 {charts.serverPerformance.map((server) => (

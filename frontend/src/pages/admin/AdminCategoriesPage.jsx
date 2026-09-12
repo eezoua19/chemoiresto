@@ -68,10 +68,10 @@ export default function AdminCategoriesPage() {
       };
       if (editing) {
         await categoryApi.update(editing.id, payload);
-        toast.success('Categorie mise a jour');
+        toast.success('Catégorie mise à jour');
       } else {
         await categoryApi.create(payload);
-        toast.success('Categorie creee');
+        toast.success('Catégorie créée');
       }
       setModalOpen(false);
       await load();
@@ -86,7 +86,7 @@ export default function AdminCategoriesPage() {
     setSaving(true);
     try {
       await categoryApi.remove(deleteTarget.id);
-      toast.success('Categorie supprimee');
+      toast.success('Catégorie supprimée');
       setDeleteTarget(null);
       await load();
     } catch (err) {
@@ -96,7 +96,7 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  /** Deplace une categorie et persiste immediatement le nouvel ordre. */
+  /** Deplace une catégorie et persiste immédiatement le nouvel ordre. */
   const move = async (index, delta) => {
     const target = index + delta;
     if (target < 0 || target >= categories.length) return;
@@ -127,12 +127,12 @@ export default function AdminCategoriesPage() {
   return (
     <div>
       <PageHeader
-        title="Categories"
+        title="Catégories"
         subtitle="Organisent le menu affiche au client"
         icon={Tags}
         action={
           <Button icon={Plus} onClick={openCreate}>
-            Nouvelle categorie
+            Nouvelle catégorie
           </Button>
         }
       />
@@ -141,9 +141,9 @@ export default function AdminCategoriesPage() {
         {categories.length === 0 ? (
           <EmptyState
             icon={Tags}
-            title="Aucune categorie"
-            description="Creez des categories (Entrees, Plats, Boissons...) pour organiser votre carte."
-            action={<Button onClick={openCreate}>Creer une categorie</Button>}
+            title="Aucune catégorie"
+            description="Créez des catégories (Entrées, Plats, Boissons...) pour organiser votre carte."
+            action={<Button onClick={openCreate}>Créer une catégorie</Button>}
           />
         ) : (
           <ul className="divide-y divide-ink-100">
@@ -174,12 +174,12 @@ export default function AdminCategoriesPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-semibold text-ink-900">{category.name}</h3>
                     {!category.isActive && (
-                      <span className="badge bg-ink-100 text-ink-500">Desactivee</span>
+                      <span className="badge bg-ink-100 text-ink-500">Désactivée</span>
                     )}
                   </div>
                   <p className="text-xs text-ink-500">
                     {category.productCount} produit(s)
-                    {category.icon && ` - icone : ${category.icon}`}
+                    {category.icon && ` - icône : ${category.icon}`}
                   </p>
                 </div>
 
@@ -210,7 +210,7 @@ export default function AdminCategoriesPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editing ? 'Modifier la categorie' : 'Nouvelle categorie'}
+        title={editing ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
         size="sm"
         footer={
           <>
@@ -218,7 +218,7 @@ export default function AdminCategoriesPage() {
               Annuler
             </Button>
             <Button type="submit" form="category-form" loading={saving}>
-              {editing ? 'Enregistrer' : 'Creer'}
+              {editing ? 'Enregistrer' : 'Créer'}
             </Button>
           </>
         }
@@ -235,7 +235,7 @@ export default function AdminCategoriesPage() {
             />
           </Field>
 
-          <Field label="Icone" hint="Nom d'une icone Lucide (facultatif). Ex : Flame, CupSoda">
+          <Field label="Icône" hint="Nom d'une icône Lucide (facultatif). Ex : Flame, CupSoda">
             <Input
               maxLength={40}
               value={form.icon}
@@ -247,7 +247,7 @@ export default function AdminCategoriesPage() {
           <Toggle
             checked={form.isActive}
             onChange={(value) => setForm({ ...form, isActive: value })}
-            label="Categorie active"
+            label="Catégorie active"
           />
         </form>
       </Modal>
@@ -256,10 +256,10 @@ export default function AdminCategoriesPage() {
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         onConfirm={remove}
-        title="Supprimer la categorie"
+        title="Supprimer la catégorie"
         message={
           deleteTarget
-            ? `Supprimer la categorie "${deleteTarget.name}" ? La suppression est refusee si des produits l'utilisent encore.`
+            ? `Supprimer la catégorie "${deleteTarget.name}" ? La suppression est refusée si des produits l'utilisent encore.`
             : ''
         }
         confirmLabel="Supprimer"

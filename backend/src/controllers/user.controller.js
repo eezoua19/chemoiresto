@@ -30,7 +30,7 @@ const list = asyncHandler(async (req, res) => {
     orderBy: [{ role: 'asc' }, { firstName: 'asc' }],
     include: { _count: { select: { orders: true } } },
   });
-  return success(res, users.map(publicUser), 'Utilisateurs recuperes');
+  return success(res, users.map(publicUser), 'Utilisateurs récupérés');
 });
 
 /** POST /api/users/servers */
@@ -38,7 +38,7 @@ const create = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, phone, password, role, status } = req.body;
 
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) throw ApiError.conflict('Cette adresse email est deja utilisee');
+  if (existing) throw ApiError.conflict('Cette adresse email est déjà utilisée');
 
   const user = await prisma.user.create({
     data: {
@@ -53,7 +53,7 @@ const create = asyncHandler(async (req, res) => {
     },
   });
 
-  return created(res, publicUser(user), 'Compte cree');
+  return created(res, publicUser(user), 'Compte créé');
 });
 
 /** PUT /api/users/servers/:id */
@@ -66,16 +66,16 @@ const update = asyncHandler(async (req, res) => {
 
   if (req.body.email && req.body.email !== user.email) {
     const clash = await prisma.user.findUnique({ where: { email: req.body.email } });
-    if (clash) throw ApiError.conflict('Cette adresse email est deja utilisee');
+    if (clash) throw ApiError.conflict('Cette adresse email est déjà utilisée');
   }
 
-  // Un administrateur ne peut pas se retirer lui-meme ses droits ou se bloquer.
+  // Un administrateur ne peut pas se retirer lui-même ses droits ou se bloquer.
   if (user.id === req.user.id) {
     if (req.body.role && req.body.role !== user.role) {
       throw ApiError.badRequest('Vous ne pouvez pas modifier votre propre role');
     }
     if (req.body.status && req.body.status !== 'ACTIVE') {
-      throw ApiError.badRequest('Vous ne pouvez pas desactiver votre propre compte');
+      throw ApiError.badRequest('Vous ne pouvez pas désactiver votre propre compte');
     }
   }
 
@@ -91,7 +91,7 @@ const update = asyncHandler(async (req, res) => {
     },
   });
 
-  return success(res, publicUser(updated), 'Compte mis a jour');
+  return success(res, publicUser(updated), 'Compte mis à jour');
 });
 
 /** DELETE /api/users/servers/:id */
@@ -105,18 +105,18 @@ const remove = asyncHandler(async (req, res) => {
   });
   if (!user) throw ApiError.notFound('Utilisateur introuvable');
 
-  // Historique preserve : on desactive au lieu de supprimer.
+  // Historique preserve : on désactivé au lieu de supprimer.
   if (user._count.orders > 0) {
     const disabled = await prisma.user.update({ where: { id }, data: { status: 'INACTIVE' } });
     return success(
       res,
       publicUser(disabled),
-      'Ce compte a traite des commandes : il a ete desactive pour preserver l\'historique'
+      'Ce compte a traité des commandes : il a été désactivé pour préserver l\'historique'
     );
   }
 
   await prisma.user.delete({ where: { id } });
-  return success(res, null, 'Compte supprime');
+  return success(res, null, 'Compte supprimé');
 });
 
 /** PUT /api/users/servers/:id/password */
@@ -130,7 +130,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     data: { password: await bcrypt.hash(req.body.password, SALT_ROUNDS) },
   });
 
-  return success(res, null, 'Mot de passe reinitialise');
+  return success(res, null, 'Mot de passe réinitialisé');
 });
 
 /** GET /api/users/servers/:id/activity */
@@ -179,7 +179,7 @@ const activity = asyncHandler(async (req, res) => {
         createdAt: order.createdAt,
       })),
     },
-    'Activite recuperee'
+    'Activité récupérée'
   );
 });
 

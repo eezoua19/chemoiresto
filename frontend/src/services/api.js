@@ -38,9 +38,9 @@ api.interceptors.response.use(
       error.fieldErrors = data?.errors || null;
       error.status = status;
     } else if (error.code === 'ECONNABORTED') {
-      error.message = 'Le serveur met trop de temps a repondre';
+      error.message = 'Le serveur met trop de temps à répondre';
     } else {
-      error.message = 'Impossible de joindre le serveur. Verifiez votre connexion.';
+      error.message = 'Impossible de joindre le serveur. Vérifiez votre connexion.';
       error.isNetwork = true;
     }
     return Promise.reject(error);

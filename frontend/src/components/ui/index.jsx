@@ -260,7 +260,7 @@ export function ErrorState({ message, onRetry, isNetwork }) {
       action={
         onRetry && (
           <Button variant="secondary" onClick={onRetry}>
-            Reessayer
+            Réessayer
           </Button>
         )
       }
@@ -269,7 +269,7 @@ export function ErrorState({ message, onRetry, isNetwork }) {
 }
 
 export function NoResults({ description = 'Essayez de modifier vos filtres de recherche.' }) {
-  return <EmptyState icon={SearchX} title="Aucun resultat" description={description} />;
+  return <EmptyState icon={SearchX} title="Aucun résultat" description={description} />;
 }
 
 // ------------------------------- Divers ------------------------------------
@@ -320,7 +320,7 @@ export function StatCard({ label, value, icon: Icon, tone = 'brand', hint }) {
 }
 
 /**
- * Signature affichee au bas de toutes les pages.
+ * Signature affichée au bas de toutes les pages.
  *
  * Centralisee ici : le jour ou le texte change, il n'y a qu'un seul endroit a
  * modifier.
@@ -330,7 +330,7 @@ export function Footer({ className = '' }) {
   // passe simplement className="text-white/70" pour rester lisible.
   //
   // ink-600 et non ink-400 : sur le fond clair, ink-400 tombe a 2,5:1 de
-  // contraste, illisible sur un telephone en plein soleil. ink-600 donne 6,5:1.
+  // contraste, illisible sur un téléphone en plein soleil. ink-600 donne 6,5:1.
   return (
     <footer className={`px-4 py-5 text-center text-xs text-ink-600 ${className}`}>
       <p>

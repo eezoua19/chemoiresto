@@ -15,17 +15,17 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     await prisma.category.deleteMany({ where: { id: { in: created.categories } } });
   });
 
-  // ------------------------------ Categories -----------------------------
+  // ------------------------------ Catégories -----------------------------
   let categoryId;
 
-  await suite.test('creation d\'une categorie', async () => {
+  await suite.test('creation d\'une catégorie', async () => {
     const result = await api('/api/categories', {
       method: 'POST',
       token,
-      body: { name: unique('Categorie test') },
+      body: { name: unique('Catégorie test') },
     });
     assert.equal(result.status, 201);
-    assert.ok(result.data.slug, 'un slug doit etre genere');
+    assert.ok(result.data.slug, 'un slug doit être généré');
     categoryId = result.data.id;
     created.categories.push(categoryId);
   });
@@ -39,7 +39,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
       token,
       body: {
         name: unique('Produit test'),
-        description: 'Produit cree par les tests automatiques',
+        description: 'Produit créé par les tests automatiques',
         basePrice: 3000,
         categoryId,
         options: [
@@ -53,7 +53,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
             ],
           },
           {
-            name: 'Supplements',
+            name: 'Suppléments',
             type: 'MULTIPLE',
             isRequired: false,
             values: [{ name: 'Fromage', priceDelta: 500 }],
@@ -72,7 +72,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     created.products.push(productId);
   });
 
-  await suite.test('prix negatif refuse (400)', async () => {
+  await suite.test('prix negatif refusé (400)', async () => {
     const result = await api('/api/products', {
       method: 'POST',
       token,
@@ -85,7 +85,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     const result = await api(`/api/products/${productId}`, {
       method: 'PUT',
       token,
-      body: { basePrice: 3500, description: 'Description mise a jour' },
+      body: { basePrice: 3500, description: 'Description mise à jour' },
     });
     assert.equal(result.success, true);
     assert.equal(result.data.basePrice, 3500);
@@ -99,7 +99,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     assert.equal(second.data.isAvailable, true);
   });
 
-  await suite.test('categorie utilisee par un produit : suppression refusee (409)', async () => {
+  await suite.test('catégorie utilisée par un produit : suppression refusée (409)', async () => {
     const result = await api(`/api/categories/${categoryId}`, { method: 'DELETE', token });
     assert.equal(result.status, 409);
   });
@@ -116,11 +116,11 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     });
 
     assert.equal(result.status, 201);
-    assert.ok(result.data.token.match(/^[a-f0-9]{32}$/), 'le jeton doit etre aleatoire');
-    assert.ok(result.data.qrCode, 'un QR Code doit etre genere automatiquement');
+    assert.ok(result.data.token.match(/^[a-f0-9]{32}$/), 'le jeton doit être aleatoire');
+    assert.ok(result.data.qrCode, 'un QR Code doit être généré automatiquement');
     assert.ok(
       result.data.qrCode.dataUrl.startsWith('data:image/png;base64,'),
-      'le QR Code doit etre une image PNG'
+      'le QR Code doit être une image PNG'
     );
     assert.ok(
       result.data.qrCode.url.includes(result.data.token),
@@ -132,7 +132,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     created.tables.push(tableId);
   });
 
-  await suite.test('numero de table en double refuse (409)', async () => {
+  await suite.test('numéro de table en double refusé (409)', async () => {
     const table = await prisma.restaurantTable.findUnique({ where: { id: tableId } });
     const result = await api('/api/tables', {
       method: 'POST',
@@ -159,7 +159,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     assert.equal(result.success, true);
 
     const newToken = result.data.table.token;
-    assert.notEqual(newToken, tableToken, 'un nouveau jeton doit etre genere');
+    assert.notEqual(newToken, tableToken, 'un nouveau jeton doit être généré');
 
     const oldAccess = await api(`/api/menu/table/${tableToken}`);
     assert.equal(oldAccess.status, 404, 'l\'ancien QR Code ne doit plus fonctionner');
@@ -170,7 +170,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     tableToken = newToken;
   });
 
-  await suite.test('table desactivee : le menu est bloque (403)', async () => {
+  await suite.test('table désactivée : le menu est bloque (403)', async () => {
     await api(`/api/tables/${tableId}/status`, { method: 'PATCH', token });
 
     const result = await api(`/api/menu/table/${tableToken}`);
@@ -189,7 +189,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     // Avant : le plat existe au catalogue mais n'est pas propose au client
     const before = await api(`/api/menu/table/${activeTable.token}`);
     const presentBefore = (before.data.menu?.items || []).some((item) => item.productId === productId);
-    assert.equal(presentBefore, false, 'un produit neuf ne doit pas etre au menu automatiquement');
+    assert.equal(presentBefore, false, 'un produit neuf ne doit pas être au menu automatiquement');
 
     // Mise au menu du jour
     const added = await api('/api/menus/today/products', {
@@ -227,7 +227,7 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
 
     const final = await api(`/api/menu/table/${activeTable.token}`);
     const stillThere = (final.data.menu?.items || []).some((entry) => entry.productId === productId);
-    assert.equal(stillThere, false, 'le plat retire ne doit plus etre propose');
+    assert.equal(stillThere, false, 'le plat retire ne doit plus être propose');
   });
 
   await suite.test('mettre au menu du jour un produit inexistant renvoie 404', async () => {

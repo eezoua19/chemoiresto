@@ -37,7 +37,7 @@ export function connectSocket(token = null) {
   return socket;
 }
 
-/** Renvoie la connexion courante, en la creant si necessaire. */
+/** Renvoie la connexion courante, en la creant si nécessaire. */
 export function getSocket() {
   if (!socket) {
     currentToken = localStorage.getItem(TOKEN_KEY);

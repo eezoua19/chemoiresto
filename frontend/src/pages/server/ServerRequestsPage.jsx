@@ -54,7 +54,7 @@ export default function ServerRequestsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-ink-900">Demandes des clients</h1>
-          <p className="text-sm text-ink-500">Appels et demandes d&apos;addition en temps reel</p>
+          <p className="text-sm text-ink-500">Appels et demandes d&apos;addition en temps réel</p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setShowClosed((value) => !value)}>
@@ -79,7 +79,7 @@ export default function ServerRequestsPage() {
           <EmptyState
             icon={BellOff}
             title="Aucune demande en cours"
-            description="Quand un client appelle une serveuse ou demande l'addition, la demande apparait ici avec une alerte sonore."
+            description="Quand un client appelle une serveuse ou demande l'addition, la demande apparaît ici avec une alerte sonore."
           />
         </div>
       ) : (
@@ -106,7 +106,7 @@ export default function ServerRequestsPage() {
                   {request.message && <p className="text-xs italic text-ink-500">{request.message}</p>}
                   <p className="mt-1 text-xs text-ink-400">
                     {timeAgo(request.createdAt)}
-                    {request.handledBy && ` - traitee par ${request.handledBy.fullName}`}
+                    {request.handledBy && ` - traitée par ${request.handledBy.fullName}`}
                   </p>
 
                   {config.next && (

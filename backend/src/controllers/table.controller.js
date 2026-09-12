@@ -37,7 +37,7 @@ const list = asyncHandler(async (req, res) => {
     orderBy: { number: 'asc' },
     include,
   });
-  return success(res, tables.map(serialize), 'Tables recuperees');
+  return success(res, tables.map(serialize), 'Tables récupérées');
 });
 
 /** GET /api/tables/:id */
@@ -47,19 +47,19 @@ const detail = asyncHandler(async (req, res) => {
     include,
   });
   if (!table) throw ApiError.notFound('Table introuvable');
-  return success(res, serialize(table), 'Table recuperee');
+  return success(res, serialize(table), 'Table récupérée');
 });
 
 /**
  * POST /api/tables
- * Le QR Code est genere immediatement : une table est inutilisable sans lui.
+ * Le QR Code est génère immédiatement : une table est inutilisable sans lui.
  */
 const create = asyncHandler(async (req, res) => {
   const restaurantId = req.user.restaurantId;
   const { number, label, capacity, status } = req.body;
 
   const existing = await prisma.restaurantTable.findFirst({ where: { restaurantId, number } });
-  if (existing) throw ApiError.conflict(`La table "${number}" existe deja`);
+  if (existing) throw ApiError.conflict(`La table "${number}" existe déjà`);
 
   const table = await prisma.restaurantTable.create({
     data: {
@@ -75,7 +75,7 @@ const create = asyncHandler(async (req, res) => {
   await upsertQRCode(table.id, table.token);
 
   const full = await prisma.restaurantTable.findUnique({ where: { id: table.id }, include });
-  return created(res, serialize(full), 'Table creee avec son QR Code');
+  return created(res, serialize(full), 'Table créée avec son QR Code');
 });
 
 /** PUT /api/tables/:id */
@@ -90,7 +90,7 @@ const update = asyncHandler(async (req, res) => {
     const clash = await prisma.restaurantTable.findFirst({
       where: { restaurantId, number: req.body.number, NOT: { id } },
     });
-    if (clash) throw ApiError.conflict(`La table "${req.body.number}" existe deja`);
+    if (clash) throw ApiError.conflict(`La table "${req.body.number}" existe déjà`);
   }
 
   const updated = await prisma.restaurantTable.update({
@@ -104,7 +104,7 @@ const update = asyncHandler(async (req, res) => {
     include,
   });
 
-  return success(res, serialize(updated), 'Table mise a jour');
+  return success(res, serialize(updated), 'Table mise à jour');
 });
 
 /** DELETE /api/tables/:id */
@@ -118,12 +118,12 @@ const remove = asyncHandler(async (req, res) => {
 
   if (table._count.orders > 0) {
     throw ApiError.conflict(
-      'Cette table possede un historique de commandes. Desactivez-la plutot que de la supprimer.'
+      'Cette table possède un historique de commandes. Désactivez-la plutot que de la supprimer.'
     );
   }
 
   await prisma.restaurantTable.delete({ where: { id } });
-  return success(res, null, 'Table supprimee');
+  return success(res, null, 'Table supprimée');
 });
 
 /** PATCH /api/tables/:id/status - bascule actif / inactif */
@@ -143,7 +143,7 @@ const toggleStatus = asyncHandler(async (req, res) => {
   return success(
     res,
     serialize(updated),
-    updated.status === 'ACTIVE' ? 'Table activee' : 'Table desactivee'
+    updated.status === 'ACTIVE' ? 'Table activée' : 'Table désactivée'
   );
 });
 
@@ -158,10 +158,10 @@ const getQRCode = asyncHandler(async (req, res) => {
   let qrCode = table.qrCode;
   if (!qrCode) qrCode = await upsertQRCode(table.id, table.token);
 
-  return success(res, { table: { id: table.id, number: table.number }, qrCode }, 'QR Code recupere');
+  return success(res, { table: { id: table.id, number: table.number }, qrCode }, 'QR Code récupéré');
 });
 
-/** POST /api/tables/:id/qrcode - (re)genere l'image sans changer le jeton */
+/** POST /api/tables/:id/qrcode - (re)génère l'image sans changer le jeton */
 const generateQRCode = asyncHandler(async (req, res) => {
   const table = await prisma.restaurantTable.findFirst({
     where: { id: req.params.id, restaurantId: req.user.restaurantId },
@@ -169,12 +169,12 @@ const generateQRCode = asyncHandler(async (req, res) => {
   if (!table) throw ApiError.notFound('Table introuvable');
 
   const qrCode = await upsertQRCode(table.id, table.token);
-  return success(res, qrCode, 'QR Code genere');
+  return success(res, qrCode, 'QR Code généré');
 });
 
 /**
  * POST /api/tables/:id/qrcode/regenerate
- * Genere un NOUVEAU jeton : les anciens QR Codes imprimes cessent de fonctionner.
+ * Génère un NOUVEAU jeton : les anciens QR Codes imprimes cessent de fonctionner.
  */
 const regenerateQRCode = asyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -193,7 +193,7 @@ const regenerateQRCode = asyncHandler(async (req, res) => {
   return success(
     res,
     { table: serialize({ ...updated, qrCode }), qrCode },
-    'Nouveau QR Code genere : pensez a reimprimer celui de la table'
+    'Nouveau QR Code généré : pensez à réimprimer celui de la table'
   );
 });
 
@@ -210,7 +210,7 @@ const listQRCodes = asyncHandler(async (req, res) => {
     include: { qrCode: true },
   });
 
-  // Genere a la volee les QR Codes manquants pour ne rien oublier a l'impression.
+  // Génère à la volee les QR Codes manquants pour ne rien oublier à l'impression.
   const withCodes = [];
   for (const table of tables) {
     let qrCode = table.qrCode;
@@ -225,7 +225,7 @@ const listQRCodes = asyncHandler(async (req, res) => {
     });
   }
 
-  return success(res, { restaurant, tables: withCodes }, 'QR Codes recuperes');
+  return success(res, { restaurant, tables: withCodes }, 'QR Codes récupérés');
 });
 
 module.exports = {

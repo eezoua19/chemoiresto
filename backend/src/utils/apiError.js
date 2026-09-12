@@ -12,7 +12,7 @@ class ApiError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 
-  static badRequest(message = 'Requete invalide', details) {
+  static badRequest(message = 'Requête invalide', details) {
     return new ApiError(400, message, details);
   }
 
@@ -20,7 +20,7 @@ class ApiError extends Error {
     return new ApiError(401, message);
   }
 
-  static forbidden(message = 'Acces refuse') {
+  static forbidden(message = 'Accès refusé') {
     return new ApiError(403, message);
   }
 
@@ -32,7 +32,7 @@ class ApiError extends Error {
     return new ApiError(409, message);
   }
 
-  static tooMany(message = 'Trop de requetes, reessayez plus tard') {
+  static tooMany(message = 'Trop de requetes, réessayez plus tard') {
     return new ApiError(429, message);
   }
 

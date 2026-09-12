@@ -21,8 +21,8 @@ const STYLES = {
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  // Les rappels de fermeture vivent hors de l'etat : les declencher depuis une
-  // fonction de mise a jour les ferait partir deux fois en mode strict.
+  // Les rappels de fermeture vivent hors de l'état : les declencher depuis une
+  // fonction de mise à jour les ferait partir deux fois en mode strict.
   const rappels = useRef(new Map());
 
   const dismiss = useCallback((id) => {
@@ -53,8 +53,8 @@ export function ToastProvider({ children }) {
       info: (message, duration) => push(message, 'info', duration),
       warning: (message, duration) => push(message, 'warning', duration),
       /**
-       * Alerte du personnel : reste affichee jusqu'a fermeture manuelle.
-       * `onDismiss` sert a couper l'annonce vocale au meme moment.
+       * Alerte du personnel : reste affichée jusqu'à fermeture manuelle.
+       * `onDismiss` sert a couper l'annonce vocale au même moment.
        */
       alerte: (message, type = 'warning', onDismiss) => push(message, type, 0, onDismiss),
       dismiss,
@@ -88,7 +88,7 @@ export function ToastProvider({ children }) {
               </div>
               {toast.persistant ? (
                 // Une alerte persistante coupe aussi l'annonce vocale : le bouton
-                // doit etre atteignable du pouce, pas une petite croix.
+                // doit être atteignable du pouce, pas une petite croix.
                 <button
                   type="button"
                   onClick={() => dismiss(toast.id)}
@@ -116,6 +116,6 @@ export function ToastProvider({ children }) {
 
 export function useToast() {
   const context = useContext(ToastContext);
-  if (!context) throw new Error('useToast doit etre utilise dans un ToastProvider');
+  if (!context) throw new Error('useToast doit être utilise dans un ToastProvider');
   return context;
 }

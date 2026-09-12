@@ -46,13 +46,13 @@ export function formatTime(value) {
 export function timeAgo(value) {
   if (!value) return '';
   const diff = Math.floor((Date.now() - new Date(value).getTime()) / 1000);
-  if (diff < 60) return 'a l\'instant';
+  if (diff < 60) return 'à l\'instant';
   if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
   if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
   return `il y a ${Math.floor(diff / 86400)} j`;
 }
 
-/** Chaine "AAAA-MM-JJ" a partir d'un objet Date (sans decalage de fuseau). */
+/** Chaine "AAAA-MM-JJ" à partir d'un objet Date (sans decalage de fuseau). */
 export function toDateString(date) {
   const d = date instanceof Date ? date : new Date(date);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(

@@ -27,7 +27,7 @@ export function CartProvider({ tableToken, children }) {
     }
   }, [storageKey]);
 
-  // Sauvegarde a chaque modification
+  // Sauvegarde à chaque modification
   useEffect(() => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(items));
@@ -134,6 +134,6 @@ export function CartProvider({ tableToken, children }) {
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) throw new Error('useCart doit etre utilise dans un CartProvider');
+  if (!context) throw new Error('useCart doit être utilise dans un CartProvider');
   return context;
 }

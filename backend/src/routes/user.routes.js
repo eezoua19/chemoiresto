@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-// La liste des serveuses est utile a l'attribution des commandes.
+// La liste des serveuses est utile à l'attribution des commandes.
 router.get('/servers', controller.list);
 
 router.use('/servers', roleMiddleware('ADMIN'));

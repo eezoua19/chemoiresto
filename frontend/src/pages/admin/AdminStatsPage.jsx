@@ -67,7 +67,7 @@ export default function AdminStatsPage() {
     <div>
       <PageHeader
         title="Statistiques"
-        subtitle="Analyse de l'activite du restaurant"
+        subtitle="Analyse de l'activité du restaurant"
         icon={BarChart3}
         action={
           <Button variant="secondary" icon={RefreshCw} onClick={load}>
@@ -77,7 +77,7 @@ export default function AdminStatsPage() {
       />
 
       <Card className="mb-4">
-        <CardHeader title="Evolution sur 14 jours" subtitle="Commandes et chiffre d'affaires" />
+        <CardHeader title="Évolution sur 14 jours" subtitle="Commandes et chiffre d'affaires" />
         <div className="h-80 p-4">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={charts.daily}>
@@ -142,8 +142,8 @@ export default function AdminStatsPage() {
         <Card>
           <EmptyState
             icon={BarChart3}
-            title="Pas encore assez de donnees"
-            description="Les graphiques detailles apparaitront des les premieres commandes servies."
+            title="Pas encore assez de données"
+            description="Les graphiques détaillés apparaîtront dès les premières commandes servies."
           />
         </Card>
       ) : (
@@ -166,7 +166,7 @@ export default function AdminStatsPage() {
                   />
                   <Tooltip
                     formatter={(value, name) =>
-                      name === 'revenue' ? [formatMoney(value, currency), 'CA'] : [value, 'Quantite']
+                      name === 'revenue' ? [formatMoney(value, currency), 'CA'] : [value, 'Quantité']
                     }
                     contentStyle={{ borderRadius: 12, border: '1px solid #eef0f4', fontSize: 13 }}
                   />
@@ -177,7 +177,7 @@ export default function AdminStatsPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Categories populaires" subtitle="Repartition des quantites vendues" />
+            <CardHeader title="Catégories populaires" subtitle="Répartition des quantités vendues" />
             <div className="h-80 p-4">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -209,7 +209,7 @@ export default function AdminStatsPage() {
             <CardHeader title="Performance des serveuses" subtitle="30 derniers jours" />
             <div className="h-72 p-4">
               {charts.serverPerformance.length === 0 ? (
-                <EmptyState title="Aucune commande attribuee" description="Attribuez les commandes pour suivre la performance." />
+                <EmptyState title="Aucune commande attribuée" description="Attribuez les commandes pour suivre la performance." />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={charts.serverPerformance}>

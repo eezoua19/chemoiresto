@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-// La lecture est ouverte au personnel, l'ecriture reservee a l'administrateur.
+// La lecture est ouverte au personnel, l'écriture réservée à l'administrateur.
 router.get('/', controller.list);
 
 router.post('/', roleMiddleware('ADMIN'), validate({ body: createCategorySchema }), controller.create);

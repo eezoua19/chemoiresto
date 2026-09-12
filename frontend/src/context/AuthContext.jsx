@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
     try {
       await authApi.logout();
     } catch {
-      // La deconnexion reste locale meme si l'API est injoignable.
+      // La deconnexion reste locale même si l'API est injoignable.
     }
     localStorage.removeItem(TOKEN_KEY);
     disconnectSocket();
@@ -76,6 +76,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth doit etre utilise dans un AuthProvider');
+  if (!context) throw new Error('useAuth doit être utilise dans un AuthProvider');
   return context;
 }

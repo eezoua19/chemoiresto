@@ -7,9 +7,9 @@ export const DUREE_ANNONCE_MS = 30000;
 const PAUSE_MS = 1500;
 
 /**
- * Delai avant qu'un contact a l'ecran ne coupe la voix.
+ * Delai avant qu'un contact à l'écran ne coupe la voix.
  *
- * Sans ce sursis, un appui deja en cours au moment ou la commande arrive
+ * Sans ce sursis, un appui déjà en cours au moment ou la commande arrive
  * couperait l'annonce avant le premier mot.
  */
 const SURSIS_MS = 1000;
@@ -20,7 +20,7 @@ const GESTES = ['pointerdown', 'keydown', 'touchstart'];
 /**
  * Annonce vocale du personnel.
  *
- * La phrase est repetee jusqu'a ce que la serveuse ferme la notification, et au
+ * La phrase est repetee jusqu'à ce que la serveuse ferme la notification, et au
  * plus pendant 30 secondes : sans cette limite, une salle chargee se retrouve
  * avec plusieurs voix qui se superposent indefiniment.
  *
@@ -51,14 +51,14 @@ export default function useVoiceAnnouncer() {
     try {
       window.speechSynthesis?.cancel();
     } catch {
-      // Rien a faire : l'application continue sans la voix.
+      // Rien à faire : l'application continue sans la voix.
     }
   }, []);
 
   /**
-   * Le moindre geste coupe la voix : toucher l'ecran, cliquer, appuyer sur une
-   * touche. La notification, elle, reste affichee - couper la voix veut dire
-   * « j'ai entendu », pas « c'est traite ».
+   * Le moindre geste coupe la voix : toucher l'écran, cliquer, appuyer sur une
+   * touche. La notification, elle, reste affichée - couper la voix veut dire
+   * « j'ai entendu », pas « c'est traité ».
    */
   const ecouterLesGestes = useCallback(() => {
     sursisTimer.current = setTimeout(() => {
@@ -78,7 +78,7 @@ export default function useVoiceAnnouncer() {
       stop();
       actif.current = true;
 
-      // Filet de securite : meme si `onend` ne se declenche jamais (onglet mis en
+      // Filet de sécurité : même si `onend` ne se déclenche jamais (onglet mis en
       // veille, voix qui echoue en silence), la voix s'arrete au bout de 30 s.
       cutoffTimer.current = setTimeout(stop, DUREE_ANNONCE_MS);
       ecouterLesGestes();
@@ -108,7 +108,7 @@ export default function useVoiceAnnouncer() {
         }
       };
 
-      // Les voix sont chargees de maniere asynchrone au premier appel. On part
+      // Les voix sont chargees de manière asynchrone au premier appel. On part
       // sur le premier des deux signaux qui arrive - jamais sur les deux, sinon
       // la phrase serait prononcee en double.
       let demarre = false;
@@ -120,7 +120,7 @@ export default function useVoiceAnnouncer() {
 
       if (synth.getVoices().length === 0) {
         synth.addEventListener('voiceschanged', demarrerUneSeuleFois, { once: true });
-        // Si l'evenement ne vient pas, on parle avec la voix par defaut.
+        // Si l'événement ne vient pas, on parle avec la voix par defaut.
         repeatTimer.current = setTimeout(demarrerUneSeuleFois, 250);
       } else {
         demarrerUneSeuleFois();

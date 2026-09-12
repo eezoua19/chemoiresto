@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react';
 
 /**
- * Signal sonore genere via l'API Web Audio : aucun fichier externe requis.
+ * Signal sonore génère via l'API Web Audio : aucun fichier externe requis.
  * Les navigateurs exigent une interaction utilisateur avant de jouer un son ;
- * l'AudioContext est donc cree au premier appel et repris s'il est suspendu.
+ * l'AudioContext est donc créé au premier appel et repris s'il est suspendu.
  */
 export default function useNotificationSound() {
   const contextRef = useRef(null);

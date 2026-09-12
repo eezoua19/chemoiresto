@@ -78,10 +78,10 @@ export default function AdminTablesPage() {
       };
       if (editing) {
         await tableApi.update(editing.id, payload);
-        toast.success('Table mise a jour');
+        toast.success('Table mise à jour');
       } else {
         await tableApi.create(payload);
-        toast.success('Table creee avec son QR Code');
+        toast.success('Table créée avec son QR Code');
       }
       setModalOpen(false);
       await load();
@@ -96,7 +96,7 @@ export default function AdminTablesPage() {
     try {
       const updated = await tableApi.toggleStatus(table.id);
       setTables((current) => current.map((t) => (t.id === updated.id ? updated : t)));
-      toast.success(updated.status === 'ACTIVE' ? 'Table activee' : 'Table desactivee');
+      toast.success(updated.status === 'ACTIVE' ? 'Table activée' : 'Table désactivée');
     } catch (err) {
       toast.error(err.message);
     }
@@ -106,7 +106,7 @@ export default function AdminTablesPage() {
     setSaving(true);
     try {
       await tableApi.remove(deleteTarget.id);
-      toast.success('Table supprimee');
+      toast.success('Table supprimée');
       setDeleteTarget(null);
       await load();
     } catch (err) {
@@ -120,7 +120,7 @@ export default function AdminTablesPage() {
     setSaving(true);
     try {
       const result = await tableApi.regenerateQRCode(regenerateTarget.id);
-      toast.warning('Nouveau QR Code genere : reimprimez celui de la table');
+      toast.warning('Nouveau QR Code généré : réimprimez celui de la table');
       setRegenerateTarget(null);
       await load();
       setQrTable({ ...regenerateTarget, qrCode: result.qrCode, token: result.table.token });
@@ -134,7 +134,7 @@ export default function AdminTablesPage() {
   const copyLink = async (table) => {
     try {
       await navigator.clipboard.writeText(table.menuUrl);
-      toast.success('Lien copie dans le presse-papiers');
+      toast.success('Lien copié dans le presse-papiers');
     } catch {
       toast.error('Copie impossible : copiez le lien manuellement');
     }
@@ -159,7 +159,7 @@ export default function AdminTablesPage() {
     <div>
       <PageHeader
         title="Tables"
-        subtitle={`${tables.length} table(s) - chaque table possede un QR Code unique`}
+        subtitle={`${tables.length} table(s) - chaque table possède un QR Code unique`}
         icon={Table2}
         action={
           <>
@@ -178,8 +178,8 @@ export default function AdminTablesPage() {
           <EmptyState
             icon={Table2}
             title="Aucune table"
-            description="Creez vos tables : chacune recevra automatiquement un QR Code unique a poser dessus."
-            action={<Button onClick={openCreate}>Creer une table</Button>}
+            description="Créez vos tables : chacune recevra automatiquement un QR Code unique à poser dessus."
+            action={<Button onClick={openCreate}>Créer une table</Button>}
           />
         </Card>
       ) : (
@@ -201,7 +201,7 @@ export default function AdminTablesPage() {
                     </span>
                   </div>
                   <p className="text-xs text-ink-500">
-                    {table.label || 'Sans libelle'} - {table.capacity} places
+                    {table.label || 'Sans libellé'} - {table.capacity} places
                   </p>
                   <p className="mt-0.5 text-xs text-ink-400">{table.orderCount} commande(s)</p>
                 </div>
@@ -230,7 +230,7 @@ export default function AdminTablesPage() {
                   onClick={() => toggleStatus(table)}
                   className="btn-ghost text-xs"
                 >
-                  {table.status === 'ACTIVE' ? 'Desactiver' : 'Activer'}
+                  {table.status === 'ACTIVE' ? 'Désactiver' : 'Activer'}
                 </button>
                 <button
                   type="button"
@@ -266,13 +266,13 @@ export default function AdminTablesPage() {
               Annuler
             </Button>
             <Button type="submit" form="table-form" loading={saving}>
-              {editing ? 'Enregistrer' : 'Creer'}
+              {editing ? 'Enregistrer' : 'Créer'}
             </Button>
           </>
         }
       >
         <form id="table-form" onSubmit={submit} className="space-y-4">
-          <Field label="Numero de table" required hint="Ex : 01, 02, Terrasse 1">
+          <Field label="Numéro de table" required hint="Ex : 01, 02, Terrasse 1">
             <Input
               required
               maxLength={20}
@@ -282,17 +282,17 @@ export default function AdminTablesPage() {
             />
           </Field>
 
-          <Field label="Libelle">
+          <Field label="Libellé">
             <Input
               maxLength={60}
               value={form.label}
               onChange={(event) => setForm({ ...form, label: event.target.value })}
-              placeholder="Terrasse cote jardin"
+              placeholder="Terrasse côté jardin"
             />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Capacite">
+            <Field label="Capacité">
               <Input
                 type="number"
                 min="1"
@@ -315,7 +315,7 @@ export default function AdminTablesPage() {
 
           {!editing && (
             <p className="rounded-xl bg-sky-50 px-4 py-3 text-xs text-sky-800">
-              Le QR Code de la table est genere automatiquement a la creation.
+              Le QR Code de la table est généré automatiquement à la creation.
             </p>
           )}
         </form>
@@ -339,14 +339,14 @@ export default function AdminTablesPage() {
                   setQrTable(null);
                 }}
               >
-                Regenerer
+                Régénérer
               </Button>
               <a
                 href={qrTable.qrCode?.dataUrl}
                 download={`qr-table-${qrTable.number}.png`}
                 className="btn-primary"
               >
-                Telecharger
+                Télécharger
               </a>
             </>
           )
@@ -361,7 +361,7 @@ export default function AdminTablesPage() {
                 className="mx-auto h-56 w-56"
               />
             ) : (
-              <p className="text-sm text-ink-500">Aucun QR Code genere</p>
+              <p className="text-sm text-ink-500">Aucun QR Code généré</p>
             )}
 
             <p className="mt-3 text-sm text-ink-600">Scannez pour consulter le menu</p>
@@ -385,7 +385,7 @@ export default function AdminTablesPage() {
         title="Supprimer la table"
         message={
           deleteTarget
-            ? `Supprimer la table ${deleteTarget.number} ? Si elle possede un historique de commandes, desactivez-la plutot.`
+            ? `Supprimer la table ${deleteTarget.number} ? Si elle possède un historique de commandes, désactivez-la plutot.`
             : ''
         }
         confirmLabel="Supprimer"
@@ -396,13 +396,13 @@ export default function AdminTablesPage() {
         open={Boolean(regenerateTarget)}
         onClose={() => setRegenerateTarget(null)}
         onConfirm={regenerate}
-        title="Regenerer le QR Code"
+        title="Régénérer le QR Code"
         message={
           regenerateTarget
-            ? `Un nouveau lien sera genere pour la table ${regenerateTarget.number}. L'ancien QR Code imprime cessera immediatement de fonctionner : vous devrez le remplacer sur la table.`
+            ? `Un nouveau lien sera généré pour la table ${regenerateTarget.number}. L'ancien QR Code imprimé cessera immédiatement de fonctionner : vous devrez le remplacer sur la table.`
             : ''
         }
-        confirmLabel="Regenerer"
+        confirmLabel="Régénérer"
         variant="danger"
         loading={saving}
       />

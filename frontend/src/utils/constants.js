@@ -4,7 +4,7 @@ export const ORDER_STATUS = {
   NEW: {
     key: 'NEW',
     label: 'Nouvelle',
-    clientLabel: 'Commande recue',
+    clientLabel: 'Commande reçue',
     badge: 'bg-sky-100 text-sky-700',
     dot: 'bg-sky-500',
     next: 'ACCEPTED',
@@ -12,26 +12,26 @@ export const ORDER_STATUS = {
   },
   ACCEPTED: {
     key: 'ACCEPTED',
-    label: 'Acceptee',
-    clientLabel: 'Acceptee',
+    label: 'Acceptée',
+    clientLabel: 'Acceptée',
     badge: 'bg-indigo-100 text-indigo-700',
     dot: 'bg-indigo-500',
     next: 'PREPARING',
-    nextLabel: 'En preparation',
+    nextLabel: 'En préparation',
   },
   PREPARING: {
     key: 'PREPARING',
-    label: 'En preparation',
-    clientLabel: 'En preparation',
+    label: 'En préparation',
+    clientLabel: 'En préparation',
     badge: 'bg-amber-100 text-amber-700',
     dot: 'bg-amber-500',
     next: 'READY',
-    nextLabel: 'Marquer prete',
+    nextLabel: 'Marquer prête',
   },
   READY: {
     key: 'READY',
-    label: 'Prete',
-    clientLabel: 'Prete',
+    label: 'Prête',
+    clientLabel: 'Prête',
     badge: 'bg-emerald-100 text-emerald-700',
     dot: 'bg-emerald-500',
     next: 'SERVED',
@@ -48,8 +48,8 @@ export const ORDER_STATUS = {
   },
   CANCELLED: {
     key: 'CANCELLED',
-    label: 'Annulee',
-    clientLabel: 'Annulee',
+    label: 'Annulée',
+    clientLabel: 'Annulée',
     badge: 'bg-red-100 text-red-700',
     dot: 'bg-red-500',
     next: null,
@@ -68,11 +68,11 @@ export const SERVICE_REQUEST_TYPE = {
 export const SERVICE_REQUEST_STATUS = {
   PENDING: { label: 'En attente', badge: 'bg-amber-100 text-amber-700', next: 'TAKEN', nextLabel: 'Prendre en charge' },
   TAKEN: { label: 'Prise en charge', badge: 'bg-indigo-100 text-indigo-700', next: 'COMPLETED', nextLabel: 'Terminer' },
-  COMPLETED: { label: 'Terminee', badge: 'bg-ink-100 text-ink-600', next: null, nextLabel: null },
-  REQUESTED: { label: 'Demandee', badge: 'bg-sky-100 text-sky-700', next: 'PROCESSING', nextLabel: 'Preparer l\'addition' },
-  PROCESSING: { label: 'En cours', badge: 'bg-indigo-100 text-indigo-700', next: 'PAID', nextLabel: 'Marquer payee' },
-  PAID: { label: 'Payee', badge: 'bg-emerald-100 text-emerald-700', next: null, nextLabel: null },
-  CANCELLED: { label: 'Annulee', badge: 'bg-red-100 text-red-700', next: null, nextLabel: null },
+  COMPLETED: { label: 'Terminée', badge: 'bg-ink-100 text-ink-600', next: null, nextLabel: null },
+  REQUESTED: { label: 'Demandée', badge: 'bg-sky-100 text-sky-700', next: 'PROCESSING', nextLabel: 'Préparer l\'addition' },
+  PROCESSING: { label: 'En cours', badge: 'bg-indigo-100 text-indigo-700', next: 'PAID', nextLabel: 'Marquer payée' },
+  PAID: { label: 'Payée', badge: 'bg-emerald-100 text-emerald-700', next: null, nextLabel: null },
+  CANCELLED: { label: 'Annulée', badge: 'bg-red-100 text-red-700', next: null, nextLabel: null },
 };
 
 export const PERIOD_OPTIONS = [
@@ -80,18 +80,18 @@ export const PERIOD_OPTIONS = [
   { value: 'yesterday', label: 'Hier' },
   { value: 'week', label: 'Cette semaine' },
   { value: 'month', label: 'Ce mois' },
-  { value: 'custom', label: 'Periode personnalisee' },
+  { value: 'custom', label: 'Période personnalisée' },
   { value: 'all', label: 'Tout' },
 ];
 
 export const WEEKDAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
 export const MONTHS = [
-  'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre',
+  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
 ];
 
-/** Cle de stockage du panier, propre a chaque table. */
+/** Cle de stockage du panier, propre à chaque table. */
 export const cartKey = (tableToken) => `qrmenu.cart.${tableToken}`;
 /** Commandes suivies par le client sur cette table. */
 export const ordersKey = (tableToken) => `qrmenu.orders.${tableToken}`;

@@ -32,7 +32,7 @@ async function main() {
       currency: 'FCFA',
       openingHours: 'Lundi - Dimanche : 11h00 - 23h30',
       primaryColor: '#E4572E',
-      welcomeMessage: 'Bienvenue chez nous. Bon appetit !',
+      welcomeMessage: 'Bienvenue chez nous. Bon appétit !',
     },
   });
   console.log(`Restaurant : ${restaurant.name} (id ${restaurant.id})`);
@@ -69,9 +69,9 @@ async function main() {
   });
   console.log(`Comptes    : ${admin.email} (ADMIN), ${serveuse.email} (SERVEUSE)`);
 
-  // ------------------------------ Categories -----------------------------
+  // ------------------------------ Catégories -----------------------------
   const categoryDefs = [
-    { name: 'Entrees', icon: 'Salad', sortOrder: 1 },
+    { name: 'Entrées', icon: 'Salad', sortOrder: 1 },
     { name: 'Plats', icon: 'UtensilsCrossed', sortOrder: 2 },
     { name: 'Grillades', icon: 'Flame', sortOrder: 3 },
     { name: 'Accompagnements', icon: 'Wheat', sortOrder: 4 },
@@ -89,7 +89,7 @@ async function main() {
     });
     categories[slug] = category;
   }
-  console.log(`Categories : ${Object.keys(categories).length} creees`);
+  console.log(`Catégories : ${Object.keys(categories).length} créées`);
 
   // ------------------------------- Produits ------------------------------
   const productDefs = [
@@ -111,7 +111,7 @@ async function main() {
           ],
         },
         {
-          name: 'Supplements',
+          name: 'Suppléments',
           type: 'MULTIPLE',
           isRequired: false,
           values: [
@@ -277,9 +277,9 @@ async function main() {
         },
       },
     });
-    console.log(`Menu       : menu du jour cree (${menuProducts.length} produits)`);
+    console.log(`Menu       : menu du jour créé (${menuProducts.length} produits)`);
   } else {
-    console.log('Menu       : un menu existe deja pour aujourd\'hui, inchange');
+    console.log('Menu       : un menu existe déjà pour aujourd\'hui, inchangé');
   }
 
   // ------------------------------ Recapitulatif --------------------------

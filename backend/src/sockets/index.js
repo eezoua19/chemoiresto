@@ -9,9 +9,9 @@ let io = null;
 const staffRoom = (restaurantId) => `restaurant:${restaurantId}:staff`;
 /** Salon prive d'une serveuse (commandes qui lui sont attribuees). */
 const userRoom = (userId) => `user:${userId}`;
-/** Salon de suivi d'une commande cote client (jeton non devinable). */
+/** Salon de suivi d'une commande côté client (jeton non devinable). */
 const orderRoom = (trackingToken) => `order:${trackingToken}`;
-/** Salon d'une table cote client. */
+/** Salon d'une table côté client. */
 const tableRoom = (tableToken) => `table:${tableToken}`;
 
 /**
@@ -49,14 +49,14 @@ function initSocket(httpServer) {
           socket.join(userRoom(user.id));
           socket.emit('connected', { role: user.role, firstName: user.firstName });
         } else {
-          socket.emit('auth_error', { message: 'Compte invalide ou desactive' });
+          socket.emit('auth_error', { message: 'Compte invalide ou désactivé' });
         }
       } catch (error) {
         socket.emit('auth_error', { message: 'Jeton Socket.IO invalide' });
       }
     }
 
-    // ---- Connexion cote client ----------------------------------------
+    // ---- Connexion côté client ----------------------------------------
     socket.on('join_table', (tableToken) => {
       if (typeof tableToken === 'string' && /^[a-f0-9]{16,64}$/i.test(tableToken)) {
         socket.join(tableRoom(tableToken));
@@ -82,7 +82,7 @@ function getIO() {
   return io;
 }
 
-/** Ferme toutes les connexions temps reel (arret du serveur, tests). */
+/** Ferme toutes les connexions temps réel (arrêt du serveur, tests). */
 async function closeSocket() {
   if (!io) return;
   const instance = io;
@@ -90,25 +90,25 @@ async function closeSocket() {
   await new Promise((resolve) => instance.close(resolve));
 }
 
-/** Emet un evenement a tout le personnel d'un restaurant. */
+/** Emet un événement a tout le personnel d'un restaurant. */
 function emitToStaff(restaurantId, event, payload) {
   if (!io) return;
   io.to(staffRoom(restaurantId)).emit(event, payload);
 }
 
-/** Emet un evenement a une serveuse precise. */
+/** Emet un événement à une serveuse précise. */
 function emitToUser(userId, event, payload) {
   if (!io) return;
   io.to(userRoom(userId)).emit(event, payload);
 }
 
-/** Emet un evenement au client qui suit une commande. */
+/** Emet un événement au client qui suit une commande. */
 function emitToOrder(trackingToken, event, payload) {
   if (!io) return;
   io.to(orderRoom(trackingToken)).emit(event, payload);
 }
 
-/** Emet un evenement a tous les clients presents sur une table. */
+/** Emet un événement a tous les clients presents sur une table. */
 function emitToTable(tableToken, event, payload) {
   if (!io) return;
   io.to(tableRoom(tableToken)).emit(event, payload);

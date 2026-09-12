@@ -12,21 +12,21 @@ test('Authentification et permissions', async (suite) => {
   let adminToken;
   let serverToken;
 
-  await suite.test('connexion administrateur reussie', async () => {
+  await suite.test('connexion administrateur réussie', async () => {
     const result = await api('/api/auth/login', { method: 'POST', body: ADMIN });
     assert.equal(result.success, true);
     assert.equal(result.data.user.role, 'ADMIN');
-    assert.ok(result.data.token, 'un jeton JWT doit etre renvoye');
+    assert.ok(result.data.token, 'un jeton JWT doit être renvoye');
     adminToken = result.data.token;
   });
 
-  await suite.test('connexion serveuse reussie', async () => {
+  await suite.test('connexion serveuse réussie', async () => {
     const result = await login(SERVER.email, SERVER.password);
     assert.equal(result.user.role, 'SERVER');
     serverToken = result.token;
   });
 
-  await suite.test('mot de passe incorrect refuse (401)', async () => {
+  await suite.test('mot de passe incorrect refusé (401)', async () => {
     const result = await api('/api/auth/login', {
       method: 'POST',
       body: { email: ADMIN.email, password: 'mauvais-mot-de-passe' },
@@ -35,7 +35,7 @@ test('Authentification et permissions', async (suite) => {
     assert.equal(result.success, false);
   });
 
-  await suite.test('compte inexistant refuse sans reveler son absence', async () => {
+  await suite.test('compte inexistant refusé sans reveler son absence', async () => {
     const result = await api('/api/auth/login', {
       method: 'POST',
       body: { email: 'inconnu@exemple.ci', password: 'peu-importe' },
@@ -74,7 +74,7 @@ test('Authentification et permissions', async (suite) => {
     assert.equal(result.status, 403);
   });
 
-  await suite.test('une serveuse ne peut pas creer de produit (403)', async () => {
+  await suite.test('une serveuse ne peut pas créer de produit (403)', async () => {
     const result = await api('/api/products', {
       method: 'POST',
       token: serverToken,
@@ -83,7 +83,7 @@ test('Authentification et permissions', async (suite) => {
     assert.equal(result.status, 403);
   });
 
-  await suite.test('une serveuse ne peut pas creer de table (403)', async () => {
+  await suite.test('une serveuse ne peut pas créer de table (403)', async () => {
     const result = await api('/api/tables', {
       method: 'POST',
       token: serverToken,
@@ -92,7 +92,7 @@ test('Authentification et permissions', async (suite) => {
     assert.equal(result.status, 403);
   });
 
-  await suite.test('un administrateur accede aux statistiques', async () => {
+  await suite.test('un administrateur accède aux statistiques', async () => {
     const result = await api('/api/dashboard/stats', { token: adminToken });
     assert.equal(result.success, true);
     assert.ok(result.data.today);

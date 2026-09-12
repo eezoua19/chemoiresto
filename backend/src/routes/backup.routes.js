@@ -4,8 +4,8 @@ const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Un export contient l'integralite des donnees du restaurant : reserve a
-// l'administrateur, jamais accessible a une serveuse.
+// Un export contient l'integralite des données du restaurant : reserve a
+// l'administrateur, jamais accessible à une serveuse.
 router.use(authMiddleware, roleMiddleware('ADMIN'));
 
 router.get('/', controller.exporter);

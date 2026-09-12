@@ -3,14 +3,14 @@ import { CLIENT_TIMELINE, ORDER_STATUS } from '../../utils/constants';
 import { formatTime } from '../../utils/format';
 
 /**
- * Suivi visuel de la commande cote client.
- * Les etapes franchies sont pleines, les suivantes restent grises.
+ * Suivi visuel de la commande côté client.
+ * Les étapes franchies sont pleines, les suivantes restent grises.
  */
 export default function OrderStatusTracker({ order, compact = false }) {
   if (order.status === 'CANCELLED') {
     return (
       <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-        Cette commande a ete annulee. Adressez-vous a une serveuse.
+        Cette commande a été annulée. Adressez-vous à une serveuse.
       </div>
     );
   }

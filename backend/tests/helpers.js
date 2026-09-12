@@ -82,11 +82,11 @@ function connectSocket(token) {
   });
 }
 
-/** Attend un evenement Socket.IO precis. */
+/** Attend un événement Socket.IO precis. */
 function waitForEvent(socket, event, timeout = 5000) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(
-      () => reject(new Error(`Evenement "${event}" non recu apres ${timeout} ms`)),
+      () => reject(new Error(`Evenement "${event}" non reçu après ${timeout} ms`)),
       timeout
     );
     socket.once(event, (payload) => {
@@ -97,7 +97,7 @@ function waitForEvent(socket, event, timeout = 5000) {
 }
 
 /**
- * Garantit qu'un menu publie existe pour aujourd'hui.
+ * Garantit qu'un menu publié existe pour aujourd'hui.
  * Les tests de commande en dependent.
  */
 async function ensureTodayMenu(restaurantId) {

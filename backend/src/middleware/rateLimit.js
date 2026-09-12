@@ -19,10 +19,10 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,
-  message: { success: false, message: 'Trop de tentatives de connexion. Reessayez dans 10 minutes.' },
+  message: { success: false, message: 'Trop de tentatives de connexion. Réessayez dans 10 minutes.' },
 });
 
-/** Limite les creations de commandes depuis une meme adresse. */
+/** Limite les creations de commandes depuis une même adresse. */
 const orderLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: env.isProduction ? 12 : 200,
@@ -37,7 +37,7 @@ const serviceRequestLimiter = rateLimit({
   max: env.isProduction ? 6 : 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: 'Votre demande a deja ete envoyee. Patientez un instant.' },
+  message: { success: false, message: 'Votre demande a déjà été envoyée. Patientez un instant.' },
 });
 
 module.exports = { globalLimiter, loginLimiter, orderLimiter, serviceRequestLimiter };

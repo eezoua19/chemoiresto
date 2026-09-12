@@ -4,8 +4,8 @@ const { success } = require('../utils/response');
 const { dayRange, toNumber, today, formatDate } = require('../utils/helpers');
 
 const MOIS = [
-  'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre',
+  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
 ];
 
 /** Bornes d'un mois calendaire : du 1er a 00h00 au 1er du mois suivant. */
@@ -23,10 +23,10 @@ function cleDuJour(d) {
 /**
  * GET /api/dashboard/stats?month=AAAA-MM
  *
- * Sans parametre, le mois en cours. Les indicateurs du bloc `today` restent
- * ceux du jour reel : ils servent au service en cours, pas a l'analyse.
+ * Sans paramètre, le mois en cours. Les indicateurs du bloc `today` restent
+ * ceux du jour réel : ils servent au service en cours, pas à l'analyse.
  *
- * La periode est un vrai mois calendaire et non une fenetre glissante de
+ * La période est un vrai mois calendaire et non une fenêtre glissante de
  * 30 jours : « septembre » doit vouloir dire septembre, sinon les chiffres ne
  * se comparent pas d'un mois sur l'autre.
  */
@@ -107,7 +107,7 @@ const stats = asyncHandler(async (req, res) => {
   ]);
 
   // ---- Graphique : un point par jour du mois consulte --------------------
-  // Tous les jours sont crees, meme sans commande : un creux doit se voir.
+  // Tous les jours sont crees, même sans commande : un creux doit se voir.
   const buckets = new Map();
   for (let jour = 1; jour <= nombreDeJours; jour += 1) {
     const key = cleDuJour(new Date(annee, moisIndex, jour));
@@ -136,7 +136,7 @@ const stats = asyncHandler(async (req, res) => {
     take: 8,
   });
 
-  // ---- Categories populaires --------------------------------------------
+  // ---- Catégories populaires --------------------------------------------
   const itemsWithCategory = await prisma.orderItem.findMany({
     where: { order: surLaPeriode },
     select: {
@@ -148,7 +148,7 @@ const stats = asyncHandler(async (req, res) => {
 
   const categoryMap = new Map();
   for (const item of itemsWithCategory) {
-    const name = item.product?.category?.name || 'Sans categorie';
+    const name = item.product?.category?.name || 'Sans catégorie';
     const entry = categoryMap.get(name) || { name, quantity: 0, revenue: 0 };
     entry.quantity += item.quantity;
     entry.revenue += toNumber(item.lineTotal) || 0;
@@ -246,7 +246,7 @@ const stats = asyncHandler(async (req, res) => {
         serverPerformance,
       },
     },
-    'Statistiques recuperees'
+    'Statistiques récupérées'
   );
 });
 

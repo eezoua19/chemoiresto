@@ -17,7 +17,7 @@ const backupRoutes = require('./backup.routes');
 const router = express.Router();
 
 router.get('/health', (_req, res) =>
-  res.json({ success: true, message: 'API operationnelle', data: { time: new Date().toISOString() } })
+  res.json({ success: true, message: 'API opérationnelle', data: { time: new Date().toISOString() } })
 );
 
 // Routes publiques (client, sans compte)

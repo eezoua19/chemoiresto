@@ -52,7 +52,7 @@ export default function LoginPage() {
           </span>
           <h1 className="text-2xl font-bold text-white">Espace professionnel</h1>
           <p className="mt-1 text-sm text-ink-300">
-            Connectez-vous pour gerer les commandes et le menu
+            Connectez-vous pour gérer les commandes et le menu
           </p>
         </div>
 

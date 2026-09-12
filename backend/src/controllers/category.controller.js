@@ -4,7 +4,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const { success, created } = require('../utils/response');
 const { slugify } = require('../utils/helpers');
 
-/** GET /api/categories */
+/** GET /api/catégories */
 const list = asyncHandler(async (req, res) => {
   const categories = await prisma.category.findMany({
     where: { restaurantId: req.user.restaurantId },
@@ -15,11 +15,11 @@ const list = asyncHandler(async (req, res) => {
   return success(
     res,
     categories.map((category) => ({ ...category, productCount: category._count.products })),
-    'Categories recuperees'
+    'Catégories récupérées'
   );
 });
 
-/** POST /api/categories */
+/** POST /api/catégories */
 const create = asyncHandler(async (req, res) => {
   const { name, icon, sortOrder, isActive } = req.body;
   const restaurantId = req.user.restaurantId;
@@ -46,16 +46,16 @@ const create = asyncHandler(async (req, res) => {
     },
   });
 
-  return created(res, category, 'Categorie creee');
+  return created(res, category, 'Catégorie créée');
 });
 
-/** PUT /api/categories/:id */
+/** PUT /api/catégories/:id */
 const update = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const restaurantId = req.user.restaurantId;
 
   const category = await prisma.category.findFirst({ where: { id, restaurantId } });
-  if (!category) throw ApiError.notFound('Categorie introuvable');
+  if (!category) throw ApiError.notFound('Catégorie introuvable');
 
   const data = {};
   if (req.body.name !== undefined) {
@@ -72,35 +72,35 @@ const update = asyncHandler(async (req, res) => {
   if (req.body.isActive !== undefined) data.isActive = req.body.isActive;
 
   const updated = await prisma.category.update({ where: { id }, data });
-  return success(res, updated, 'Categorie mise a jour');
+  return success(res, updated, 'Catégorie mise à jour');
 });
 
-/** DELETE /api/categories/:id */
+/** DELETE /api/catégories/:id */
 const remove = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const category = await prisma.category.findFirst({
     where: { id, restaurantId: req.user.restaurantId },
     include: { _count: { select: { products: true } } },
   });
-  if (!category) throw ApiError.notFound('Categorie introuvable');
+  if (!category) throw ApiError.notFound('Catégorie introuvable');
 
   if (category._count.products > 0) {
     throw ApiError.conflict(
-      `Impossible de supprimer : ${category._count.products} produit(s) utilisent cette categorie`
+      `Impossible de supprimer : ${category._count.products} produit(s) utilisent cette catégorie`
     );
   }
 
   await prisma.category.delete({ where: { id } });
-  return success(res, null, 'Categorie supprimee');
+  return success(res, null, 'Catégorie supprimée');
 });
 
-/** PUT /api/categories/reorder */
+/** PUT /api/catégories/reorder */
 const reorder = asyncHandler(async (req, res) => {
   const restaurantId = req.user.restaurantId;
   const ids = req.body.items.map((item) => item.id);
 
   const owned = await prisma.category.count({ where: { id: { in: ids }, restaurantId } });
-  if (owned !== ids.length) throw ApiError.forbidden('Certaines categories ne vous appartiennent pas');
+  if (owned !== ids.length) throw ApiError.forbidden('Certaines catégories ne vous appartiennent pas');
 
   await prisma.$transaction(
     req.body.items.map((item) =>
@@ -108,7 +108,7 @@ const reorder = asyncHandler(async (req, res) => {
     )
   );
 
-  return success(res, null, 'Ordre des categories mis a jour');
+  return success(res, null, 'Ordre des catégories mis à jour');
 });
 
 module.exports = { list, create, update, remove, reorder };

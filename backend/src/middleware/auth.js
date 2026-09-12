@@ -12,9 +12,9 @@ function extractToken(req) {
 }
 
 /**
- * Verifie le JWT, recharge l'utilisateur en base et le place sur req.user.
- * Recharger l'utilisateur permet de bloquer immediatement un compte desactive
- * meme si son jeton n'a pas encore expire.
+ * Vérifie le JWT, recharge l'utilisateur en base et le place sur req.user.
+ * Recharger l'utilisateur permet de bloquer immédiatement un compte désactivé
+ * même si son jeton n'a pas encore expire.
  */
 const authMiddleware = asyncHandler(async (req, _res, next) => {
   const token = extractToken(req);
@@ -24,7 +24,7 @@ const authMiddleware = asyncHandler(async (req, _res, next) => {
   try {
     payload = jwt.verify(token, env.jwtSecret);
   } catch (error) {
-    throw ApiError.unauthorized('Session expiree ou jeton invalide');
+    throw ApiError.unauthorized('Session expirée ou jeton invalide');
   }
 
   const user = await prisma.user.findUnique({
@@ -42,21 +42,21 @@ const authMiddleware = asyncHandler(async (req, _res, next) => {
   });
 
   if (!user) throw ApiError.unauthorized('Compte introuvable');
-  if (user.status !== 'ACTIVE') throw ApiError.forbidden('Ce compte est desactive');
+  if (user.status !== 'ACTIVE') throw ApiError.forbidden('Ce compte est désactivé');
 
   req.user = user;
   return next();
 });
 
 /**
- * Restreint l'acces a une liste de roles.
+ * Restreint l'accès à une liste de roles.
  * Exemple : router.use(roleMiddleware('ADMIN'))
  */
 function roleMiddleware(...roles) {
   return (req, _res, next) => {
     if (!req.user) return next(ApiError.unauthorized());
     if (!roles.includes(req.user.role)) {
-      return next(ApiError.forbidden('Vous n\'avez pas les droits necessaires'));
+      return next(ApiError.forbidden('Vous n\'avez pas les droits nécessaires'));
     }
     return next();
   };

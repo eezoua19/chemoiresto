@@ -48,7 +48,7 @@ function serializeMenu(menu) {
   };
 }
 
-/** Verifie que tous les produits appartiennent bien au restaurant. */
+/** Vérifie que tous les produits appartiennent bien au restaurant. */
 async function assertProductsOwned(restaurantId, items) {
   if (!items || !items.length) return;
   const ids = [...new Set(items.map((item) => item.productId))];
@@ -99,11 +99,11 @@ const list = asyncHandler(async (req, res) => {
         itemCount: menu._count.items,
       })),
     },
-    'Menus recuperes'
+    'Menus récupérés'
   );
 });
 
-/** GET /api/menus/date/:date - menu d'une date precise (null si aucun) */
+/** GET /api/menus/date/:date - menu d'une date précise (null si aucun) */
 const getByDate = asyncHandler(async (req, res) => {
   const date = normalizeDate(req.params.date);
   if (!date) throw ApiError.badRequest('Date invalide');
@@ -116,7 +116,7 @@ const getByDate = asyncHandler(async (req, res) => {
   return success(
     res,
     { date: formatDate(date), menu: serializeMenu(menu) },
-    menu ? 'Menu recupere' : 'Aucun menu programme pour cette date'
+    menu ? 'Menu récupéré' : 'Aucun menu programme pour cette date'
   );
 });
 
@@ -127,7 +127,7 @@ const detail = asyncHandler(async (req, res) => {
     include: menuInclude,
   });
   if (!menu) throw ApiError.notFound('Menu introuvable');
-  return success(res, serializeMenu(menu), 'Menu recupere');
+  return success(res, serializeMenu(menu), 'Menu récupéré');
 });
 
 /** POST /api/menus */
@@ -143,7 +143,7 @@ const create = asyncHandler(async (req, res) => {
   });
   if (existing) {
     throw ApiError.conflict(
-      `Un menu existe deja pour le ${formatDate(normalized)}. Modifiez-le au lieu d'en creer un second.`
+      `Un menu existe déjà pour le ${formatDate(normalized)}. Modifiez-le au lieu d'en créer un second.`
     );
   }
 
@@ -179,12 +179,12 @@ const create = asyncHandler(async (req, res) => {
   });
 
   emitToStaff(restaurantId, 'menu_updated', { date: formatDate(normalized) });
-  return created(res, serializeMenu(menu), `Menu du ${formatDate(normalized)} cree`);
+  return created(res, serializeMenu(menu), `Menu du ${formatDate(normalized)} créé`);
 });
 
 /**
  * PUT /api/menus/:id
- * Si "items" est fourni, la liste remplace integralement l'ancienne.
+ * Si "items" est fourni, la liste remplace intégralement l'ancienne.
  */
 const update = asyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -230,7 +230,7 @@ const update = asyncHandler(async (req, res) => {
   });
 
   emitToStaff(restaurantId, 'menu_updated', { date: formatDate(updated.date) });
-  return success(res, serializeMenu(updated), 'Menu mis a jour');
+  return success(res, serializeMenu(updated), 'Menu mis à jour');
 });
 
 /** DELETE /api/menus/:id */
@@ -242,7 +242,7 @@ const remove = asyncHandler(async (req, res) => {
 
   await prisma.dailyMenu.delete({ where: { id: menu.id } });
   emitToStaff(req.user.restaurantId, 'menu_updated', { date: formatDate(menu.date) });
-  return success(res, null, 'Menu supprime');
+  return success(res, null, 'Menu supprimé');
 });
 
 /**
@@ -262,7 +262,7 @@ const duplicate = asyncHandler(async (req, res) => {
   const target = normalizeDate(targetDate);
   if (!target) throw ApiError.badRequest('Date de destination invalide');
   if (formatDate(target) === formatDate(source.date)) {
-    throw ApiError.badRequest('La date de destination doit etre differente de la date source');
+    throw ApiError.badRequest('La date de destination doit être différente de la date source');
   }
 
   const existing = await prisma.dailyMenu.findUnique({
@@ -271,7 +271,7 @@ const duplicate = asyncHandler(async (req, res) => {
 
   if (existing && !overwrite) {
     throw ApiError.conflict(
-      `Un menu existe deja pour le ${formatDate(target)}. Cochez "remplacer" pour l'ecraser.`
+      `Un menu existe déjà pour le ${formatDate(target)}. Cochez "remplacer" pour l'écraser.`
     );
   }
 
@@ -304,7 +304,7 @@ const duplicate = asyncHandler(async (req, res) => {
   return created(
     res,
     serializeMenu(copy),
-    `Menu du ${formatDate(source.date)} copie vers le ${formatDate(target)}`
+    `Menu du ${formatDate(source.date)} copié vers le ${formatDate(target)}`
   );
 });
 
@@ -318,14 +318,14 @@ const getToday = asyncHandler(async (req, res) => {
   return success(
     res,
     { date: formatDate(date), menu: serializeMenu(menu) },
-    menu ? 'Menu du jour recupere' : 'Aucun menu programme pour aujourd\'hui'
+    menu ? 'Menu du jour récupéré' : 'Aucun menu programme pour aujourd\'hui'
   );
 });
 
 /**
  * POST /api/menus/today/products
- * Rend un produit immediatement commandable par les clients.
- * Cree le menu du jour s'il n'existe pas encore : l'administrateur n'a donc
+ * Rend un produit immédiatement commandable par les clients.
+ * Crée le menu du jour s'il n'existe pas encore : l'administrateur n'a donc
  * pas besoin de passer par le calendrier pour proposer un nouveau plat.
  */
 const addProductToToday = asyncHandler(async (req, res) => {
@@ -336,7 +336,7 @@ const addProductToToday = asyncHandler(async (req, res) => {
   const product = await prisma.product.findFirst({ where: { id: productId, restaurantId } });
   if (!product) throw ApiError.notFound('Produit introuvable');
   if (!product.isActive) {
-    throw ApiError.badRequest('Ce produit est archive : reactivez-le avant de le mettre au menu');
+    throw ApiError.badRequest('Ce produit est archivé : réactivez-le avant de le mettre au menu');
   }
 
   const menu = await prisma.$transaction(async (tx) => {

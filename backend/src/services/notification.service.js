@@ -2,14 +2,14 @@ const prisma = require('../config/prisma');
 const { emitToStaff, emitToUser } = require('../sockets');
 
 /**
- * Cree une notification persistante et la pousse en temps reel.
+ * Crée une notification persistante et la pousse en temps réel.
  * @param {object} params
  * @param {number} params.restaurantId
  * @param {number} [params.userId] destinataire precis (sinon tout le personnel)
  * @param {string} params.type NEW_ORDER | ORDER_STATUS | CALL_SERVER | BILL_REQUEST | SYSTEM
  * @param {string} params.title
  * @param {string} [params.body]
- * @param {object} [params.data] charge utile serialisee en JSON
+ * @param {object} [params.data] charge utile sérialisée en JSON
  */
 async function createNotification({ restaurantId, userId = null, type, title, body = null, data = null }) {
   const notification = await prisma.notification.create({

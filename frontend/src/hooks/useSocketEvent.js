@@ -2,9 +2,9 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { getSocket, getSocketVersion, subscribeToSocketChanges } from '../services/socket';
 
 /**
- * Abonne un composant a un evenement Socket.IO et se desabonne proprement.
+ * Abonne un composant a un événement Socket.IO et se desabonne proprement.
  * Le gestionnaire est stocke dans une ref : pas besoin de le memoiser.
- * L'abonnement est recree si la connexion elle-meme est remplacee
+ * L'abonnement est recree si la connexion elle-même est remplacee
  * (connexion, deconnexion, changement de compte).
  */
 export default function useSocketEvent(event, handler, enabled = true) {

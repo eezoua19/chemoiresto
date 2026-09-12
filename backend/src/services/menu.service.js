@@ -1,7 +1,7 @@
 const prisma = require('../config/prisma');
 const { toNumber, normalizeDate, today, formatDate } = require('../utils/helpers');
 
-/** Champs de produit necessaires a l'affichage du menu client. */
+/** Champs de produit nécessaires à l'affichage du menu client. */
 const productInclude = {
   category: { select: { id: true, name: true, slug: true, icon: true, sortOrder: true } },
   options: {
@@ -31,7 +31,7 @@ async function getMenuByDate(restaurantId, dateInput) {
 /**
  * Met le menu en forme pour le client.
  * Le prix affiche est le prix du jour s'il existe, sinon le prix de base.
- * Un produit desactive globalement n'apparait pas du tout.
+ * Un produit désactivé globalement n'apparaît pas du tout.
  */
 function serializeMenuForClient(menu, restaurant) {
   if (!menu) return null;
@@ -80,7 +80,7 @@ function serializeMenuForClient(menu, restaurant) {
       };
     });
 
-  // Categories reellement presentes dans le menu du jour
+  // Catégories reellement presentes dans le menu du jour
   const categoryMap = new Map();
   for (const item of items) {
     if (item.category && !categoryMap.has(item.category.id)) {

@@ -22,18 +22,18 @@ function errorHandler(error, req, res, _next) {
       const fields = Array.isArray(error.meta?.target)
         ? error.meta.target.join(', ')
         : error.meta?.target || 'champ unique';
-      return failure(res, `Cette valeur existe deja (${fields})`, 409);
+      return failure(res, `Cette valeur existe déjà (${fields})`, 409);
     }
     if (error.code === 'P2025') {
       return failure(res, 'Ressource introuvable', 404);
     }
     if (error.code === 'P2003') {
-      return failure(res, 'Impossible : cet element est utilise ailleurs', 409);
+      return failure(res, 'Impossible : cet élément est utilise ailleurs', 409);
     }
   }
 
   if (error instanceof Prisma.PrismaClientValidationError) {
-    return failure(res, 'Donnees invalides pour la base de donnees', 400);
+    return failure(res, 'Données invalides pour la base de données', 400);
   }
 
   // Erreurs Multer (upload)
@@ -42,12 +42,12 @@ function errorHandler(error, req, res, _next) {
   }
 
   if (error.type === 'entity.parse.failed') {
-    return failure(res, 'Corps de requete JSON invalide', 400);
+    return failure(res, 'Corps de requête JSON invalide', 400);
   }
 
   // Erreur inattendue
   // eslint-disable-next-line no-console
-  console.error('[ERREUR NON GEREE]', error);
+  console.error('[ERREUR NON GÉRÉE]', error);
   return failure(
     res,
     env.isProduction ? 'Une erreur interne est survenue' : error.message,

@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { startServer, stopServer, api, login, prisma } = require('./helpers');
 
-/** Dates volontairement lointaines pour ne pas perturber les donnees reelles. */
+/** Dates volontairement lointaines pour ne pas perturber les données reelles. */
 const DAY_1 = '2029-03-10';
 const DAY_2 = '2029-03-11';
 const DAY_EMPTY = '2029-03-12';
@@ -17,12 +17,12 @@ test('Menus quotidiens : programmation, prix du jour et copie', async (suite) =>
     where: { restaurantId: user.restaurantId, isActive: true },
     take: 3,
   });
-  assert.ok(products.length >= 2, 'le seed doit avoir cree des produits');
+  assert.ok(products.length >= 2, 'le seed doit avoir créé des produits');
 
   /**
-   * Nettoie les menus de test avant et apres.
-   * Passe directement par Prisma : le nettoyage final s'execute apres l'arret
-   * du serveur HTTP, l'API n'est donc plus joignable a ce moment-la.
+   * Nettoie les menus de test avant et après.
+   * Passe directement par Prisma : le nettoyage final s'exécuté après l'arrêt
+   * du serveur HTTP, l'API n'est donc plus joignable à ce moment-la.
    */
   const cleanup = async () => {
     await prisma.dailyMenu.deleteMany({
@@ -57,7 +57,7 @@ test('Menus quotidiens : programmation, prix du jour et copie', async (suite) =>
     assert.equal(result.data.items.length, 2);
 
     const withSpecialPrice = result.data.items.find((item) => item.productId === products[0].id);
-    assert.equal(withSpecialPrice.price, 4500, 'le prix du jour doit etre enregistre');
+    assert.equal(withSpecialPrice.price, 4500, 'le prix du jour doit être enregistré');
     assert.equal(withSpecialPrice.isDishOfDay, true);
 
     const withoutPrice = result.data.items.find((item) => item.productId === products[1].id);
@@ -66,7 +66,7 @@ test('Menus quotidiens : programmation, prix du jour et copie', async (suite) =>
     menuId = result.data.id;
   });
 
-  await suite.test('deux menus pour la meme date sont impossibles (409)', async () => {
+  await suite.test('deux menus pour la même date sont impossibles (409)', async () => {
     const result = await api('/api/menus', {
       method: 'POST',
       token,
@@ -98,20 +98,20 @@ test('Menus quotidiens : programmation, prix du jour et copie', async (suite) =>
 
     assert.equal(result.status, 201);
     assert.equal(result.data.date, DAY_2);
-    assert.equal(result.data.items.length, 2, 'les produits doivent etre copies');
+    assert.equal(result.data.items.length, 2, 'les produits doivent être copies');
 
     const copiedPrice = result.data.items.find((item) => item.productId === products[0].id);
-    assert.equal(copiedPrice.price, 4500, 'le prix du jour doit etre copie');
-    assert.equal(copiedPrice.isDishOfDay, true, 'le plat du jour doit etre copie');
+    assert.equal(copiedPrice.price, 4500, 'le prix du jour doit être copie');
+    assert.equal(copiedPrice.isDishOfDay, true, 'le plat du jour doit être copie');
   });
 
-  await suite.test('le menu source reste inchange apres la copie', async () => {
+  await suite.test('le menu source reste inchangé après la copie', async () => {
     const source = await api(`/api/menus/date/${DAY_1}`, { token });
     assert.equal(source.data.menu.items.length, 2);
     assert.equal(source.data.menu.title, 'Menu de test');
   });
 
-  await suite.test('copier sur une date deja occupee est refuse sans "overwrite" (409)', async () => {
+  await suite.test('copier sur une date déjà occupee est refusé sans "overwrite" (409)', async () => {
     const result = await api(`/api/menus/${menuId}/duplicate`, {
       method: 'POST',
       token,
@@ -156,7 +156,7 @@ test('Menus quotidiens : programmation, prix du jour et copie', async (suite) =>
     assert.ok(!dates.includes(DAY_EMPTY));
   });
 
-  await suite.test('copier vers la meme date est refuse (400)', async () => {
+  await suite.test('copier vers la même date est refusé (400)', async () => {
     const result = await api(`/api/menus/${menuId}/duplicate`, {
       method: 'POST',
       token,
@@ -165,7 +165,7 @@ test('Menus quotidiens : programmation, prix du jour et copie', async (suite) =>
     assert.equal(result.status, 400);
   });
 
-  await suite.test('format de date invalide refuse (400)', async () => {
+  await suite.test('format de date invalide refusé (400)', async () => {
     const result = await api('/api/menus', {
       method: 'POST',
       token,

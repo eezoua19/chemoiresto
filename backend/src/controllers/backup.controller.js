@@ -2,12 +2,12 @@ const prisma = require('../config/prisma');
 const asyncHandler = require('../utils/asyncHandler');
 
 /**
- * Export complet des donnees du restaurant.
+ * Export complet des données du restaurant.
  *
  * Les sauvegardes de volume de l'hebergeur sont reservees aux offres payantes :
- * cet export est le filet de securite qui fonctionne sur toutes les offres. Il
+ * cet export est le filet de sécurité qui fonctionne sur toutes les offres. Il
  * produit un instantane JSON restaurable, telechargeable par l'administrateur
- * ou recupere automatiquement par `npm run backup`.
+ * ou récupère automatiquement par `npm run backup`.
  *
  * Les empreintes de mots de passe sont volontairement exclues : un export qui
  * circule par courriel ou dort dans un dossier synchronise ne doit jamais

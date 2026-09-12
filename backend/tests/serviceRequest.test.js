@@ -17,7 +17,7 @@ test('Demandes des clients : appel serveuse et addition', async (suite) => {
   const admin = await login('admin@chemoiresto.ci', 'Admin@2026');
   const server = await login('marie@chemoiresto.ci', 'Serveuse@2026');
 
-  // Table dediee pour ne pas interferer avec les demandes existantes.
+  // Table dédiée pour ne pas interferer avec les demandes existantes.
   const created = await api('/api/tables', {
     method: 'POST',
     token: admin.token,
@@ -33,14 +33,14 @@ test('Demandes des clients : appel serveuse et addition', async (suite) => {
     await prisma.restaurantTable.delete({ where: { id: table.id } }).catch(() => {});
   });
 
-  await suite.test('la serveuse se connecte au temps reel', async () => {
+  await suite.test('la serveuse se connecte au temps réel', async () => {
     staffSocket = await connectSocket(server.token);
     assert.ok(staffSocket.connected);
   });
 
   let callId;
 
-  await suite.test('appel serveuse : cree la demande et alerte le personnel', async () => {
+  await suite.test('appel serveuse : crée la demande et alerte le personnel', async () => {
     const notified = waitForEvent(staffSocket, 'service_request');
 
     const result = await api('/api/service-requests', {
@@ -58,7 +58,7 @@ test('Demandes des clients : appel serveuse et addition', async (suite) => {
     assert.equal(event.table.number, table.number);
   });
 
-  await suite.test('anti-spam : un second appel ne cree pas de doublon', async () => {
+  await suite.test('anti-spam : un second appel ne crée pas de doublon', async () => {
     const result = await api('/api/service-requests', {
       method: 'POST',
       body: { tableToken: table.token, type: 'CALL_SERVER' },
@@ -96,7 +96,7 @@ test('Demandes des clients : appel serveuse et addition', async (suite) => {
     assert.ok(done.data.handledAt);
   });
 
-  await suite.test('statut incompatible avec le type de demande refuse (400)', async () => {
+  await suite.test('statut incompatible avec le type de demande refusé (400)', async () => {
     const result = await api(`/api/service-requests/${callId}/status`, {
       method: 'PUT',
       token: server.token,
@@ -134,12 +134,12 @@ test('Demandes des clients : appel serveuse et addition', async (suite) => {
     assert.equal(paid.data.status, 'PAID');
   });
 
-  await suite.test('les demandes fermees disparaissent de la liste active', async () => {
+  await suite.test('les demandes fermées disparaissent de la liste active', async () => {
     const result = await api('/api/service-requests', { token: server.token });
     assert.ok(!result.data.some((request) => request.id === billId));
   });
 
-  await suite.test('jeton de table invalide refuse (404)', async () => {
+  await suite.test('jeton de table invalide refusé (404)', async () => {
     const result = await api('/api/service-requests', {
       method: 'POST',
       body: { tableToken: '00000000000000000000000000000000', type: 'CALL_SERVER' },
@@ -147,7 +147,7 @@ test('Demandes des clients : appel serveuse et addition', async (suite) => {
     assert.equal(result.status, 404);
   });
 
-  await suite.test('type de demande inconnu refuse (400)', async () => {
+  await suite.test('type de demande inconnu refusé (400)', async () => {
     const result = await api('/api/service-requests', {
       method: 'POST',
       body: { tableToken: table.token, type: 'AUTRE_CHOSE' },

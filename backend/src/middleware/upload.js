@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
   },
 });
 
-/** N'accepte que des images, controle du type MIME ET de l'extension. */
+/** N'accepté que des images, contrôle du type MIME ET de l'extension. */
 function fileFilter(_req, file, cb) {
   const ext = path.extname(file.originalname).toLowerCase();
   if (!ALLOWED_MIME.has(file.mimetype) || !ALLOWED_EXT.has(ext)) {

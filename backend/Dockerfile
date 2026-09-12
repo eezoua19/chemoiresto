@@ -1,12 +1,21 @@
 # ---------------------------------------------------------------------------
 # API + Socket.IO du menu digital
 #
-# Ce Dockerfile fonctionne tel quel sur Render, Railway, Fly.io, Clever Cloud
-# ou n'importe quel VPS. Il ne convient PAS a Vercel : l'application a besoin
-# d'un processus Node persistant pour maintenir les connexions Socket.IO.
+# Ce Dockerfile fonctionne sur Railway, Render, Fly.io, Clever Cloud ou un VPS.
+# Il ne convient PAS a Vercel : l'application a besoin d'un processus Node
+# persistant pour maintenir les connexions Socket.IO.
+#
+# Base Debian (slim) et non Alpine : le moteur Prisma est compile contre
+# glibc/OpenSSL. Sur Alpine (musl) il echoue au demarrage avec
+# "Prisma failed to detect the libssl/openssl version to use".
 # ---------------------------------------------------------------------------
 
-FROM node:20-alpine
+FROM node:20-slim
+
+# OpenSSL est requis par le moteur Prisma.
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -14,7 +23,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Client Prisma : genere a partir du schema
+# Client Prisma : genere a partir du schema.
+# Prisma est une dependance de production, le binaire est donc local :
+# aucun telechargement reseau au build ni au demarrage.
 COPY prisma ./prisma
 RUN ./node_modules/.bin/prisma generate
 
@@ -30,7 +41,9 @@ COPY src ./src
 RUN mkdir -p uploads/products
 
 ENV NODE_ENV=production
-ENV PORT=4000
+
+# PORT n'est volontairement pas fige : l'hebergeur l'injecte et
+# src/config/env.js retombe sur 4000 en local.
 EXPOSE 4000
 
 # Applique les migrations en attente avant de demarrer l'API.

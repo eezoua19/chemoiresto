@@ -1,0 +1,21 @@
+const express = require('express');
+const controller = require('../controllers/restaurant.controller');
+const validate = require('../middleware/validate');
+const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const { upload } = require('../middleware/upload');
+const { updateRestaurantSchema } = require('../validators');
+
+const router = express.Router();
+
+router.use(authMiddleware);
+
+router.get('/', controller.detail);
+router.put(
+  '/',
+  roleMiddleware('ADMIN'),
+  upload.single('logo'),
+  validate({ body: updateRestaurantSchema }),
+  controller.update
+);
+
+module.exports = router;

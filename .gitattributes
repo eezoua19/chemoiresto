@@ -1,0 +1,5 @@
+# Les scripts executes dans le conteneur Linux doivent garder des fins de
+# ligne LF. En CRLF, le shebang devient "#!/bin/sh\r" et le demarrage echoue
+# avec "bad interpreter: /bin/sh^M" - illisible dans les logs de l'hebergeur.
+*.sh text eol=lf
+Dockerfile text eol=lf

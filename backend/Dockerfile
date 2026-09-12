@@ -40,6 +40,11 @@ COPY src ./src
 # et le montage se configure cote plateforme, sur /app/uploads.
 RUN mkdir -p uploads/products
 
+# Script de demarrage. Le bit d'execution est repose ici : il ne survit pas
+# toujours a un checkout depuis Windows.
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+
 ENV NODE_ENV=production
 
 # PORT n'est volontairement pas fige : l'hebergeur l'injecte et
@@ -47,4 +52,4 @@ ENV NODE_ENV=production
 EXPOSE 4000
 
 # Applique les migrations en attente avant de demarrer l'API.
-CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node src/server.js"]
+CMD ["./docker-entrypoint.sh"]

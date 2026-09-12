@@ -19,10 +19,20 @@ async function start() {
     process.exit(1);
   }
 
-  server.listen(env.port, () => {
+  // 0.0.0.0 explicite : en conteneur, ecouter sur la boucle locale rend le
+  // service injoignable depuis le proxy de l'hebergeur (healthcheck en echec
+  // alors que le processus tourne).
+  server.listen(env.port, '0.0.0.0', () => {
+    const bound = server.address();
     // eslint-disable-next-line no-console
-    console.log(`[OK] API demarree sur http://localhost:${env.port}`);
+    console.log(`[OK] API a l'ecoute sur ${bound.address}:${bound.port}`);
     console.log(`[OK] Socket.IO actif - frontend autorise : ${env.frontendUrl}`);
+  });
+
+  server.on('error', (error) => {
+    // eslint-disable-next-line no-console
+    console.error(`[ERREUR] Impossible d'ecouter sur le port ${env.port} :`, error.message);
+    process.exit(1);
   });
 }
 

@@ -8,6 +8,16 @@ depuis son téléphone, et la commande arrive **instantanément** chez la serveu
 QR CODE → TABLE → MENU DU JOUR → PANIER → COMMANDE → SERVEUSE → TEMPS RÉEL → CLIENT
 ```
 
+## En production
+
+| | |
+|---|---|
+| **Application** | https://chemoiresto.vercel.app |
+| Connexion équipe | https://chemoiresto.vercel.app/login |
+| API + Socket.IO | https://api-production-7cf3.up.railway.app |
+
+Détails d'hébergement et de redéploiement : [DEPLOIEMENT.md](DEPLOIEMENT.md).
+
 ---
 
 ## 1. Présentation

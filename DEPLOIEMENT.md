@@ -180,3 +180,66 @@ Réponse attendue :
 | MySQL managé | Oui, avec quotas |
 
 Pour un vrai restaurant, une petite offre payante sur l'API (≈ 7 $/mois) évite l'endormissement : un client qui scanne un QR Code ne doit pas attendre 30 secondes.
+
+---
+
+## Environnement de production réel
+
+| Brique | URL |
+|---|---|
+| Frontend (Vercel) | https://chemoiresto.vercel.app |
+| API + Socket.IO (Railway) | https://api-production-7cf3.up.railway.app |
+| Santé de l'API | https://api-production-7cf3.up.railway.app/api/health |
+
+Compte Vercel : `ezouaemmanuel07-3928` · projet `chemoiresto`
+Projet Railway : `chemoiresto` · services `api` + `MySQL`
+
+### Piège rencontré : nom de machine non-ASCII
+
+Sur cette machine, `vercel login` échoue avec :
+
+```
+Error: An unexpected error occurred in login: TypeError: Cannot convert argument
+to a ByteString because the character at index 0 has a value of 12402
+```
+
+Le CLI Vercel envoie `os.hostname()` dans un en-tête HTTP, or les en-têtes HTTP
+n'acceptent que des caractères ASCII. Le nom de ce PC est `ひ` (U+3072 = 12402).
+C'est un bug du CLI, pas du projet.
+
+Contournement sans renommer le PC — un shim chargé au démarrage du processus :
+
+```js
+// ascii-hostname.cjs
+const os = require('os');
+os.hostname = () => 'chemoiresto-pc';
+```
+
+```bash
+NODE_OPTIONS="--require /chemin/vers/ascii-hostname.cjs" vercel login
+```
+
+Le même préfixe est nécessaire pour `vercel link`, `vercel env` et `vercel deploy`.
+
+### Dépôt privé : auto-déploiement non branché
+
+`vercel link` n'a pas pu connecter le dépôt GitHub (`eezoua19/chemoiresto` est privé) :
+
+```
+Failed to connect eezoua19/chemoiresto to project.
+```
+
+Les déploiements se font donc **depuis le CLI** :
+
+```bash
+cd frontend && vercel --prod
+```
+
+Pour activer le déploiement automatique à chaque `git push`, autorisez Vercel sur
+le dépôt (https://github.com/apps/vercel/installations/new), puis `vercel git connect`.
+C'est la même manipulation que celle déjà faite pour Railway.
+
+### Config as Code Railway
+
+`railway.json` est déprécié et cesse de fonctionner le **1er décembre 2026**.
+Migration : `railway config migrate` (génère `.railway/railway.ts`).

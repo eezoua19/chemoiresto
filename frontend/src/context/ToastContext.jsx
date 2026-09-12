@@ -77,7 +77,15 @@ export function ToastProvider({ children }) {
               }`}
             >
               <Icon size={18} className="mt-0.5 shrink-0" />
-              <p className="flex-1 text-sm font-medium">{toast.message}</p>
+              <div className="flex-1">
+                <p className="text-sm font-medium">{toast.message}</p>
+                {toast.persistant && (
+                  // La voix se coupe au moindre contact : encore faut-il le savoir.
+                  <p className="mt-0.5 text-xs opacity-70">
+                    Touchez l&apos;écran pour couper la voix
+                  </p>
+                )}
+              </div>
               {toast.persistant ? (
                 // Une alerte persistante coupe aussi l'annonce vocale : le bouton
                 // doit etre atteignable du pouce, pas une petite croix.

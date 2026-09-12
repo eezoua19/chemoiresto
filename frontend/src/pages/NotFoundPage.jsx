@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Compass } from 'lucide-react';
+import { Footer } from '../components/ui';
 
 export default function NotFoundPage() {
   return (
@@ -15,6 +16,8 @@ export default function NotFoundPage() {
       <Link to="/" className="btn-primary">
         Retour a l&apos;accueil
       </Link>
+
+      <Footer className="mt-6" />
     </div>
   );
 }

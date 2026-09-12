@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useSocketEvent from '../hooks/useSocketEvent';
 import useNotificationSound from '../hooks/useNotificationSound';
+import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import { initials } from '../utils/format';
 import { applyBrandColor } from '../utils/color';
@@ -154,6 +155,8 @@ export default function AdminLayout() {
         <main className="px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
+
+        <Footer />
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { publicApi } from '../../services/endpoints';
 import { connectSocket } from '../../services/socket';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
-import { EmptyState, ErrorState, LoadingState } from '../../components/ui';
+import { EmptyState, ErrorState, Footer, LoadingState } from '../../components/ui';
 import { formatDateTime, formatMoney } from '../../utils/format';
 import { ORDER_STATUS } from '../../utils/constants';
 
@@ -144,6 +144,8 @@ export default function OrderTrackingPage() {
           </div>
         </section>
       </div>
+
+      <Footer />
     </div>
   );
 }

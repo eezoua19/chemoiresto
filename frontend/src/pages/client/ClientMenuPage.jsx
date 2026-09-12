@@ -22,7 +22,7 @@ import ProductCard from '../../components/client/ProductCard';
 import ProductSheet from '../../components/client/ProductSheet';
 import CartSheet from '../../components/client/CartSheet';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
-import { Button, EmptyState, ErrorState, Modal, Skeleton } from '../../components/ui';
+import { Button, EmptyState, ErrorState, Footer, Modal, Skeleton } from '../../components/ui';
 import { formatLongDate, formatMoney } from '../../utils/format';
 import { ORDER_STATUS, ordersKey } from '../../utils/constants';
 import { applyBrandColor } from '../../utils/color';
@@ -497,6 +497,8 @@ function ClientMenuContent({ token }) {
           </div>
         )}
       </Modal>
+
+      <Footer />
     </div>
   );
 }

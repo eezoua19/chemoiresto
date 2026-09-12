@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { QrCode, ChefHat, Smartphone, Bell, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Footer } from '../components/ui';
 
 const STEPS = [
   { icon: QrCode, title: 'Scannez', text: 'Le QR Code pose sur la table identifie automatiquement votre place.' },
@@ -60,6 +61,8 @@ export default function HomePage() {
           </p>
         </div>
       </main>
+
+      <Footer className="text-white/70" />
     </div>
   );
 }

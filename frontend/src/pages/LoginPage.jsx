@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ChefHat, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { Button, Field, Input, LoadingState } from '../components/ui';
+import { Button, Field, Footer, Input, LoadingState } from '../components/ui';
 
 export default function LoginPage() {
   const { login, user, loading } = useAuth();
@@ -109,6 +109,8 @@ export default function LoginPage() {
         <p className="mt-5 text-center text-xs text-ink-400">
           Les clients n&apos;ont pas besoin de compte : ils scannent simplement le QR Code de leur table.
         </p>
+
+        <Footer className="text-white/70" />
       </div>
     </div>
   );

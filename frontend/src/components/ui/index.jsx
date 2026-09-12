@@ -318,3 +318,24 @@ export function StatCard({ label, value, icon: Icon, tone = 'brand', hint }) {
     </div>
   );
 }
+
+/**
+ * Signature affichee au bas de toutes les pages.
+ *
+ * Centralisee ici : le jour ou le texte change, il n'y a qu'un seul endroit a
+ * modifier.
+ */
+export function Footer({ className = '' }) {
+  // La couleur est portee par le <footer> et heritee : une page a fond sombre
+  // passe simplement className="text-white/70" pour rester lisible.
+  //
+  // ink-600 et non ink-400 : sur le fond clair, ink-400 tombe a 2,5:1 de
+  // contraste, illisible sur un telephone en plein soleil. ink-600 donne 6,5:1.
+  return (
+    <footer className={`px-4 py-5 text-center text-xs text-ink-600 ${className}`}>
+      <p>
+        Fait par <span className="font-semibold">Emmanuel Ezoua</span> - EZ DIGITAL
+      </p>
+    </footer>
+  );
+}

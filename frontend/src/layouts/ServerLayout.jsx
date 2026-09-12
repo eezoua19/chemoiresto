@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useSocketEvent from '../hooks/useSocketEvent';
 import useNotificationSound from '../hooks/useNotificationSound';
+import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import { initials } from '../utils/format';
 import { applyBrandColor } from '../utils/color';
@@ -101,6 +102,8 @@ export default function ServerLayout() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 pb-24 sm:pb-8">
         <Outlet />
       </main>
+
+      <Footer className="pb-24 sm:pb-5" />
 
       {/* Navigation basse sur telephone */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-ink-100 bg-white/95 backdrop-blur sm:hidden">

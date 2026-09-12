@@ -95,6 +95,18 @@ export function printOrderTicket(order, restaurant) {
 }
 
 /** Feuille d'impression des QR Codes (une fiche par table). */
+/**
+ * Adresse de secours, a taper si le scan echoue.
+ *
+ * Seul le protocole est retire : il est inutile a saisir et occupe de la place.
+ * Le jeton n'est ni coupe ni espace, meme si ce serait plus lisible - ce qui est
+ * imprime doit etre exactement ce qui se tape, sinon l'adresse ne marche pas.
+ */
+function adresseASaisir(url) {
+  if (!url) return '';
+  return String(url).replace(/^https?:\/\//, '');
+}
+
 export function printQRCodes(restaurant, tables) {
   const cards = tables
     .map(
@@ -103,7 +115,15 @@ export function printQRCodes(restaurant, tables) {
         <div class="brand">${escapeHtml(restaurant?.name || 'RESTAURANT')}</div>
         <div class="table">TABLE ${escapeHtml(table.number)}</div>
         <img src="${table.dataUrl}" alt="QR Code table ${escapeHtml(table.number)}" />
-        <div class="hint">Scannez pour consulter le menu</div>
+        <div class="hint">Ouvrez l'appareil photo et visez le code</div>
+        ${
+          table.url
+            ? `<div class="secours">
+                 <span class="secours-titre">Si le scan ne marche pas, tapez cette adresse :</span>
+                 <span class="secours-url">${escapeHtml(adresseASaisir(table.url))}</span>
+               </div>`
+            : ''
+        }
       </div>`
     )
     .join('');
@@ -133,7 +153,22 @@ export function printQRCodes(restaurant, tables) {
   .brand { font-size: 13px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
   .table { font-size: 26px; font-weight: 800; margin: 4mm 0; }
   .card img { width: 48mm; height: 48mm; }
-  .hint { margin-top: 4mm; font-size: 12px; color: #444; }
+  .hint { margin-top: 3mm; font-size: 12px; color: #444; }
+  /* Adresse de secours : lisible, mais discrete face au QR Code. */
+  .secours {
+    margin-top: 3mm;
+    padding-top: 2.5mm;
+    border-top: 1px solid #ddd;
+  }
+  .secours-titre { display: block; font-size: 9px; color: #777; }
+  .secours-url {
+    display: block;
+    margin-top: 1mm;
+    font-family: "Courier New", monospace;
+    font-size: 9.5px;
+    color: #222;
+    word-break: break-all;
+  }
 </style>
 </head>
 <body>${cards}</body>

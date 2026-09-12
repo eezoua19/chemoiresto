@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, AlertCircle, Info, X, AlertTriangle } from 'lucide-react';
 
 const ToastContext = createContext(null);
@@ -21,14 +21,24 @@ const STYLES = {
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
+  // Les rappels de fermeture vivent hors de l'etat : les declencher depuis une
+  // fonction de mise a jour les ferait partir deux fois en mode strict.
+  const rappels = useRef(new Map());
+
   const dismiss = useCallback((id) => {
+    const rappel = rappels.current.get(id);
+    if (rappel) {
+      rappels.current.delete(id);
+      rappel();
+    }
     setToasts((current) => current.filter((toast) => toast.id !== id));
   }, []);
 
   const push = useCallback(
-    (message, type = 'info', duration = 4000) => {
+    (message, type = 'info', duration = 4000, onDismiss) => {
       const id = Date.now() + Math.random();
-      setToasts((current) => [...current, { id, message, type }]);
+      if (onDismiss) rappels.current.set(id, onDismiss);
+      setToasts((current) => [...current, { id, message, type, persistant: !duration }]);
       if (duration) setTimeout(() => dismiss(id), duration);
       return id;
     },
@@ -42,6 +52,11 @@ export function ToastProvider({ children }) {
       error: (message, duration) => push(message, 'error', duration ?? 6000),
       info: (message, duration) => push(message, 'info', duration),
       warning: (message, duration) => push(message, 'warning', duration),
+      /**
+       * Alerte du personnel : reste affichee jusqu'a fermeture manuelle.
+       * `onDismiss` sert a couper l'annonce vocale au meme moment.
+       */
+      alerte: (message, type = 'warning', onDismiss) => push(message, type, 0, onDismiss),
       dismiss,
     }),
     [push, dismiss]
@@ -63,14 +78,26 @@ export function ToastProvider({ children }) {
             >
               <Icon size={18} className="mt-0.5 shrink-0" />
               <p className="flex-1 text-sm font-medium">{toast.message}</p>
-              <button
-                type="button"
-                onClick={() => dismiss(toast.id)}
-                className="shrink-0 opacity-60 transition hover:opacity-100"
-                aria-label="Fermer"
-              >
-                <X size={16} />
-              </button>
+              {toast.persistant ? (
+                // Une alerte persistante coupe aussi l'annonce vocale : le bouton
+                // doit etre atteignable du pouce, pas une petite croix.
+                <button
+                  type="button"
+                  onClick={() => dismiss(toast.id)}
+                  className="shrink-0 self-center rounded-lg border border-current/30 px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition hover:bg-black/5"
+                >
+                  J&apos;ai vu
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => dismiss(toast.id)}
+                  className="shrink-0 opacity-60 transition hover:opacity-100"
+                  aria-label="Fermer"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
           );
         })}

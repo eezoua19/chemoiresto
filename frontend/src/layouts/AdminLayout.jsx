@@ -21,6 +21,8 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useSocketEvent from '../hooks/useSocketEvent';
 import useNotificationSound from '../hooks/useNotificationSound';
+import useVoiceAnnouncer from '../hooks/useVoiceAnnouncer';
+import { annonceCommande, annonceDemande } from '../utils/announcements';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import { initials } from '../utils/format';
@@ -46,6 +48,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const playSound = useNotificationSound();
+  const voice = useVoiceAnnouncer();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Applique la couleur du restaurant a toute l'interface.
@@ -55,17 +58,27 @@ export default function AdminLayout() {
 
   useEffect(() => setSidebarOpen(false), [location.pathname]);
 
+  // Le signal sonore attire l'attention, la voix donne le detail, et l'alerte
+  // reste a l'ecran tant qu'elle n'a pas ete fermee a la main.
   useSocketEvent('new_order', (order) => {
     playSound('order');
-    toast.info(`Nouvelle commande ${order.orderNumber} - Table ${order.table?.number}`);
+    voice.announce(annonceCommande(order));
+    toast.alerte(
+      `Nouvelle commande ${order.orderNumber} - Table ${order.table?.number}`,
+      'info',
+      voice.stop
+    );
   });
 
   useSocketEvent('service_request', (request) => {
     playSound('call');
-    toast.warning(
+    voice.announce(annonceDemande(request));
+    toast.alerte(
       `Table ${request.table?.number} : ${
         request.type === 'BILL' ? 'demande l\'addition' : 'appelle une serveuse'
-      }`
+      }`,
+      'warning',
+      voice.stop
     );
   });
 

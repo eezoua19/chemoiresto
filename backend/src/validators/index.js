@@ -177,6 +177,11 @@ const menuRangeQuerySchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/, 'Format attendu : AAAA-MM').optional(),
 });
 
+const dashboardQuerySchema = z.object({
+  // Mois consulte. Absent = mois en cours.
+  month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Format attendu : AAAA-MM').optional(),
+});
+
 // ---------------------------------------------------------------------------
 // Commandes
 // ---------------------------------------------------------------------------
@@ -297,6 +302,7 @@ module.exports = {
   updateMenuSchema,
   duplicateMenuSchema,
   menuRangeQuerySchema,
+  dashboardQuerySchema,
   todayProductSchema,
   productIdParam,
   createOrderSchema,

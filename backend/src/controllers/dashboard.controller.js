@@ -3,18 +3,50 @@ const asyncHandler = require('../utils/asyncHandler');
 const { success } = require('../utils/response');
 const { dayRange, toNumber, today, formatDate } = require('../utils/helpers');
 
+const MOIS = [
+  'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
+  'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre',
+];
+
+/** Bornes d'un mois calendaire : du 1er a 00h00 au 1er du mois suivant. */
+function bornesDuMois(annee, moisIndex) {
+  return {
+    debut: new Date(annee, moisIndex, 1, 0, 0, 0, 0),
+    fin: new Date(annee, moisIndex + 1, 1, 0, 0, 0, 0),
+  };
+}
+
+function cleDuJour(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 /**
- * GET /api/dashboard/stats
- * Indicateurs du jour + graphiques (14 derniers jours, top produits,
- * categories populaires, performance des serveuses).
+ * GET /api/dashboard/stats?month=AAAA-MM
+ *
+ * Sans parametre, le mois en cours. Les indicateurs du bloc `today` restent
+ * ceux du jour reel : ils servent au service en cours, pas a l'analyse.
+ *
+ * La periode est un vrai mois calendaire et non une fenetre glissante de
+ * 30 jours : « septembre » doit vouloir dire septembre, sinon les chiffres ne
+ * se comparent pas d'un mois sur l'autre.
  */
 const stats = asyncHandler(async (req, res) => {
   const restaurantId = req.user.restaurantId;
   const { start: todayStart, end: todayEnd } = dayRange(new Date());
 
-  const daysBack = 14;
-  const chartStart = new Date(todayStart);
-  chartStart.setDate(chartStart.getDate() - (daysBack - 1));
+  const maintenant = new Date();
+  const [anneeDemandee, moisDemande] = (req.query.month || '')
+    .split('-')
+    .map((valeur) => Number(valeur));
+
+  const annee = Number.isFinite(anneeDemandee) && anneeDemandee ? anneeDemandee : maintenant.getFullYear();
+  const moisIndex = Number.isFinite(moisDemande) && moisDemande ? moisDemande - 1 : maintenant.getMonth();
+
+  const { debut: periodeDebut, fin: periodeFin } = bornesDuMois(annee, moisIndex);
+  const moisCourant = annee === maintenant.getFullYear() && moisIndex === maintenant.getMonth();
+  const nombreDeJours = new Date(annee, moisIndex + 1, 0).getDate();
+
+  const chartStart = periodeDebut;
 
   const [
     ordersToday,
@@ -61,7 +93,11 @@ const stats = asyncHandler(async (req, res) => {
       },
     }),
     prisma.order.findMany({
-      where: { restaurantId, createdAt: { gte: chartStart }, status: { not: 'CANCELLED' } },
+      where: {
+        restaurantId,
+        createdAt: { gte: periodeDebut, lt: periodeFin },
+        status: { not: 'CANCELLED' },
+      },
       select: { createdAt: true, total: true },
     }),
     prisma.dailyMenu.findUnique({
@@ -70,35 +106,31 @@ const stats = asyncHandler(async (req, res) => {
     }),
   ]);
 
-  // ---- Graphique : commandes et chiffre d'affaires par jour --------------
+  // ---- Graphique : un point par jour du mois consulte --------------------
+  // Tous les jours sont crees, meme sans commande : un creux doit se voir.
   const buckets = new Map();
-  for (let i = 0; i < daysBack; i += 1) {
-    const day = new Date(chartStart);
-    day.setDate(day.getDate() + i);
-    const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(
-      day.getDate()
-    ).padStart(2, '0')}`;
+  for (let jour = 1; jour <= nombreDeJours; jour += 1) {
+    const key = cleDuJour(new Date(annee, moisIndex, jour));
     buckets.set(key, { date: key, orders: 0, revenue: 0 });
   }
   for (const order of chartOrders) {
-    const d = order.createdAt;
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-      d.getDate()
-    ).padStart(2, '0')}`;
-    const bucket = buckets.get(key);
+    const bucket = buckets.get(cleDuJour(order.createdAt));
     if (bucket) {
       bucket.orders += 1;
       bucket.revenue += toNumber(order.total) || 0;
     }
   }
 
-  // ---- Top produits (30 derniers jours) ---------------------------------
-  const monthStart = new Date(todayStart);
-  monthStart.setDate(monthStart.getDate() - 29);
+  // ---- Classements sur le mois consulte ---------------------------------
+  const surLaPeriode = {
+    restaurantId,
+    createdAt: { gte: periodeDebut, lt: periodeFin },
+    status: { not: 'CANCELLED' },
+  };
 
   const topItems = await prisma.orderItem.groupBy({
     by: ['productName'],
-    where: { order: { restaurantId, createdAt: { gte: monthStart }, status: { not: 'CANCELLED' } } },
+    where: { order: surLaPeriode },
     _sum: { quantity: true, lineTotal: true },
     orderBy: { _sum: { quantity: 'desc' } },
     take: 8,
@@ -106,7 +138,7 @@ const stats = asyncHandler(async (req, res) => {
 
   // ---- Categories populaires --------------------------------------------
   const itemsWithCategory = await prisma.orderItem.findMany({
-    where: { order: { restaurantId, createdAt: { gte: monthStart }, status: { not: 'CANCELLED' } } },
+    where: { order: surLaPeriode },
     select: {
       quantity: true,
       lineTotal: true,
@@ -129,12 +161,7 @@ const stats = asyncHandler(async (req, res) => {
   // ---- Performance des serveuses ----------------------------------------
   const serverGroups = await prisma.order.groupBy({
     by: ['serverId'],
-    where: {
-      restaurantId,
-      createdAt: { gte: monthStart },
-      status: { not: 'CANCELLED' },
-      serverId: { not: null },
-    },
+    where: { ...surLaPeriode, serverId: { not: null } },
     _count: { _all: true },
     _sum: { total: true },
   });
@@ -160,9 +187,40 @@ const stats = asyncHandler(async (req, res) => {
     })
     .sort((a, b) => b.orders - a.orders);
 
+  // ---- Synthese du mois consulte ----------------------------------------
+  const [totalCommandes, annulees, agregat] = await Promise.all([
+    prisma.order.count({ where: { restaurantId, createdAt: { gte: periodeDebut, lt: periodeFin } } }),
+    prisma.order.count({
+      where: { restaurantId, createdAt: { gte: periodeDebut, lt: periodeFin }, status: 'CANCELLED' },
+    }),
+    prisma.order.aggregate({ where: surLaPeriode, _sum: { total: true }, _count: { _all: true } }),
+  ]);
+
+  const chiffreAffaires = toNumber(agregat._sum.total) || 0;
+  const commandesValides = agregat._count._all || 0;
+  const journees = [...buckets.values()];
+  const meilleurJour = journees.reduce(
+    (meilleur, jour) => (jour.revenue > (meilleur?.revenue ?? -1) ? jour : meilleur),
+    null
+  );
+
   return success(
     res,
     {
+      period: {
+        month: `${annee}-${String(moisIndex + 1).padStart(2, '0')}`,
+        label: `${MOIS[moisIndex]} ${annee}`,
+        isCurrent: moisCourant,
+        orders: totalCommandes,
+        cancelled: annulees,
+        revenue: chiffreAffaires,
+        // Panier moyen calcule sur les commandes non annulees : inclure les
+        // annulations ferait baisser artificiellement la valeur.
+        averageBasket: commandesValides ? Math.round(chiffreAffaires / commandesValides) : 0,
+        daysWithService: journees.filter((jour) => jour.orders > 0).length,
+        daysInMonth: nombreDeJours,
+        bestDay: meilleurJour && meilleurJour.revenue > 0 ? meilleurJour : null,
+      },
       today: {
         date: formatDate(today()),
         orders: ordersToday,

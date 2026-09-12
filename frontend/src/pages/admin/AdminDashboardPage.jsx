@@ -10,6 +10,9 @@ import {
   CalendarPlus,
   BellRing,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -28,29 +31,49 @@ import useSocketEvent from '../../hooks/useSocketEvent';
 import { ErrorState, PageHeader, Skeleton, StatCard, Card, CardHeader, EmptyState } from '../../components/ui';
 import { formatMoney, formatShortDate, todayString } from '../../utils/format';
 
+/** Mois en cours, au format AAAA-MM. */
+function moisCourant() {
+  const maintenant = new Date();
+  return `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Decale un mois AAAA-MM de `delta` mois. */
+function decalerMois(mois, delta) {
+  const [annee, numero] = mois.split('-').map(Number);
+  const date = new Date(annee, numero - 1 + delta, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
 export default function AdminDashboardPage() {
   const { restaurant } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mois, setMois] = useState(moisCourant);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      setStats(await dashboardApi.stats());
+      setStats(await dashboardApi.stats(mois));
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mois]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  useSocketEvent('new_order', load);
-  useSocketEvent('order_updated', load);
+  // Une commande qui arrive ne doit rafraichir que le mois en cours : sinon la
+  // consultation d'un mois passe sauterait sous les yeux de l'administrateur.
+  const rafraichirSiMoisCourant = useCallback(() => {
+    if (mois === moisCourant()) load();
+  }, [mois, load]);
+
+  useSocketEvent('new_order', rafraichirSiMoisCourant);
+  useSocketEvent('order_updated', rafraichirSiMoisCourant);
 
   if (loading) {
     return (
@@ -69,15 +92,81 @@ export default function AdminDashboardPage() {
   if (error) return <ErrorState message={error.message} onRetry={load} isNetwork={error.isNetwork} />;
 
   const currency = restaurant?.currency || 'FCFA';
-  const { today, charts } = stats;
+  const { today, charts, period } = stats;
+  const moisSuivantPossible = mois < moisCourant();
 
   return (
     <div>
       <PageHeader
         title="Tableau de bord"
-        subtitle={`Activite du ${formatShortDate(today.date)}`}
+        subtitle={
+          period?.isCurrent
+            ? `Activite du ${formatShortDate(today.date)}`
+            : `Mois consulte : ${period?.label ?? mois}`
+        }
         icon={ShoppingBag}
       />
+
+      {/* Selecteur de mois : le mois suivant reste bloque tant qu'il n'a pas
+          commence, un tableau de bord vide n'apprend rien. */}
+      <Card className="mb-4 flex items-center justify-between gap-3 p-3">
+        <button
+          type="button"
+          onClick={() => setMois((actuel) => decalerMois(actuel, -1))}
+          className="rounded-xl p-2 text-ink-600 transition hover:bg-ink-100"
+          aria-label="Mois precedent"
+        >
+          <ChevronLeft size={20} />
+        </button>
+
+        <div className="text-center">
+          <p className="text-base font-bold text-ink-900">{period?.label ?? mois}</p>
+          <p className="text-xs text-ink-600">
+            {period?.orders ?? 0} commande{(period?.orders ?? 0) > 1 ? 's' : ''} -{' '}
+            {formatMoney(period?.revenue ?? 0, currency)}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => moisSuivantPossible && setMois((actuel) => decalerMois(actuel, 1))}
+          disabled={!moisSuivantPossible}
+          className="rounded-xl p-2 text-ink-600 transition hover:bg-ink-100 disabled:cursor-not-allowed disabled:opacity-30"
+          aria-label="Mois suivant"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </Card>
+
+      {period && (
+        <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard label="Commandes du mois" value={period.orders} icon={ShoppingBag} tone="brand" />
+          <StatCard
+            label="Chiffre d'affaires"
+            value={formatMoney(period.revenue, currency)}
+            icon={Wallet}
+            tone="emerald"
+            hint={period.cancelled ? `${period.cancelled} annulee(s)` : undefined}
+          />
+          <StatCard
+            label="Panier moyen"
+            value={formatMoney(period.averageBasket, currency)}
+            icon={TrendingUp}
+            tone="sky"
+          />
+          <StatCard
+            label="Jours avec service"
+            value={`${period.daysWithService} / ${period.daysInMonth}`}
+            icon={CalendarPlus}
+            tone="amber"
+            hint={
+              period.bestDay
+                ? `Meilleur jour : ${formatShortDate(period.bestDay.date)}`
+                : undefined
+            }
+          />
+        </div>
+      )}
 
       {/* Alerte : aucun menu programme aujourd'hui */}
       {!today.menuConfigured && (
@@ -133,7 +222,7 @@ export default function AdminDashboardPage() {
 
       <div className="mt-5 grid gap-4 xl:grid-cols-2">
         <Card>
-          <CardHeader title="Commandes des 14 derniers jours" />
+          <CardHeader title={`Commandes de ${period?.label ?? 'la periode'}`} />
           <div className="h-64 p-4">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={charts.daily}>
@@ -193,7 +282,7 @@ export default function AdminDashboardPage() {
 
       <div className="mt-5 grid gap-4 xl:grid-cols-2">
         <Card>
-          <CardHeader title="Produits les plus commandes" subtitle="30 derniers jours" />
+          <CardHeader title="Produits les plus commandes" subtitle={period?.label} />
           <div className="p-4">
             {charts.topProducts.length === 0 ? (
               <EmptyState title="Pas encore de donnees" description="Les statistiques apparaitront des les premieres commandes." />
@@ -226,7 +315,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Performance des serveuses" subtitle="30 derniers jours" />
+          <CardHeader title="Performance des serveuses" subtitle={period?.label} />
           <div className="p-4">
             {charts.serverPerformance.length === 0 ? (
               <EmptyState title="Pas encore de donnees" description="Aucune commande attribuee sur la periode." />

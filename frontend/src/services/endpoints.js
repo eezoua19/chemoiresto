@@ -99,7 +99,9 @@ export const userApi = {
 
 // ------------------------------- Tableau de bord ---------------------------
 export const dashboardApi = {
-  stats: () => api.get('/dashboard/stats').then(unwrap),
+  // `month` au format AAAA-MM ; absent = mois en cours.
+  stats: (month) =>
+    api.get('/dashboard/stats', { params: month ? { month } : undefined }).then(unwrap),
 };
 
 // --------------------------- Demandes de service ---------------------------

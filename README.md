@@ -585,10 +585,10 @@ cd backend
 npm test
 ```
 
-72 tests couvrent : connexion, permissions, création de produit et de table, génération
+85 tests couvrent : connexion, permissions, création de produit et de table, génération
 et régénération de QR Code, récupération du menu par date, copie de menu, création de
 commande, calcul du total, changement de statut, attribution, notifications, appel
-serveuse et demande d'addition, historique des prix.
+serveuse et demande d'addition, historique des prix, et export de sauvegarde.
 
 Test du workflow complet contre un serveur déjà démarré :
 
@@ -596,6 +596,68 @@ Test du workflow complet contre un serveur déjà démarré :
 npm run dev          # dans un terminal
 npm run test:e2e     # dans un autre
 ```
+
+### Sauvegardes
+
+⚠️ **Les sauvegardes de volume de Railway sont réservées aux offres payantes.** Sur
+l'offre d'essai, la mutation `volumeInstanceBackupScheduleUpdate` répond
+`Not Authorized`. Tant que le projet n'est pas sur une offre payante, la sauvegarde
+repose entièrement sur le mécanisme ci-dessous.
+
+#### Export manuel
+
+_Connecté en administrateur_ : `GET /api/backup` renvoie un instantané JSON des
+16 tables du schéma. Réservé au rôle `ADMIN` — une serveuse reçoit `403`.
+
+#### Sauvegarde automatique
+
+```bash
+cd backend
+BACKUP_API_URL=https://votre-api.up.railway.app \\
+BACKUP_EMAIL=admin@votre-restaurant.ci \\
+BACKUP_PASSWORD=... \\
+BACKUP_DIR=/chemin/vers/sauvegardes \\
+npm run backup
+```
+
+| Variable | Rôle | Défaut |
+|---|---|---|
+| `BACKUP_API_URL` | URL de l'API | `API_URL`, sinon `localhost:4000` |
+| `BACKUP_EMAIL` | compte administrateur | — |
+| `BACKUP_PASSWORD` | mot de passe | — |
+| `BACKUP_DIR` | dossier de destination | `backend/backups` |
+| `BACKUP_KEEP` | fichiers conservés | `30` |
+
+Le script refuse d'écrire un export tronqué : un fichier incomplet n'écrasera jamais
+un historique valide.
+
+**Placez `BACKUP_DIR` dans un dossier synchronisé** (OneDrive, Google Drive) : une
+sauvegarde posée sur la même machine que rien d'autre ne protège de pas grand-chose.
+En revanche, **le fichier contenant le mot de passe ne doit pas s'y trouver** — il
+serait répliqué en clair dans le cloud.
+
+#### Automatisation sous Windows
+
+Une tâche planifiée quotidienne, avec les identifiants hors du dossier synchronisé :
+
+```powershell
+$action  = New-ScheduledTaskAction -Execute "C:\Users\<vous>\.chemoiresto\sauvegarde.cmd"
+$trigger = New-ScheduledTaskTrigger -Daily -At 3am
+Register-ScheduledTask -TaskName "CHEMOIRESTO - Sauvegarde quotidienne" -Action $action -Trigger $trigger -Force
+```
+
+#### Ce que l'export ne contient pas
+
+**Les mots de passe sont volontairement exclus.** Un export qui circule par courriel
+ou dort dans un dossier synchronisé ne doit pas contenir de quoi rejouer une
+authentification. Après une restauration, les mots de passe du personnel sont à
+redéfinir.
+
+Les **jetons de table sont conservés** : sans eux, une restauration rendrait
+inutilisables tous les QR Codes déjà imprimés et collés sur les tables.
+
+Les **images des plats ne sont pas dans l'export** (elles vivent sur le volume
+`/app/uploads`). L'export contient leurs chemins, pas les fichiers.
 
 ### Tâches courantes
 

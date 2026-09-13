@@ -17,6 +17,14 @@ function buildTakeawayUrl(token) {
   return `${frontendBase()}/menu/emporter/${token}`;
 }
 
+/**
+ * URL encodee dans le QR Code du ticket d'abonnement.
+ * Elle ouvre l'ecran de verification, reserve au personnel connecte.
+ */
+function buildSubscriptionUrl(token) {
+  return `${frontendBase()}/abonnement/${token}`;
+}
+
 /** Génère l'image PNG (data URL) d'un QR Code à partir de son URL. */
 async function renderUrl(url) {
   return QRCodeLib.toDataURL(url, {
@@ -55,6 +63,7 @@ async function upsertQRCode(tableId, token) {
 module.exports = {
   buildTableUrl,
   buildTakeawayUrl,
+  buildSubscriptionUrl,
   renderUrl,
   renderDataUrl,
   upsertQRCode,

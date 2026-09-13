@@ -8,12 +8,14 @@ import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 import ClientMenuPage from './pages/client/ClientMenuPage';
+import SubscriptionCheckPage from './pages/SubscriptionCheckPage';
 import OrderTrackingPage from './pages/client/OrderTrackingPage';
 
 import ServerDashboardPage from './pages/server/ServerDashboardPage';
 import ServerMenuPage from './pages/server/ServerMenuPage';
 import ServerOrdersPage from './pages/server/ServerOrdersPage';
 import ServerRequestsPage from './pages/server/ServerRequestsPage';
+import ServerSubscriptionsPage from './pages/server/ServerSubscriptionsPage';
 
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
@@ -27,6 +29,7 @@ import AdminServersPage from './pages/admin/AdminServersPage';
 import AdminHistoryPage from './pages/admin/AdminHistoryPage';
 import AdminStatsPage from './pages/admin/AdminStatsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import AdminSubscriptionsPage from './pages/admin/AdminSubscriptionsPage';
 
 export default function App() {
   return (
@@ -39,6 +42,16 @@ export default function App() {
       <Route path="/menu/table/:token" element={<ClientMenuPage />} />
       <Route path="/menu/emporter/:token" element={<ClientMenuPage service="TAKEAWAY" />} />
       <Route path="/commande/:trackingToken" element={<OrderTrackingPage />} />
+
+      {/* ------ Verification d'un ticket d'abonnement (personnel) ------ */}
+      <Route
+        path="/abonnement/:token"
+        element={
+          <ProtectedRoute roles={['SERVER', 'ADMIN']}>
+            <SubscriptionCheckPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* --------------------- Serveuse --------------------- */}
       <Route
@@ -54,6 +67,7 @@ export default function App() {
         <Route path="commandes" element={<ServerOrdersPage />} />
         <Route path="demandes" element={<ServerRequestsPage />} />
         <Route path="carte" element={<ServerMenuPage />} />
+        <Route path="abonnements" element={<ServerSubscriptionsPage />} />
       </Route>
 
       {/* ------------------ Administration ------------------ */}
@@ -77,6 +91,7 @@ export default function App() {
         <Route path="serveuses" element={<AdminServersPage />} />
         <Route path="historique" element={<AdminHistoryPage />} />
         <Route path="statistiques" element={<AdminStatsPage />} />
+        <Route path="abonnements" element={<AdminSubscriptionsPage />} />
         <Route path="parametres" element={<AdminSettingsPage />} />
       </Route>
 

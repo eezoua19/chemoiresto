@@ -118,6 +118,22 @@ export const notificationApi = {
   markAllRead: () => api.put('/notifications/read-all').then(unwrap),
 };
 
+// ------------------------------- Abonnements -------------------------------
+export const subscriptionApi = {
+  list: (params) => api.get('/subscriptions', { params }).then(unwrap),
+  stats: () => api.get('/subscriptions/stats').then(unwrap),
+  detail: (id) => api.get(`/subscriptions/${id}`).then(unwrap),
+  create: (payload) => api.post('/subscriptions', payload).then(unwrap),
+  update: (id, payload) => api.put(`/subscriptions/${id}`, payload).then(unwrap),
+  setStatus: (id, status) => api.patch(`/subscriptions/${id}/status`, { status }).then(unwrap),
+  renew: (id, payload) => api.post(`/subscriptions/${id}/renew`, payload).then(unwrap),
+  ticket: (id) => api.get(`/subscriptions/${id}/ticket`).then(unwrap),
+  // Accessibles aussi aux serveuses : verification au comptoir.
+  verify: (token) => api.get(`/subscriptions/verify/${token}`).then(unwrap),
+  use: (token, payload) => api.post(`/subscriptions/verify/${token}/use`, payload).then(unwrap),
+  lookup: (q) => api.get('/subscriptions/lookup', { params: { q } }).then(unwrap),
+};
+
 // -------------------------------- Restaurant -------------------------------
 export const restaurantApi = {
   detail: () => api.get('/restaurant').then(unwrap),

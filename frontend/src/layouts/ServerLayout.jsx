@@ -1,6 +1,14 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutGrid, ClipboardList, BellRing, UtensilsCrossed, LogOut, ChefHat } from 'lucide-react';
+import {
+  LayoutGrid,
+  ClipboardList,
+  BellRing,
+  UtensilsCrossed,
+  BadgeCheck,
+  LogOut,
+  ChefHat,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useSocketEvent from '../hooks/useSocketEvent';
@@ -18,6 +26,7 @@ const LINKS = [
   { to: '/serveuse/commandes', label: 'Commandes', icon: ClipboardList },
   { to: '/serveuse/demandes', label: 'Demandes', icon: BellRing },
   { to: '/serveuse/carte', label: 'Carte', icon: UtensilsCrossed },
+  { to: '/serveuse/abonnements', label: 'Abonnés', icon: BadgeCheck },
 ];
 
 /** Interface de la serveuse : pensee pour un usage tablette / téléphone. */

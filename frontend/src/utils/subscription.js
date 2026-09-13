@@ -1,0 +1,95 @@
+/**
+ * Presentation des abonnements.
+ *
+ * L'etat n'est pas un champ de la base : le serveur le calcule a partir du
+ * statut décidé par l'administration ET de la date du jour. Le frontend ne
+ * recalcule rien, il se contente d'habiller ce que le serveur a tranché.
+ */
+
+export const ETATS = {
+  VALIDE: {
+    label: 'ABONNEMENT VALIDE',
+    court: 'Valide',
+    badge: 'bg-emerald-100 text-emerald-800',
+    bloc: 'border-emerald-300 bg-emerald-50 text-emerald-900',
+    accent: 'text-emerald-700',
+  },
+  EXPIRE: {
+    label: 'ABONNEMENT EXPIRÉ',
+    court: 'Expiré',
+    badge: 'bg-red-100 text-red-800',
+    bloc: 'border-red-300 bg-red-50 text-red-900',
+    accent: 'text-red-700',
+  },
+  SUSPENDU: {
+    label: 'ABONNEMENT SUSPENDU',
+    court: 'Suspendu',
+    badge: 'bg-amber-100 text-amber-900',
+    bloc: 'border-amber-300 bg-amber-50 text-amber-900',
+    accent: 'text-amber-700',
+  },
+  INACTIF: {
+    label: 'ABONNEMENT INACTIF',
+    court: 'Inactif',
+    badge: 'bg-ink-200 text-ink-700',
+    bloc: 'border-ink-300 bg-ink-100 text-ink-800',
+    accent: 'text-ink-600',
+  },
+  PAS_COMMENCE: {
+    label: 'ABONNEMENT PAS ENCORE COMMENCÉ',
+    court: 'À venir',
+    badge: 'bg-sky-100 text-sky-800',
+    bloc: 'border-sky-300 bg-sky-50 text-sky-900',
+    accent: 'text-sky-700',
+  },
+  INTROUVABLE: {
+    label: 'ABONNEMENT INTROUVABLE',
+    court: 'Introuvable',
+    badge: 'bg-ink-200 text-ink-700',
+    bloc: 'border-ink-300 bg-ink-100 text-ink-800',
+    accent: 'text-ink-600',
+  },
+};
+
+export const FORMULES = [
+  { value: 'HEBDOMADAIRE', label: 'Hebdomadaire', jours: 7 },
+  { value: 'MENSUEL', label: 'Mensuel', jours: 30 },
+  { value: 'TRIMESTRIEL', label: 'Trimestriel', jours: 90 },
+  { value: 'ANNUEL', label: 'Annuel', jours: 365 },
+];
+
+export const TYPES_UTILISATION = [
+  { value: 'REPAS', label: 'Repas' },
+  { value: 'BOISSON', label: 'Boisson' },
+  { value: 'AUTRE', label: 'Autre' },
+];
+
+export function etatDe(abonnement) {
+  return ETATS[abonnement?.state] || ETATS.INTROUVABLE;
+}
+
+/** "Expire dans 3 jours" / "Expiré depuis 5 jours" / "Expire aujourd'hui". */
+export function echeance(abonnement) {
+  if (!abonnement) return '';
+  const jours = abonnement.daysLeft;
+  if (jours === 0) return "Expire aujourd'hui";
+  if (jours > 0) return `Expire dans ${jours} jour${jours > 1 ? 's' : ''}`;
+  const passes = Math.abs(jours);
+  return `Expiré depuis ${passes} jour${passes > 1 ? 's' : ''}`;
+}
+
+/** Date du jour au format attendu par un champ <input type="date">. */
+export function aujourdhuiISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Date d'expiration proposée, alignée sur le calcul du serveur. */
+export function expirationProposee(debutISO, formule) {
+  const jours = FORMULES.find((f) => f.value === formule)?.jours || 30;
+  const d = new Date(`${debutISO}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return '';
+  // -1 : un mensuel commencé le 1er expire le 30, pas le 31.
+  d.setDate(d.getDate() + jours - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}

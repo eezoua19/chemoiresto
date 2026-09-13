@@ -307,6 +307,71 @@ const takeawaySchema = z.object({
   regenerate: z.boolean().optional().default(false),
 });
 
+// ---------------------------------------------------------------------------
+// Abonnements
+// ---------------------------------------------------------------------------
+
+const PLANS = ['HEBDOMADAIRE', 'MENSUEL', 'TRIMESTRIEL', 'ANNUEL'];
+
+// Un numero ivoirien s'ecrit de dix facons differentes (+225, espaces, tirets).
+// On accepte large et on garde ce que la personne a saisi : c'est un numero
+// qu'on appelle, pas une cle.
+const telephone = z
+  .string()
+  .trim()
+  .min(6, 'Numero de telephone trop court')
+  .max(30, 'Numero de telephone trop long')
+  .regex(/^[0-9+().\s-]+$/, 'Numero de telephone invalide');
+
+const createSubscriptionSchema = z.object({
+  firstName: trimmed(2, 60, 'Prenom'),
+  lastName: trimmed(2, 60, 'Nom'),
+  phone: telephone,
+  plan: z.enum(PLANS),
+  startDate: dateString.optional(),
+  endDate: dateString.optional(),
+  amount: z.coerce.number().nonnegative().max(99999999).optional().nullable(),
+  note: optionalText(500),
+});
+
+const updateSubscriptionSchema = z.object({
+  firstName: trimmed(2, 60, 'Prenom').optional(),
+  lastName: trimmed(2, 60, 'Nom').optional(),
+  phone: telephone.optional(),
+  plan: z.enum(PLANS).optional(),
+  startDate: dateString.optional(),
+  endDate: dateString.optional(),
+  amount: z.coerce.number().nonnegative().max(99999999).optional().nullable(),
+  note: optionalText(500),
+});
+
+const subscriptionStatusSchema = z.object({
+  status: z.enum(['ACTIVE', 'SUSPENDED', 'INACTIVE']),
+});
+
+const renewSubscriptionSchema = z.object({
+  plan: z.enum(PLANS).optional(),
+  endDate: dateString.optional(),
+  amount: z.coerce.number().nonnegative().max(99999999).optional().nullable(),
+});
+
+const subscriptionUseSchema = z.object({
+  type: z.enum(['REPAS', 'BOISSON', 'AUTRE']).optional().default('REPAS'),
+  orderId: z.coerce.number().int().positive().optional().nullable(),
+  note: optionalText(200),
+});
+
+const subscriptionLookupSchema = z.object({
+  q: z.string().trim().min(2, 'Saisissez au moins 2 caractères').max(60),
+});
+
+const subscriptionsQuerySchema = z.object({
+  search: z.string().trim().max(80).optional(),
+  state: z.enum(['VALIDE', 'EXPIRE', 'SUSPENDU', 'INACTIF', 'BIENTOT']).optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
+});
+
 module.exports = {
   idParam,
   tokenParam,
@@ -337,4 +402,11 @@ module.exports = {
   updateServiceRequestSchema,
   updateRestaurantSchema,
   takeawaySchema,
+  createSubscriptionSchema,
+  updateSubscriptionSchema,
+  subscriptionStatusSchema,
+  renewSubscriptionSchema,
+  subscriptionUseSchema,
+  subscriptionsQuerySchema,
+  subscriptionLookupSchema,
 };

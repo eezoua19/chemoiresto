@@ -1,4 +1,5 @@
 import { formatMoney, formatDateTime } from '../../utils/format';
+import { openPrintWindow, escapeHtml } from '../print/printWindow';
 
 /**
  * Imprime un ticket de commande.
@@ -212,7 +213,7 @@ export function printTakeawayPoster(restaurant, takeaway) {
   .titre { font-size: 40px; font-weight: 800; margin: 6mm 0 2mm; }
   .sous-titre { font-size: 16px; color: #444; margin-bottom: 8mm; }
   img { width: 110mm; height: 110mm; }
-  .étapes {
+  .etapes {
     margin: 8mm auto 0;
     max-width: 130mm;
     text-align: left;
@@ -239,7 +240,7 @@ export function printTakeawayPoster(restaurant, takeaway) {
 
   <img src="${takeaway?.qrDataUrl || ''}" alt="QR Code des commandes à emporter" />
 
-  <div class="étapes">
+  <div class="etapes">
     1. Ouvrez l'appareil photo et visez le code<br />
     2. Choisissez vos plats et validez<br />
     3. Un code de retrait s'affiche : montrez-le au comptoir
@@ -257,28 +258,4 @@ export function printTakeawayPoster(restaurant, takeaway) {
 </html>`;
 
   openPrintWindow(html);
-}
-
-function openPrintWindow(html) {
-  const printWindow = window.open('', '_blank', 'width=420,height=700');
-  if (!printWindow) {
-    // Le navigateur a bloque la fenêtre : on informe l'appelant.
-    throw new Error('Autorisez les fenêtres surgissantes pour imprimer');
-  }
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  // Laisse le temps aux images de se charger avant d'ouvrir la boite d'impression.
-  setTimeout(() => {
-    printWindow.print();
-  }, 400);
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }

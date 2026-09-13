@@ -74,6 +74,30 @@ enum NotificationType {
   SYSTEM
 }
 
+// Formule d'abonnement. La duree sert a pre-remplir la date d'expiration ;
+// la date reste modifiable a la main, c'est elle qui fait foi.
+enum SubscriptionPlan {
+  HEBDOMADAIRE
+  MENSUEL
+  TRIMESTRIEL
+  ANNUEL
+}
+
+// Etat decide par l'administrateur. L'expiration n'en fait PAS partie : elle se
+// deduit de la date du jour, sinon il faudrait une tache qui passe chaque nuit
+// et un abonnement resterait "valide" tant qu'elle n'a pas tourne.
+enum SubscriptionStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum SubscriptionUsageType {
+  REPAS
+  BOISSON
+  AUTRE
+}
+
 // ----------------------------- RESTAURANT ----------------------------------
 
 model Restaurant {
@@ -109,6 +133,8 @@ model Restaurant {
   customers       Customer[]
   notifications   Notification[]
   serviceRequests ServiceRequest[]
+  subscriptions   Subscription[]
+  subscriptionUsages SubscriptionUsage[]
 }
 
 // -------------------------------- USER -------------------------------------
@@ -132,6 +158,8 @@ model User {
   statusHistory   OrderStatusHistory[]
   serviceRequests ServiceRequest[]     @relation("ServiceRequestHandler")
   notifications   Notification[]
+  subscriptionsCreated Subscription[]      @relation("SubscriptionAuthor")
+  subscriptionUsages   SubscriptionUsage[] @relation("SubscriptionUsageAuthor")
 
   @@index([restaurantId])
 }
@@ -333,6 +361,7 @@ model Order {
   server        User?                @relation("OrderServer", fields: [serverId], references: [id], onDelete: SetNull)
   items         OrderItem[]
   statusHistory OrderStatusHistory[]
+  subscriptionUsages SubscriptionUsage[]
 
   @@index([restaurantId])
   @@index([tableId])
@@ -429,4 +458,62 @@ model Notification {
 
   @@index([restaurantId])
   @@index([userId])
+}
+
+// ----------------------------- ABONNEMENTS ---------------------------------
+
+// Un abonne n'a NI compte NI mot de passe : sa preuve, c'est le ticket papier
+// et le QR Code imprime dessus. Tout est cree et gere par l'administration.
+model Subscription {
+  id           Int                @id @default(autoincrement())
+  restaurantId Int
+  number       String             @unique
+  // Jeton encode dans le QR Code du ticket. Non devinable, distinct de l'id.
+  verifyToken  String             @unique
+  firstName    String
+  lastName     String
+  phone        String
+  plan         SubscriptionPlan
+  status       SubscriptionStatus @default(ACTIVE)
+  startDate    DateTime
+  endDate      DateTime
+  amount       Decimal?           @db.Decimal(12, 2)
+  note         String?            @db.Text
+  renewalCount Int                @default(0)
+  renewedAt    DateTime?
+  createdById  Int?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  restaurant Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdBy  User?               @relation("SubscriptionAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  usages     SubscriptionUsage[]
+
+  @@index([restaurantId])
+  @@index([phone])
+  @@index([endDate])
+  @@index([status])
+}
+
+// Une ligne par passage. Consulter un ticket n'ecrit rien ici : seul un membre
+// du personnel qui valide l'utilisation cree une ligne, sinon un client qui
+// verifie sa propre carte consommerait un passage.
+model SubscriptionUsage {
+  id             Int                   @id @default(autoincrement())
+  restaurantId   Int
+  subscriptionId Int
+  orderId        Int?
+  userId         Int?
+  type           SubscriptionUsageType @default(REPAS)
+  note           String?               @db.Text
+  createdAt      DateTime              @default(now())
+
+  restaurant   Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  order        Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  user         User?        @relation("SubscriptionUsageAuthor", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([restaurantId])
+  @@index([subscriptionId])
+  @@index([createdAt])
 }

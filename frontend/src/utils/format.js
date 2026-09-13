@@ -26,11 +26,11 @@ export function formatShortDate(dateString) {
   return date.toLocaleDateString('fr-FR');
 }
 
-/** Date + heure : "11/09/2026 a 21:34" */
+/** Date + heure : "11/09/2026 à 21:34" */
 export function formatDateTime(value) {
   if (!value) return '';
   const date = new Date(value);
-  return `${date.toLocaleDateString('fr-FR')} a ${date.toLocaleTimeString('fr-FR', {
+  return `${date.toLocaleDateString('fr-FR')} à ${date.toLocaleTimeString('fr-FR', {
     hour: '2-digit',
     minute: '2-digit',
   })}`;

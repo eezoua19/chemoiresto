@@ -73,7 +73,7 @@ export default function OrderTrackingPage() {
   return (
     <div className="min-h-screen bg-ink-50 pb-10">
       <header
-        className="px-5 pb-8 pt-6 text-white"
+        className="motif-cuisine px-5 pb-8 pt-6 text-white"
         style={{ background: 'linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 100%)' }}
       >
         <div className="mx-auto max-w-lg">
@@ -97,7 +97,7 @@ export default function OrderTrackingPage() {
       </header>
 
       <div className="mx-auto -mt-4 max-w-lg space-y-4 px-4">
-        <section className="card p-5">
+        <section className="card animate-entree p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-ink-900">Suivi</h2>
             <span className={`badge ${config.badge}`}>{config.clientLabel}</span>
@@ -110,7 +110,7 @@ export default function OrderTrackingPage() {
           )}
         </section>
 
-        <section className="card p-5">
+        <section className="card animate-entree p-5" style={{ animationDelay: '90ms' }}>
           <h2 className="mb-3 font-semibold text-ink-900">Détail</h2>
           <ul className="space-y-3">
             {order.items.map((item) => (

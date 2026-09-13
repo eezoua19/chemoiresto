@@ -1,29 +1,43 @@
-import { Plus, Star, UtensilsCrossed } from 'lucide-react';
+import { Plus, Star } from 'lucide-react';
 import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
+import PlatSansPhoto from './PlatSansPhoto';
 
-/** Carte produit du menu client. */
-export default function ProductCard({ item, currency, onSelect }) {
+/** Au-dela, l'attente devient perceptible : tout le reste arrive ensemble. */
+const DERNIER_ECHELON = 8;
+
+/**
+ * Carte produit du menu client.
+ *
+ * `index` sert a echelonner l'apparition : la carte se dresse plat par plat
+ * au lieu d'apparaitre d'un bloc. Le decalage reste court et plafonne.
+ */
+export default function ProductCard({ item, currency, onSelect, index = 0 }) {
   const image = imageUrl(item.image);
   const disabled = !item.isAvailable;
+  const retard = Math.min(index, DERNIER_ECHELON) * 45;
 
   return (
     <button
       type="button"
       onClick={() => !disabled && onSelect(item)}
       disabled={disabled}
-      className={`flex w-full gap-3 rounded-2xl border border-ink-100 bg-white p-3 text-left transition
+      style={{ animationDelay: `${retard}ms` }}
+      className={`group flex w-full animate-entree gap-3 rounded-2xl border border-ink-100 bg-white p-3 text-left transition
                   ${disabled ? 'opacity-60' : 'active:scale-[0.99] hover:border-brand-200 hover:shadow-card'}`}
     >
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-ink-100">
         {image ? (
-          <img src={image} alt={item.name} className="h-full w-full object-cover" loading="lazy" />
+          // Le leger zoom a l'appui donne la sensation que la photo repond au
+          // doigt. Uniquement une transformation : rien a recalculer.
+          <img
+            src={image}
+            alt={item.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 group-active:scale-110"
+          />
         ) : (
-          // Un plat sans photo n'est pas une image cassee : couverts sur fond
-          // creme, la carte reste presentable tant que la photo n'est pas prise.
-          <div className="flex h-full w-full items-center justify-center bg-brand-50 text-brand-300">
-            <UtensilsCrossed size={26} />
-          </div>
+          <PlatSansPhoto taille="sm" />
         )}
         {item.isDishOfDay && (
           <span className="absolute left-1 top-1 flex items-center gap-0.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-amber-950">

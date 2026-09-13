@@ -73,6 +73,18 @@ export default {
           '0%': { transform: 'scale(0.96)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
+        // Rebond court : un compteur qui change doit se voir.
+        pop: {
+          '0%': { transform: 'scale(0.6)' },
+          '60%': { transform: 'scale(1.15)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        // La vapeur qui monte de l'assiette dessinee. Lente, discrete, et
+        // limitee a un element : c'est un detail, pas une attraction.
+        vapeur: {
+          '0%, 100%': { transform: 'translateY(0)', opacity: '0.45' },
+          '50%': { transform: 'translateY(-2px)', opacity: '0.15' },
+        },
         // Surlignage bref d'une ligne qui vient d'arriver. On finit sur le
         // blanc exact d'une carte, pas sur "transparent" : sinon le fond de
         // page apparait une fraction de seconde a la fin.
@@ -93,6 +105,11 @@ export default {
         'slide-down': 'slide-down 0.18s ease-in forwards',
         'verdict-in': 'verdict-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)',
         surlignage: 'surlignage 1.8s ease-out',
+        // "backwards" : sans lui, une carte avec un delai reste visible puis
+        // disparait d'un coup au demarrage de son animation.
+        entree: 'slide-up 0.3s ease-out backwards',
+        pop: 'pop 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.4)',
+        vapeur: 'vapeur 3.2s ease-in-out infinite',
       },
     },
   },

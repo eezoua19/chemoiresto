@@ -7,6 +7,7 @@ import {
   Receipt,
   CalendarX2,
   QrCode,
+  Star,
   MapPin,
   Phone,
   Clock,
@@ -302,8 +303,10 @@ function ClientMenuContent({ token, service }) {
   return (
     <div className="min-h-screen bg-ink-50 pb-28">
       {/* ------------------------- En-tete ------------------------- */}
+      {/* Le motif de couverts donne une texture de maison : sans lui,
+          l'en-tete est un aplat de couleur qui pourrait etre n'importe quoi. */}
       <header
-        className="px-5 pb-6 pt-8 text-white"
+        className="motif-cuisine px-5 pb-6 pt-8 text-white"
         style={{ background: 'linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 100%)' }}
       >
         <div className="mx-auto max-w-2xl">
@@ -325,7 +328,7 @@ function ClientMenuContent({ token, service }) {
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-between rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
+          <div className="mt-5 flex animate-entree items-center justify-between rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
             <div>
               <p className="text-xs uppercase tracking-wide text-white/70">
                 {emporter ? 'Votre commande' : 'Vous êtes à la'}
@@ -479,14 +482,16 @@ function ClientMenuContent({ token, service }) {
           <>
             {dishesOfDay.length > 0 && activeCategory === 'all' && (
               <section className="mt-6">
-                <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-ink-500">
+                <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-ink-500">
+                  <Star size={14} className="fill-amber-400 text-amber-400" />
                   Les plats du jour
                 </h2>
                 <div className="space-y-3">
-                  {dishesOfDay.map((item) => (
+                  {dishesOfDay.map((item, index) => (
                     <ProductCard
                       key={item.id}
                       item={item}
+                      index={index}
                       currency={currency}
                       onSelect={setSelectedItem}
                     />
@@ -516,14 +521,22 @@ function ClientMenuContent({ token, service }) {
               </div>
             </div>
 
-            <section className="mt-2 space-y-3">
+            {/* La cle change avec la categorie : les plats se redressent a
+                chaque filtrage, au lieu d'etre remplaces sans un geste. */}
+            <section key={activeCategory} className="mt-2 space-y-3">
               {visibleItems.length === 0 ? (
                 <div className="card">
                   <EmptyState title="Aucun plat dans cette catégorie" description="Choisissez une autre catégorie." />
                 </div>
               ) : (
-                visibleItems.map((item) => (
-                  <ProductCard key={item.id} item={item} currency={currency} onSelect={setSelectedItem} />
+                visibleItems.map((item, index) => (
+                  <ProductCard
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    currency={currency}
+                    onSelect={setSelectedItem}
+                  />
                 ))
               )}
             </section>
@@ -533,7 +546,7 @@ function ClientMenuContent({ token, service }) {
 
       {/* ---------------------- Panier flottant ---------------------- */}
       {cart.count > 0 && (
-        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 px-4 pt-3">
+        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 animate-slide-up px-4 pt-3">
           <button
             type="button"
             onClick={() => setCartOpen(true)}
@@ -543,7 +556,12 @@ function ClientMenuContent({ token, service }) {
             <span className="flex items-center gap-2.5">
               <span className="relative">
                 <ShoppingBag size={20} />
-                <span className="absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1 text-[11px] font-bold text-ink-900">
+                {/* La cle force le rebond a chaque changement : sur un
+                    telephone, un chiffre qui change sans bouger passe inapercu. */}
+                <span
+                  key={cart.count}
+                  className="absolute -right-2 -top-2 flex h-5 min-w-[20px] animate-pop items-center justify-center rounded-full bg-white px-1 text-[11px] font-bold text-ink-900"
+                >
                   {cart.count}
                 </span>
               </span>
@@ -596,7 +614,7 @@ function ClientMenuContent({ token, service }) {
       >
         {confirmation && (
           <div className="text-center">
-            <span className="mx-auto mb-3 inline-flex rounded-2xl bg-emerald-50 p-3 text-emerald-600">
+            <span className="mx-auto mb-3 inline-flex animate-pop rounded-2xl bg-emerald-50 p-3 text-emerald-600">
               <PartyPopper size={28} />
             </span>
             <p className="text-sm text-ink-600">

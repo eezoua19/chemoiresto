@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import usePresence from '../../hooks/usePresence';
-import { X, Minus, Plus, UtensilsCrossed, Star } from 'lucide-react';
+import { X, Minus, Plus, Star } from 'lucide-react';
 import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
+import PlatSansPhoto from './PlatSansPhoto';
 
 /**
  * Fiche produit : choix des options, des supplements, de la quantité.
@@ -113,9 +114,7 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
           {image ? (
             <img src={image} alt={item.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-brand-50 text-brand-300">
-              <UtensilsCrossed size={40} />
-            </div>
+            <PlatSansPhoto />
           )}
           <button
             type="button"

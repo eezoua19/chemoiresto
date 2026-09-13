@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { subscriptionApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
+import useSocketEvent from '../../hooks/useSocketEvent';
 import { useToast } from '../../context/ToastContext';
 import { printSubscriptionTicket } from '../../components/subscriptions/printSubscription';
 // Chargé seulement quand on ouvre le scanner : jsQR pèse ~50 Ko compressés, et
@@ -127,6 +128,11 @@ export default function AdminSubscriptionsPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Un passage enregistre au comptoir, ou une fiche modifiee depuis un autre
+  // appareil : la liste et les compteurs se remettent a jour tout seuls.
+  useSocketEvent('subscription_used', load);
+  useSocketEvent('subscription_updated', load);
 
   // ------------------------------- création -------------------------------
 

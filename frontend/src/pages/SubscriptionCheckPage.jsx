@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, RefreshCw, ScanLine, History } from 'lucide-re
 const QrScanner = lazy(() => import('../components/subscriptions/QrScanner'));
 import { subscriptionApi } from '../services/endpoints';
 import { useAuth } from '../context/AuthContext';
+import useSocketEvent from '../hooks/useSocketEvent';
 import { useToast } from '../context/ToastContext';
 import { Button, ErrorState, Footer, Select, Skeleton } from '../components/ui';
 import { formatDateTime, formatShortDate } from '../utils/format';
@@ -44,6 +45,14 @@ export default function SubscriptionCheckPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Si l'administration suspend ou renouvelle CET abonnement pendant que la
+  // fiche est ouverte, le verdict a l'ecran change sans rien toucher. La
+  // securite ne repose pas la-dessus — le serveur revalide chaque passage —
+  // mais la serveuse ne doit pas lire un etat perime en face du client.
+  useSocketEvent('subscription_updated', (payload) => {
+    if (payload?.subscription?.verifyToken === token) load();
+  });
 
   const enregistrerPassage = async () => {
     setSaving(true);

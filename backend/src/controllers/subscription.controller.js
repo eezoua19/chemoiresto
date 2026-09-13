@@ -3,6 +3,7 @@ const ApiError = require('../utils/apiError');
 const asyncHandler = require('../utils/asyncHandler');
 const { success, created } = require('../utils/response');
 const { buildSubscriptionUrl, renderUrl } = require('../services/qrcode.service');
+const { emitToStaff } = require('../sockets');
 const {
   debutDeJour,
   finDeJour,
@@ -26,6 +27,21 @@ const {
 async function construireTicket(subscription) {
   const url = buildSubscriptionUrl(subscription.verifyToken);
   return { url, qrDataUrl: await renderUrl(url) };
+}
+
+/**
+ * Previent tous les appareils du personnel.
+ *
+ * Le reste de l'application pousse deja ses changements en direct (commandes,
+ * appels, ruptures de stock). Les abonnements ne doivent pas faire exception :
+ * une suspension decidee au bureau doit apparaitre sur le telephone de la
+ * serveuse qui a la fiche ouverte, sans qu'elle ait a rafraichir.
+ *
+ * La securite, elle, ne repose pas la-dessus : chaque scan et chaque
+ * enregistrement de passage sont revalides par le serveur.
+ */
+function prevenirLePersonnel(restaurantId, evenement, subscription, extra = {}) {
+  emitToStaff(restaurantId, evenement, { subscription: serialiser(subscription), ...extra });
 }
 
 // ---------------------------------------------------------------------------
@@ -200,6 +216,8 @@ const create = asyncHandler(async (req, res) => {
 
   if (!subscription) throw ApiError.badRequest("Impossible de générer un numéro d'abonnement");
 
+  prevenirLePersonnel(req.user.restaurantId, 'subscription_updated', subscription);
+
   return created(
     res,
     { ...serialiser(subscription), ticket: await construireTicket(subscription) },
@@ -236,6 +254,7 @@ const update = asyncHandler(async (req, res) => {
     include: inclusion,
   });
 
+  prevenirLePersonnel(req.user.restaurantId, 'subscription_updated', subscription);
   return success(res, serialiser(subscription), 'Abonnement mis à jour');
 });
 
@@ -251,6 +270,8 @@ const setStatus = asyncHandler(async (req, res) => {
     data: { status: req.body.status },
     include: inclusion,
   });
+
+  prevenirLePersonnel(req.user.restaurantId, 'subscription_updated', subscription);
 
   const messages = {
     ACTIVE: 'Abonnement réactivé',
@@ -292,6 +313,7 @@ const renew = asyncHandler(async (req, res) => {
     include: inclusion,
   });
 
+  prevenirLePersonnel(req.user.restaurantId, 'subscription_updated', subscription);
   return success(res, serialiser(subscription), `Abonnement renouvelé jusqu'au ${fin.toLocaleDateString('fr-FR')}`);
 });
 
@@ -408,6 +430,10 @@ const use = asyncHandler(async (req, res) => {
   const rafraichi = await prisma.subscription.findUnique({
     where: { id: subscription.id },
     include: inclusionUsages,
+  });
+
+  prevenirLePersonnel(req.user.restaurantId, 'subscription_used', rafraichi, {
+    by: `${req.user.firstName} ${req.user.lastName}`,
   });
 
   return created(

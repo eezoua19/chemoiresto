@@ -1,6 +1,15 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { startServer, stopServer, api, login, unique, prisma } = require('./helpers');
+const {
+  startServer,
+  stopServer,
+  api,
+  login,
+  connectSocket,
+  waitForEvent,
+  unique,
+  prisma,
+} = require('./helpers');
 
 /** "2026-09-13" a partir d'un decalage en jours par rapport a aujourd'hui. */
 function jour(decalage = 0) {
@@ -415,6 +424,64 @@ test('Abonnements CHEMOIRESTO', async (suite) => {
     const introuvable = await api('/api/subscriptions/lookup?q=ZZZZZZ', { token: serveuse.token });
     assert.equal(introuvable.status, 200);
     assert.equal(introuvable.data.results.length, 0);
+  });
+
+  // ------------------------------------------------------------- temps réel
+
+  await suite.test('une décision de l\'administration part en direct vers la salle', async () => {
+    const socket = await connectSocket(serveuse.token);
+    try {
+      const attendu = waitForEvent(socket, 'subscription_updated');
+
+      await api(`/api/subscriptions/${abonnement.id}/status`, {
+        method: 'PATCH',
+        token: admin.token,
+        body: { status: 'SUSPENDED' },
+      });
+
+      const evenement = await attendu;
+      assert.equal(evenement.subscription.number, abonnement.number);
+      assert.equal(evenement.subscription.state, 'SUSPENDU');
+      assert.equal(evenement.subscription.isUsable, false);
+    } finally {
+      socket.disconnect();
+      await api(`/api/subscriptions/${abonnement.id}/status`, {
+        method: 'PATCH',
+        token: admin.token,
+        body: { status: 'ACTIVE' },
+      });
+    }
+  });
+
+  await suite.test('un passage enregistré au comptoir remonte au bureau', async () => {
+    // Fiche neuve : celle du dessus a ete renouvelee par anticipation, son
+    // nouveau cycle commence donc demain et elle n'est pas utilisable
+    // aujourd'hui — ce qui est bien le comportement attendu.
+    const frais = await api('/api/subscriptions', {
+      method: 'POST',
+      token: admin.token,
+      body: { firstName: 'Direct', lastName: nom, phone: telephone, plan: 'MENSUEL' },
+    });
+    assert.equal(frais.data.state, 'VALIDE');
+
+    const socket = await connectSocket(admin.token);
+    try {
+      const attendu = waitForEvent(socket, 'subscription_used');
+
+      const passage = await api(`/api/subscriptions/verify/${frais.data.verifyToken}/use`, {
+        method: 'POST',
+        token: serveuse.token,
+        body: { type: 'REPAS' },
+      });
+      assert.equal(passage.status, 201);
+
+      const evenement = await attendu;
+      assert.equal(evenement.subscription.number, frais.data.number);
+      assert.equal(evenement.subscription.usageCount, 1);
+      assert.equal(evenement.by, 'Marie Kouassi', 'le bureau voit qui a scanné');
+    } finally {
+      socket.disconnect();
+    }
   });
 
   // ------------------------------------------------------------ statistiques

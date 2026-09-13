@@ -17,6 +17,7 @@ const subscriptionRoutes = require('./subscription.routes');
 const auditRoutes = require('./audit.routes');
 const closingRoutes = require('./closing.routes');
 const resetRoutes = require('./reset.routes');
+const setupRoutes = require('./setup.routes');
 
 const { journalMiddleware } = require('../middleware/journal');
 
@@ -49,5 +50,6 @@ router.use('/subscriptions', subscriptionRoutes);
 router.use('/audit', auditRoutes);
 router.use('/closings', closingRoutes);
 router.use('/reset', resetRoutes);
+router.use('/setup', setupRoutes);
 
 module.exports = router;

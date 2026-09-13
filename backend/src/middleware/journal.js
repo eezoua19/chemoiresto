@@ -190,6 +190,12 @@ const DESCRIPTEURS = {
       data?.takeawayEnabled ? 'Commandes à emporter ouvertes' : 'Commandes à emporter fermées',
   },
 
+  'POST /setup/tables/activate': {
+    action: 'TABLES_REACTIVEES',
+    entity: 'Table',
+    label: (req, data) => `${data?.activated || 0} table(s) remise(s) en service`,
+  },
+
   // ---------------------------- Remise a zero ----------------------------
   // Le journal vient d'etre efface par l'operation elle-meme : cette ligne
   // s'ecrit juste apres, et devient la premiere du nouveau journal.

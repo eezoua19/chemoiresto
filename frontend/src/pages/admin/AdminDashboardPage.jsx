@@ -9,7 +9,6 @@ import {
   UtensilsCrossed,
   CalendarPlus,
   BellRing,
-  ArrowRight,
   ChevronLeft,
   ChevronRight,
   TrendingUp,
@@ -29,7 +28,8 @@ import { dashboardApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import { ErrorState, PageHeader, Skeleton, StatCard, Card, CardHeader, EmptyState } from '../../components/ui';
-import { formatMoney, formatShortDate, todayString } from '../../utils/format';
+import MiseEnService from '../../components/admin/MiseEnService';
+import { formatMoney, formatShortDate } from '../../utils/format';
 
 /** Mois en cours, au format AAAA-MM. */
 function moisCourant() {
@@ -107,6 +107,9 @@ export default function AdminDashboardPage() {
         icon={ShoppingBag}
       />
 
+      {/* Ce qui empeche un client de commander, avant tout le reste. */}
+      <MiseEnService />
+
       {/* Selecteur de mois : le mois suivant reste bloque tant qu'il n'a pas
           commence, un tableau de bord vide n'apprend rien. */}
       <Card className="mb-4 flex items-center justify-between gap-3 p-3">
@@ -165,24 +168,6 @@ export default function AdminDashboardPage() {
                 : undefined
             }
           />
-        </div>
-      )}
-
-      {/* Alerte : aucun menu programme aujourd'hui */}
-      {!today.menuConfigured && (
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <div className="flex items-start gap-3">
-            <CalendarPlus size={20} className="mt-0.5 text-amber-600" />
-            <div>
-              <p className="font-semibold text-amber-900">Aucun menu programme aujourd&apos;hui</p>
-              <p className="text-sm text-amber-700">
-                Les clients qui scannent un QR Code voient un écran vide. Créez le menu du jour.
-              </p>
-            </div>
-          </div>
-          <Link to={`/admin/menus/${todayString()}`} className="btn-primary">
-            Créer le menu du jour <ArrowRight size={16} />
-          </Link>
         </div>
       )}
 

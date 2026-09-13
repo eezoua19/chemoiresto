@@ -120,6 +120,12 @@ export const notificationApi = {
   markAllRead: () => api.put('/notifications/read-all').then(unwrap),
 };
 
+// -------------------------- Mise en service --------------------------------
+export const setupApi = {
+  controles: () => api.get('/setup').then(unwrap),
+  activerLesTables: () => api.post('/setup/tables/activate').then((r) => r.data),
+};
+
 // ------------------------------ Remise a zero ------------------------------
 export const resetApi = {
   // La suppression passe par une sauvegarde complete : c'est long, on laisse

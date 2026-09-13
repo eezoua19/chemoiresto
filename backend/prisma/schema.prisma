@@ -428,6 +428,10 @@ model ServiceRequest {
   status       ServiceRequestStatus @default(PENDING)
   message      String?              @db.Text
   handledAt    DateTime?
+  // Rappels du client quand personne n'est venu. On garde le compte ET la date
+  // du dernier : le compte sert a l'affichage, la date a espacer les rappels.
+  reminderCount  Int       @default(0)
+  lastReminderAt DateTime?
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
 

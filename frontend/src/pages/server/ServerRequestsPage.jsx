@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Bell, Receipt, RefreshCw, BellOff } from 'lucide-react';
+import { Bell, BellRing, Receipt, RefreshCw, BellOff } from 'lucide-react';
 import { serviceRequestApi } from '../../services/endpoints';
 import { useToast } from '../../context/ToastContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
@@ -36,6 +36,7 @@ export default function ServerRequestsPage() {
 
   useSocketEvent('service_request', load);
   useSocketEvent('service_request_updated', load);
+  useSocketEvent('service_request_reminder', load);
 
   const advance = async (request, status) => {
     setBusy(request.id);
@@ -103,6 +104,14 @@ export default function ServerRequestsPage() {
                     <span className={`badge ${config.badge}`}>{config.label}</span>
                   </div>
                   <p className="text-sm text-ink-600">{LABELS[request.type]}</p>
+                  {request.reminderCount > 0 && (
+                    <p className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2 py-1 text-xs font-bold text-red-700">
+                      <BellRing size={13} />
+                      {request.reminderCount === 1
+                        ? 'La table a relancé une fois'
+                        : `La table a relancé ${request.reminderCount} fois`}
+                    </p>
+                  )}
                   {request.message && <p className="text-xs italic text-ink-500">{request.message}</p>}
                   <p className="mt-1 text-xs text-ink-400">
                     {timeAgo(request.createdAt)}

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import {
   ShoppingBag,
   Bell,
+  BellRing,
   Receipt,
   CalendarX2,
   QrCode,
@@ -26,6 +27,26 @@ import { Button, EmptyState, ErrorState, Footer, Modal, Skeleton } from '../../c
 import { formatLongDate, formatMoney } from '../../utils/format';
 import { ORDER_STATUS, ordersKey } from '../../utils/constants';
 import { applyBrandColor } from '../../utils/color';
+
+/** Le client peut relancer 90 s apres son appel, trois fois au plus. */
+const RAPPEL_DELAI_MS = 90000;
+const RAPPEL_MAX = 3;
+
+/**
+ * Ou en est le droit de rappel pour une demande ouverte.
+ *
+ * Le serveur reste seul juge : ce calcul ne sert qu'a griser le bouton et a
+ * afficher l'attente. S'il se trompe d'une seconde, c'est le serveur qui
+ * repond, pas l'ecran.
+ */
+function etatDuRappel(demande, maintenant) {
+  if (!demande) return null;
+  const nombre = demande.reminderCount || 0;
+  if (nombre >= RAPPEL_MAX) return { possible: false, epuise: true, nombre, secondes: 0 };
+  const dernierSignal = new Date(demande.lastReminderAt || demande.createdAt).getTime();
+  const secondes = Math.max(0, Math.ceil((dernierSignal + RAPPEL_DELAI_MS - maintenant) / 1000));
+  return { possible: secondes === 0, epuise: false, nombre, secondes };
+}
 
 /**
  * Le même écran sert les deux parcours :
@@ -145,6 +166,16 @@ function ClientMenuContent({ token, service }) {
   });
 
   useSocketEvent('service_request_updated', () => loadRequests());
+
+  // Horloge locale : elle ne sert qu'a reactiver le bouton « Rappeler » au bon
+  // moment. Elle ne tourne que s'il y a une demande en cours, pour ne pas
+  // reveiller le telephone du client pendant tout son repas.
+  const [maintenant, setMaintenant] = useState(() => Date.now());
+  useEffect(() => {
+    if (requests.length === 0) return undefined;
+    const minuteur = setInterval(() => setMaintenant(Date.now()), 1000);
+    return () => clearInterval(minuteur);
+  }, [requests.length]);
   useSocketEvent('menu_updated', () => load());
 
   // --------------------------- Commande ---------------------------------
@@ -188,6 +219,21 @@ function ClientMenuContent({ token, service }) {
   };
 
   // ------------------------ Demandes de service -------------------------
+  const sendReminder = async (type) => {
+    setRequestPending(type);
+    try {
+      const response = await publicApi.remindServiceRequest({ tableToken: token, type });
+      toast.success(response.message);
+      loadRequests();
+    } catch (error) {
+      toast.error(error.message);
+      // 404 : la demande vient d'etre traitee ailleurs, l'ecran est en retard.
+      if (error.status === 404) loadRequests();
+    } finally {
+      setRequestPending(null);
+    }
+  };
+
   const sendServiceRequest = async (type) => {
     setRequestPending(type);
     try {
@@ -250,6 +296,8 @@ function ClientMenuContent({ token, service }) {
   const activeOrders = orders.filter((order) => !['SERVED', 'CANCELLED'].includes(order.status));
   const openCall = requests.find((request) => request.type === 'CALL_SERVER');
   const openBill = requests.find((request) => request.type === 'BILL');
+  const rappelCall = etatDuRappel(openCall, maintenant);
+  const rappelBill = etatDuRappel(openBill, maintenant);
 
   return (
     <div className="min-h-screen bg-ink-50 pb-28">
@@ -370,28 +418,46 @@ function ClientMenuContent({ token, service }) {
 
         {/* --------------------- Appels serveuse ------------------- */}
         {!emporter && (
-        <section className="mt-5 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => sendServiceRequest('CALL_SERVER')}
-            disabled={requestPending === 'CALL_SERVER'}
-            className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition
-              ${openCall ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-ink-200 bg-white text-ink-700 hover:border-amber-300 hover:bg-amber-50'}`}
-          >
-            <Bell size={20} />
-            {openCall ? 'Serveuse appelée' : 'Appeler une serveuse'}
-          </button>
+        <section className="mt-5 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => sendServiceRequest('CALL_SERVER')}
+              disabled={requestPending === 'CALL_SERVER'}
+              className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition
+                ${openCall ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-ink-200 bg-white text-ink-700 hover:border-amber-300 hover:bg-amber-50'}`}
+            >
+              <Bell size={20} />
+              {openCall ? 'Serveuse appelée' : 'Appeler une serveuse'}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => sendServiceRequest('BILL')}
-            disabled={requestPending === 'BILL'}
-            className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition
-              ${openBill ? 'border-sky-300 bg-sky-50 text-sky-700' : 'border-ink-200 bg-white text-ink-700 hover:border-sky-300 hover:bg-sky-50'}`}
-          >
-            <Receipt size={20} />
-            {openBill ? 'Addition demandee' : 'Demander l\'addition'}
-          </button>
+            <button
+              type="button"
+              onClick={() => sendServiceRequest('BILL')}
+              disabled={requestPending === 'BILL'}
+              className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition
+                ${openBill ? 'border-sky-300 bg-sky-50 text-sky-700' : 'border-ink-200 bg-white text-ink-700 hover:border-sky-300 hover:bg-sky-50'}`}
+            >
+              <Receipt size={20} />
+              {openBill ? 'Addition demandée' : "Demander l'addition"}
+            </button>
+          </div>
+
+          {/* ------ Rappel : personne n'est venu depuis l'appel ------ */}
+          <RappelBouton
+            etat={rappelCall}
+            libelle="Rappeler la serveuse"
+            attente="Une serveuse arrive"
+            occupe={requestPending === 'CALL_SERVER'}
+            onRappel={() => sendReminder('CALL_SERVER')}
+          />
+          <RappelBouton
+            etat={rappelBill}
+            libelle="Relancer pour l'addition"
+            attente="Votre addition est en préparation"
+            occupe={requestPending === 'BILL'}
+            onRappel={() => sendReminder('BILL')}
+          />
         </section>
         )}
 
@@ -594,5 +660,50 @@ function MenuSkeleton() {
         ))}
       </div>
     </div>
+  );
+}
+
+/**
+ * Bouton de rappel, affiché seulement quand une demande est déjà en cours.
+ *
+ * Tant que le délai n'est pas passé, on n'affiche pas un bouton grisé sans
+ * explication : on dit au client que la serveuse arrive et dans combien de
+ * temps il pourra relancer. C'est ce qui évite qu'il appuie dix fois.
+ */
+function RappelBouton({ etat, libelle, attente, occupe, onRappel }) {
+  if (!etat) return null;
+
+  if (etat.epuise) {
+    return (
+      <p className="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-center text-xs text-ink-500">
+        Le personnel a été relancé {etat.nombre} fois. Si personne ne vient, adressez-vous au
+        comptoir.
+      </p>
+    );
+  }
+
+  if (!etat.possible) {
+    return (
+      <p className="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-center text-xs text-ink-500">
+        {attente}. Vous pourrez relancer dans {etat.secondes}&nbsp;s.
+      </p>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onRappel}
+      disabled={occupe}
+      className="flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-400 bg-amber-100 px-4 py-3 text-sm font-bold text-amber-800 transition hover:bg-amber-200 disabled:opacity-60"
+    >
+      <BellRing size={18} />
+      {libelle}
+      {etat.nombre > 0 && (
+        <span className="text-xs font-semibold text-amber-700">
+          (déjà relancé {etat.nombre} fois)
+        </span>
+      )}
+    </button>
   );
 }

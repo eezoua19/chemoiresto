@@ -69,6 +69,23 @@ export function annonceCommande(order) {
   return [entree, provenance, plats ? `${plats}.` : '', montant].filter(Boolean).join(' ');
 }
 
+/**
+ * Rappel du client : personne n'est venu.
+ *
+ * On dit « toujours » et on donne le rang du rappel - c'est ce qui distingue,
+ * à l'oreille, une table qui patiente d'une table qu'on a oubliée.
+ */
+const RANGS = ['', 'Premier rappel.', 'Deuxième rappel.', 'Troisième rappel.'];
+
+export function annonceRappel(request) {
+  const numero = numeroDeTable(request?.table?.number);
+  const table = numero ? `La table ${numero}` : 'Une table';
+  const objet =
+    request?.type === 'BILL' ? "attend toujours l'addition" : 'attend toujours une serveuse';
+  const rang = RANGS[request?.reminderCount] || 'Rappel.';
+  return `${rang} ${table} ${objet}.`;
+}
+
 /** « Table 3 demande l'addition. » / « Table 3 appelle une serveuse. » */
 export function annonceDemande(request) {
   const numero = numeroDeTable(request?.table?.number);

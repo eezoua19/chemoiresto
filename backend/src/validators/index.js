@@ -275,6 +275,12 @@ const createServiceRequestSchema = z.object({
   message: optionalText(200),
 });
 
+// Le rappel porte sur la demande deja ouverte : pas de message a joindre.
+const remindServiceRequestSchema = z.object({
+  tableToken: z.string().regex(/^[a-f0-9]{16,64}$/i, 'Table invalide'),
+  type: z.enum(['CALL_SERVER', 'BILL']),
+});
+
 const updateServiceRequestSchema = z.object({
   status: z.enum(['PENDING', 'TAKEN', 'COMPLETED', 'REQUESTED', 'PROCESSING', 'PAID', 'CANCELLED']),
 });
@@ -399,6 +405,7 @@ module.exports = {
   updateServerSchema,
   resetPasswordSchema,
   createServiceRequestSchema,
+  remindServiceRequestSchema,
   updateServiceRequestSchema,
   updateRestaurantSchema,
   takeawaySchema,

@@ -23,7 +23,7 @@ import { useToast } from '../context/ToastContext';
 import useSocketEvent from '../hooks/useSocketEvent';
 import useNotificationSound from '../hooks/useNotificationSound';
 import useVoiceAnnouncer from '../hooks/useVoiceAnnouncer';
-import { annonceCommande, annonceDemande } from '../utils/announcements';
+import { annonceCommande, annonceDemande, annonceRappel } from '../utils/announcements';
 import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
@@ -79,6 +79,21 @@ export default function AdminLayout() {
     toast.alerte(
       `Table ${request.table?.number} : ${
         request.type === 'BILL' ? 'demande l\'addition' : 'appelle une serveuse'
+      }`,
+      'warning',
+      voice.stop
+    );
+  });
+
+
+  // Un rappel veut dire que la table a deja attendu : meme alerte que l'appel
+  // initial, mais annoncee comme un rappel pour qu'on l'entende differemment.
+  useSocketEvent('service_request_reminder', (request) => {
+    playSound('call');
+    voice.announce(annonceRappel(request));
+    toast.alerte(
+      `Table ${request.table?.number} : rappel, ${
+        request.type === 'BILL' ? "l'addition est toujours attendue" : "personne n'est venu"
       }`,
       'warning',
       voice.stop

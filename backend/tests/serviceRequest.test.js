@@ -78,6 +78,70 @@ test('Demandes des clients : appel serveuse et addition', async (suite) => {
     assert.ok(result.data.some((request) => request.id === callId));
   });
 
+  // ---------------------- Rappels ----------------------
+  // Le delai reel est de 90 s : on vieillit la demande en base plutot que
+  // d'attendre, sinon la suite de tests durerait plusieurs minutes.
+  const vieillirLaDemande = (secondes) =>
+    prisma.serviceRequest.update({
+      where: { id: callId },
+      data: { createdAt: new Date(Date.now() - secondes * 1000), lastReminderAt: null },
+    });
+
+  await suite.test('rappel trop tot refuse (429)', async () => {
+    const result = await api('/api/service-requests/remind', {
+      method: 'POST',
+      body: { tableToken: table.token, type: 'CALL_SERVER' },
+    });
+    assert.equal(result.status, 429);
+  });
+
+  await suite.test('rappel sans demande ouverte refuse (404)', async () => {
+    const result = await api('/api/service-requests/remind', {
+      method: 'POST',
+      body: { tableToken: table.token, type: 'BILL' },
+    });
+    assert.equal(result.status, 404);
+  });
+
+  await suite.test('apres le delai : le rappel alerte le personnel', async () => {
+    await vieillirLaDemande(120);
+    const notified = waitForEvent(staffSocket, 'service_request_reminder');
+
+    const result = await api('/api/service-requests/remind', {
+      method: 'POST',
+      body: { tableToken: table.token, type: 'CALL_SERVER' },
+    });
+
+    assert.equal(result.status, 200);
+    assert.equal(result.data.id, callId, 'le rappel ne cree pas une seconde demande');
+    assert.equal(result.data.reminderCount, 1);
+
+    const event = await notified;
+    assert.equal(event.id, callId);
+    assert.equal(event.reminderCount, 1);
+
+    const count = await prisma.serviceRequest.count({
+      where: { tableId: table.id, type: 'CALL_SERVER' },
+    });
+    assert.equal(count, 1, 'toujours une seule demande en base');
+  });
+
+  await suite.test('au-dela de trois rappels le personnel n est plus relance', async () => {
+    await prisma.serviceRequest.update({
+      where: { id: callId },
+      data: { reminderCount: 3, createdAt: new Date(Date.now() - 600000), lastReminderAt: null },
+    });
+
+    const result = await api('/api/service-requests/remind', {
+      method: 'POST',
+      body: { tableToken: table.token, type: 'CALL_SERVER' },
+    });
+    assert.equal(result.status, 429);
+
+    const demande = await prisma.serviceRequest.findUnique({ where: { id: callId } });
+    assert.equal(demande.reminderCount, 3, 'le compteur ne bouge plus');
+  });
+
   await suite.test('la serveuse prend en charge puis termine l\'appel', async () => {
     const taken = await api(`/api/service-requests/${callId}/status`, {
       method: 'PUT',

@@ -23,6 +23,8 @@ export const publicApi = {
   createOrder: (payload) => api.post('/orders', payload).then(unwrap),
   trackOrder: (trackingToken) => api.get(`/orders/track/${trackingToken}`).then(unwrap),
   createServiceRequest: (payload) => api.post('/service-requests', payload).then((r) => r.data),
+  remindServiceRequest: (payload) =>
+    api.post('/service-requests/remind', payload).then((r) => r.data),
 };
 
 // ------------------------------- Catégories --------------------------------

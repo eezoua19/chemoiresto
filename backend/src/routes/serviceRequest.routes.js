@@ -6,6 +6,7 @@ const { serviceRequestLimiter } = require('../middleware/rateLimit');
 const {
   idParam,
   createServiceRequestSchema,
+  remindServiceRequestSchema,
   updateServiceRequestSchema,
 } = require('../validators');
 
@@ -17,6 +18,14 @@ router.post(
   serviceRequestLimiter,
   validate({ body: createServiceRequestSchema }),
   controller.create
+);
+
+// Publique : le client relance quand personne n'est venu.
+router.post(
+  '/remind',
+  serviceRequestLimiter,
+  validate({ body: remindServiceRequestSchema }),
+  controller.remind
 );
 
 // Personnel

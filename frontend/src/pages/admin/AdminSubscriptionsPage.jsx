@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BadgeCheck,
   Plus,
@@ -12,6 +13,7 @@ import {
   PlayCircle,
   Ban,
   QrCode,
+  ScanLine,
   Users,
   CalendarClock,
   History,
@@ -20,6 +22,9 @@ import { subscriptionApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { printSubscriptionTicket } from '../../components/subscriptions/printSubscription';
+// Chargé seulement quand on ouvre le scanner : jsQR pèse ~50 Ko compressés, et
+// le client qui consulte le menu sur sa data n'a aucune raison de les payer.
+const QrScanner = lazy(() => import('../../components/subscriptions/QrScanner'));
 import {
   Button,
   Card,
@@ -77,6 +82,7 @@ const FORMULAIRE_VIDE = {
 export default function AdminSubscriptionsPage() {
   const { restaurant } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [stats, setStats] = useState(null);
   const [subscriptions, setSubscriptions] = useState([]);
@@ -94,6 +100,7 @@ export default function AdminSubscriptionsPage() {
   const [renewTarget, setRenewTarget] = useState(null);
   const [renewPlan, setRenewPlan] = useState('MENSUEL');
   const [disableTarget, setDisableTarget] = useState(null);
+  const [scannerOuvert, setScannerOuvert] = useState(false);
 
   // ------------------------------ chargement ------------------------------
 
@@ -251,6 +258,15 @@ export default function AdminSubscriptionsPage() {
     }
   };
 
+  // Rappel stable : l'effet du scanner ne doit pas se relancer a chaque rendu.
+  const surDetection = useCallback(
+    (jeton) => {
+      setScannerOuvert(false);
+      navigate(`/abonnement/${jeton}`);
+    },
+    [navigate]
+  );
+
   // -------------------------------- rendu ---------------------------------
 
   if (loading) {
@@ -276,9 +292,14 @@ export default function AdminSubscriptionsPage() {
         subtitle="Créez la fiche, le système fabrique le numéro, le QR Code et le ticket"
         icon={BadgeCheck}
         action={
-          <Button icon={Plus} onClick={ouvrirCreation}>
-            Nouvel abonnement
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" icon={ScanLine} onClick={() => setScannerOuvert(true)}>
+              Scanner
+            </Button>
+            <Button icon={Plus} onClick={ouvrirCreation}>
+              Nouvel abonnement
+            </Button>
+          </div>
         }
       />
 
@@ -740,6 +761,12 @@ export default function AdminSubscriptionsPage() {
         confirmLabel="Désactiver"
         loading={busy === disableTarget?.id}
       />
+
+      {scannerOuvert && (
+        <Suspense fallback={null}>
+          <QrScanner open onClose={() => setScannerOuvert(false)} onDetect={surDetection} />
+        </Suspense>
+      )}
     </div>
   );
 }

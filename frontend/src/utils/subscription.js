@@ -93,3 +93,19 @@ export function expirationProposee(debutISO, formule) {
   d.setDate(d.getDate() + jours - 1);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+/**
+ * Extrait le jeton d'un ticket a partir de ce qui a ete scanne ou colle.
+ *
+ * Le QR contient une adresse complete, mais on accepte aussi un jeton seul :
+ * au comptoir, personne ne doit se demander quelle forme est la bonne.
+ * Tout le reste renvoie null - un QR de table, par exemple, n'est pas un ticket.
+ */
+export function jetonDuCode(texte) {
+  if (!texte) return null;
+  const surAbonnement = String(texte).match(/\/abonnement\/([a-f0-9]{32})/i);
+  if (surAbonnement) return surAbonnement[1].toLowerCase();
+  const nu = String(texte).trim();
+  if (/^[a-f0-9]{32}$/i.test(nu)) return nu.toLowerCase();
+  return null;
+}

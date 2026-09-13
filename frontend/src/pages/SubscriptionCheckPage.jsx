@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, RefreshCw, ScanLine, History } from 'lucide-react';
+// Chargé seulement quand on ouvre le scanner : jsQR pèse ~50 Ko compressés, et
+// le client qui consulte le menu sur sa data n'a aucune raison de les payer.
+const QrScanner = lazy(() => import('../components/subscriptions/QrScanner'));
 import { subscriptionApi } from '../services/endpoints';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -17,6 +20,7 @@ import { ETATS, TYPES_UTILISATION, echeance, etatDe } from '../utils/subscriptio
  */
 export default function SubscriptionCheckPage() {
   const { token } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const toast = useToast();
 
@@ -24,6 +28,7 @@ export default function SubscriptionCheckPage() {
   const [type, setType] = useState('REPAS');
   const [saving, setSaving] = useState(false);
   const [justeEnregistre, setJusteEnregistre] = useState(false);
+  const [scannerOuvert, setScannerOuvert] = useState(false);
 
   const load = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
@@ -58,6 +63,17 @@ export default function SubscriptionCheckPage() {
 
   const retour = user?.role === 'ADMIN' ? '/admin/abonnements' : '/serveuse/abonnements';
 
+  // Enchaîner les clients sans repasser par la liste : un scan, un verdict,
+  // le suivant. Le rappel reste stable pour ne pas relancer la caméra.
+  const surDetection = useCallback(
+    (jeton) => {
+      setScannerOuvert(false);
+      setJusteEnregistre(false);
+      navigate(`/abonnement/${jeton}`, { replace: true });
+    },
+    [navigate]
+  );
+
   if (state.loading) {
     return (
       <div className="mx-auto min-h-screen max-w-lg space-y-4 bg-ink-50 px-4 py-8">
@@ -89,12 +105,17 @@ export default function SubscriptionCheckPage() {
   return (
     <div className="min-h-screen bg-ink-50">
       <div className="mx-auto max-w-lg px-4 py-6">
-        <Link
-          to={retour}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 hover:text-ink-900"
-        >
-          <ArrowLeft size={16} /> Retour aux abonnements
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link
+            to={retour}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 hover:text-ink-900"
+          >
+            <ArrowLeft size={16} /> Retour aux abonnements
+          </Link>
+          <Button variant="secondary" icon={ScanLine} onClick={() => setScannerOuvert(true)}>
+            Scanner le suivant
+          </Button>
+        </div>
 
         {/* --------------------- Le verdict, en grand --------------------- */}
         <div className={`mt-5 rounded-3xl border-2 p-6 text-center ${etat.bloc}`}>
@@ -219,6 +240,12 @@ export default function SubscriptionCheckPage() {
           </>
         )}
       </div>
+
+      {scannerOuvert && (
+        <Suspense fallback={null}>
+          <QrScanner open onClose={() => setScannerOuvert(false)} onDetect={surDetection} />
+        </Suspense>
+      )}
 
       <Footer />
     </div>

@@ -443,6 +443,45 @@ const use = asyncHandler(async (req, res) => {
   );
 });
 
+/**
+ * DELETE /api/subscriptions/:id (ADMIN)
+ *
+ * Suppression definitive. Les passages enregistres partent avec l'abonnement
+ * (cascade en base) : c'est pour cela qu'on les compte AVANT d'effacer et
+ * qu'on le dit dans la reponse - l'administration doit savoir ce qu'elle vient
+ * de perdre, pas le decouvrir en cherchant un historique disparu.
+ *
+ * Desactiver reste le geste normal ; supprimer sert aux fiches creees par
+ * erreur. Le choix appartient a l'administration, pas au code.
+ */
+const remove = asyncHandler(async (req, res) => {
+  const existant = await prisma.subscription.findFirst({
+    where: { id: req.params.id, restaurantId: req.user.restaurantId },
+    include: inclusion,
+  });
+  if (!existant) throw ApiError.notFound('Abonnement introuvable');
+
+  const passages = await prisma.subscriptionUsage.count({
+    where: { subscriptionId: existant.id },
+  });
+
+  await prisma.subscription.delete({ where: { id: existant.id } });
+
+  // Le personnel peut avoir la fiche ouverte au comptoir : on previent, sinon
+  // l'ecran continue d'afficher un abonnement qui n'existe plus.
+  prevenirLePersonnel(req.user.restaurantId, 'subscription_deleted', existant, { passages });
+
+  return success(
+    res,
+    { id: existant.id, number: existant.number, passages },
+    passages > 0
+      ? `Abonnement ${existant.number} supprimé, ainsi que ${passages} passage${
+          passages > 1 ? 's' : ''
+        } enregistré${passages > 1 ? 's' : ''}`
+      : `Abonnement ${existant.number} supprimé`
+  );
+});
+
 module.exports = {
   list,
   stats,
@@ -451,6 +490,7 @@ module.exports = {
   update,
   setStatus,
   renew,
+  remove,
   ticket,
   verify,
   lookup,

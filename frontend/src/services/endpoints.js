@@ -129,6 +129,7 @@ export const subscriptionApi = {
   update: (id, payload) => api.put(`/subscriptions/${id}`, payload).then(unwrap),
   setStatus: (id, status) => api.patch(`/subscriptions/${id}/status`, { status }).then(unwrap),
   renew: (id, payload) => api.post(`/subscriptions/${id}/renew`, payload).then(unwrap),
+  remove: (id) => api.delete(`/subscriptions/${id}`).then((r) => r.data),
   ticket: (id) => api.get(`/subscriptions/${id}/ticket`).then(unwrap),
   // Accessibles aussi aux serveuses : verification au comptoir.
   verify: (token) => api.get(`/subscriptions/verify/${token}`).then(unwrap),

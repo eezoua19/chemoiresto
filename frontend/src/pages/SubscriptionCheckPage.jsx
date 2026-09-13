@@ -54,6 +54,12 @@ export default function SubscriptionCheckPage() {
     if (payload?.subscription?.verifyToken === token) load();
   });
 
+  // Supprime par l'administration : recharger renvoie ABONNEMENT INTROUVABLE,
+  // ce qui est exactement ce qu'il faut afficher au comptoir.
+  useSocketEvent('subscription_deleted', (payload) => {
+    if (payload?.subscription?.verifyToken === token) load();
+  });
+
   const enregistrerPassage = async () => {
     setSaving(true);
     try {

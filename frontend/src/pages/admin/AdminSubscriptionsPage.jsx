@@ -12,6 +12,7 @@ import {
   PauseCircle,
   PlayCircle,
   Ban,
+  Trash2,
   QrCode,
   ScanLine,
   Users,
@@ -101,6 +102,7 @@ export default function AdminSubscriptionsPage() {
   const [renewTarget, setRenewTarget] = useState(null);
   const [renewPlan, setRenewPlan] = useState('MENSUEL');
   const [disableTarget, setDisableTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [scannerOuvert, setScannerOuvert] = useState(false);
 
   // ------------------------------ chargement ------------------------------
@@ -133,6 +135,7 @@ export default function AdminSubscriptionsPage() {
   // appareil : la liste et les compteurs se remettent a jour tout seuls.
   useSocketEvent('subscription_used', load);
   useSocketEvent('subscription_updated', load);
+  useSocketEvent('subscription_deleted', load);
 
   // ------------------------------- création -------------------------------
 
@@ -225,6 +228,31 @@ export default function AdminSubscriptionsPage() {
       printSubscriptionTicket(abonnement, abonnement.ticket, restaurant);
     } catch (err) {
       toast.error(err.message);
+    }
+  };
+
+  /**
+   * Suppression definitive, historique compris.
+   *
+   * Elle vit a cote de « Desactiver » et non a sa place : desactiver reste le
+   * geste courant, supprimer sert aux fiches creees par erreur.
+   */
+  const supprimer = async () => {
+    const cible = deleteTarget;
+    if (!cible) return;
+    setBusy(cible.id);
+    try {
+      const reponse = await subscriptionApi.remove(cible.id);
+      toast.success(reponse.message);
+      setDeleteTarget(null);
+      // La fiche ouverte n'existe plus : on la ferme plutot que d'afficher un
+      // ticket qui ne correspond a rien.
+      if (detail && detail.id === cible.id) setDetail(null);
+      await load();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setBusy(null);
     }
   };
 
@@ -477,6 +505,14 @@ export default function AdminSubscriptionsPage() {
                       Désactiver
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    icon={Trash2}
+                    className="text-red-700 hover:bg-red-50"
+                    onClick={() => setDeleteTarget(abonnement)}
+                  >
+                    Supprimer
+                  </Button>
                 </div>
               </div>
             );
@@ -766,6 +802,26 @@ export default function AdminSubscriptionsPage() {
         }
         confirmLabel="Désactiver"
         loading={busy === disableTarget?.id}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={supprimer}
+        title="Supprimer définitivement l'abonnement"
+        message={
+          deleteTarget
+            ? `Supprimer l'abonnement de ${deleteTarget.fullName} (${deleteTarget.number}) ?${
+                deleteTarget.usageCount
+                  ? ` Ses ${deleteTarget.usageCount} passage${
+                      deleteTarget.usageCount > 1 ? 's' : ''
+                    } enregistré${deleteTarget.usageCount > 1 ? 's' : ''} seront effacés avec lui.`
+                  : ''
+              } Cette action est irréversible et le ticket déjà remis au client cessera de fonctionner. Pour simplement bloquer l'accès, utilisez plutôt Désactiver.`
+            : ''
+        }
+        confirmLabel="Supprimer définitivement"
+        loading={busy === deleteTarget?.id}
       />
 
       {scannerOuvert && (

@@ -486,6 +486,75 @@ test('Abonnements CHEMOIRESTO', async (suite) => {
 
   // ------------------------------------------------------------ statistiques
 
+  // ----------------------------------------------------------- suppression
+
+  await suite.test('une serveuse ne peut pas supprimer un abonnement', async () => {
+    const result = await api(`/api/subscriptions/${abonnement.id}`, {
+      method: 'DELETE',
+      token: serveuse.token,
+    });
+    assert.equal(result.status, 403);
+  });
+
+  await suite.test('l\'administrateur supprime un abonnement et son historique', async () => {
+    // Fiche dediee : on ne supprime pas celle qui sert aux autres tests.
+    const cree = await api('/api/subscriptions', {
+      method: 'POST',
+      token: admin.token,
+      body: { firstName: 'Fiche', lastName: nom, phone: telephone, plan: 'MENSUEL' },
+    });
+    const cible = cree.data;
+
+    // Un passage enregistre, pour verifier qu'il part bien avec l'abonnement.
+    await api(`/api/subscriptions/verify/${cible.verifyToken}/use`, {
+      method: 'POST',
+      token: serveuse.token,
+      body: { type: 'REPAS' },
+    });
+
+    const socket = await connectSocket(serveuse.token);
+    let result;
+    try {
+      const prevenu = waitForEvent(socket, 'subscription_deleted');
+
+      result = await api(`/api/subscriptions/${cible.id}`, {
+        method: 'DELETE',
+        token: admin.token,
+      });
+      assert.equal(result.status, 200);
+      assert.equal(result.data.passages, 1, 'la reponse annonce les passages effaces');
+      assert.match(result.message, /1 passage/);
+
+      const event = await prevenu;
+      assert.equal(event.subscription.id, cible.id, 'le comptoir est prevenu');
+    } finally {
+      socket.disconnect();
+    }
+
+    const apres = await api(`/api/subscriptions/${cible.id}`, { token: admin.token });
+    assert.equal(apres.status, 404);
+
+    const passages = await prisma.subscriptionUsage.count({
+      where: { subscriptionId: cible.id },
+    });
+    assert.equal(passages, 0, 'l\'historique est parti avec l\'abonnement');
+
+    // Le ticket deja remis ne vaut plus rien.
+    const scan = await api(`/api/subscriptions/verify/${cible.verifyToken}`, {
+      token: serveuse.token,
+    });
+    assert.equal(scan.data.found, false);
+    assert.equal(scan.data.state, 'INTROUVABLE');
+  });
+
+  await suite.test('supprimer un abonnement inexistant repond 404', async () => {
+    const result = await api('/api/subscriptions/99999999', {
+      method: 'DELETE',
+      token: admin.token,
+    });
+    assert.equal(result.status, 404);
+  });
+
   await suite.test('les statistiques comptent chaque état', async () => {
     const result = await api('/api/subscriptions/stats', { token: admin.token });
     assert.equal(result.status, 200);

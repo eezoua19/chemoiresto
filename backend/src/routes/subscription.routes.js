@@ -48,6 +48,10 @@ router.patch(
   validate({ params: idParam, body: subscriptionStatusSchema }),
   controller.setStatus
 );
+// Suppression definitive : la confirmation se fait cote interface, le serveur
+// se contente d'exiger le role ADMIN.
+router.delete('/:id', validate({ params: idParam }), controller.remove);
+
 router.post(
   '/:id/renew',
   validate({ params: idParam, body: renewSubscriptionSchema }),

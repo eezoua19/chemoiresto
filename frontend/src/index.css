@@ -116,9 +116,49 @@
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.4' stroke-linecap='round' opacity='0.16'%3E%3Cpath d='M12 10v7a2 2 0 0 0 2 2v12M12 10v5M15 10v5M18 10v7'/%3E%3Cpath d='M44 34c1.8 0 2.8 2.4 2.8 5.2S45.8 44 44 44v8'/%3E%3Ccircle cx='42' cy='14' r='5'/%3E%3Ccircle cx='16' cy='44' r='5'/%3E%3C/g%3E%3C/svg%3E");
     background-size: 120px 120px;
+    /* Le motif defile moins vite que le contenu : c'est ce decalage, et lui
+       seul, qui donne l'impression de profondeur. */
+    transform: translateY(var(--decalage-motif, 0px));
   }
   .motif-cuisine > * {
     position: relative;
+  }
+
+  /*
+   * Les trajectoires des confettis. Deux jeux de keyframes seulement : la
+   * position d'arrivee de chaque grain vient de ses propres variables CSS,
+   * si bien que vingt-deux grains ne coutent pas vingt-deux animations.
+   */
+  @keyframes confetti-a {
+    0% {
+      transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(var(--x), calc(var(--y) + 160px), 0) rotate(var(--r)) scale(1);
+      opacity: 0;
+    }
+  }
+  @keyframes confetti-b {
+    0% {
+      transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    55% {
+      transform: translate3d(calc(var(--x) * 0.7), var(--y), 0) rotate(calc(var(--r) * 0.6))
+        scale(1.1);
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(var(--x), calc(var(--y) + 190px), 0) rotate(var(--r)) scale(0.9);
+      opacity: 0;
+    }
   }
 
   .skeleton {

@@ -5,6 +5,24 @@ import { X, Minus, Plus, Star } from 'lucide-react';
 import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
 import PlatSansPhoto from './PlatSansPhoto';
+import { volerVersLePanier, secouerLePanier, DUREE_DU_VOL } from './volAuPanier';
+
+/**
+ * La barre du panier est posee par la page du menu. On la retrouve par son
+ * identifiant plutot que de faire descendre une reference a travers trois
+ * composants : c'est une coordonnee d'ecran, pas une donnee.
+ */
+const BARRE_PANIER = 'barre-panier';
+
+/** Ou viser quand le panier est encore vide : la ou la barre va apparaitre. */
+function cibleDeSecours() {
+  return {
+    left: window.innerWidth / 2 - 30,
+    top: window.innerHeight - 90,
+    width: 60,
+    height: 60,
+  };
+}
 
 /**
  * Fiche produit : choix des options, des supplements, de la quantité.
@@ -19,6 +37,8 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
 
   // En fermant, le parent efface le plat selectionne. Sans cette memoire, le
   // panneau se viderait d'un coup au lieu de redescendre.
+  // Ce qui s'envole vers le panier : la photo, ou l'assiette dessinee.
+  const visuelRef = useRef(null);
   const dernier = useRef(plat);
   if (plat) dernier.current = plat;
   const item = plat || dernier.current;
@@ -88,6 +108,13 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
       setError(`Veuillez choisir : ${missing.name}`);
       return;
     }
+    // Le clone est pris AVANT de fermer : une fois le panneau demonte, il n'y
+    // a plus rien a faire voler.
+    const cible = document.getElementById(BARRE_PANIER) || cibleDeSecours();
+    volerVersLePanier(visuelRef.current, cible);
+    // Le panier tressaute a l'arrivee, pas au depart.
+    setTimeout(() => secouerLePanier(document.getElementById(BARRE_PANIER)), DUREE_DU_VOL - 120);
+
     onAdd(item, { optionValueIds: selectedIds, quantity, note: note.trim() });
     onClose();
   };
@@ -112,9 +139,11 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
       >
         <div className="relative h-44 shrink-0 bg-ink-100 sm:h-52">
           {image ? (
-            <img src={image} alt={item.name} className="h-full w-full object-cover" />
+            <img ref={visuelRef} src={image} alt={item.name} className="h-full w-full object-cover" />
           ) : (
-            <PlatSansPhoto />
+            <div ref={visuelRef} className="h-full w-full">
+              <PlatSansPhoto />
+            </div>
           )}
           <button
             type="button"

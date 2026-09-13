@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ReceiptText } from 'lucide-react';
 import { publicApi } from '../../services/endpoints';
-import { connectSocket } from '../../services/socket';
 import useSocketEvent from '../../hooks/useSocketEvent';
+import useSocketRoom from '../../hooks/useSocketRoom';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
+import Confettis from '../../components/client/Confettis';
 import { EmptyState, ErrorState, Footer, LoadingState } from '../../components/ui';
 import { formatDateTime, formatMoney } from '../../utils/format';
 import { ORDER_STATUS } from '../../utils/constants';
@@ -33,19 +34,26 @@ export default function OrderTrackingPage() {
     load();
   }, [load]);
 
-  useEffect(() => {
-    const socket = connectSocket(null);
-    const join = () => socket.emit('track_order', trackingToken);
-    join();
-    socket.on('connect', join);
-    return () => {
-      socket.emit('untrack_order', trackingToken);
-      socket.off('connect', join);
-    };
-  }, [trackingToken]);
+  useSocketRoom('track_order', trackingToken, 'untrack_order');
 
+  // Le moment qu'on attend : le plat est pret. On ne fete que le passage,
+  // pas l'etat - rouvrir la page une heure plus tard ne doit pas relancer la
+  // gerbe comme si l'evenement venait d'arriver.
+  const [fete, setFete] = useState(false);
   useSocketEvent('order_status', (updated) => {
-    if (updated.trackingToken === trackingToken) setOrder(updated);
+    if (updated.trackingToken !== trackingToken) return;
+    const devientPrete = updated.status === 'READY' && order?.status !== 'READY';
+    setOrder(updated);
+    if (devientPrete) {
+      setFete(true);
+      // Une vibration courte : dans un maquis bruyant, l'ecran ne suffit pas.
+      try {
+        navigator.vibrate?.([25, 60, 35]);
+      } catch {
+        // Vibration refusee ou indisponible : l'ecran fait le travail.
+      }
+      setTimeout(() => setFete(false), 2200);
+    }
   });
 
   if (loading) return <LoadingState label="Chargement de votre commande..." />;
@@ -97,7 +105,20 @@ export default function OrderTrackingPage() {
       </header>
 
       <div className="mx-auto -mt-4 max-w-lg space-y-4 px-4">
-        <section className="card animate-entree p-5">
+        <section className="card relative animate-entree p-5">
+          <Confettis actif={fete} />
+
+          {order.status === 'READY' && (
+            <div className="mb-4 animate-pop rounded-2xl bg-emerald-500 px-4 py-3 text-center text-white">
+              <p className="text-lg font-extrabold leading-tight">VOTRE PLAT EST PRÊT</p>
+              <p className="text-xs text-white/85">
+                {libelleProvenance(order).startsWith('Table')
+                  ? 'La serveuse arrive avec votre commande.'
+                  : 'Présentez votre code au comptoir.'}
+              </p>
+            </div>
+          )}
+
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-ink-900">Suivi</h2>
             <span className={`badge ${config.badge}`}>{config.clientLabel}</span>

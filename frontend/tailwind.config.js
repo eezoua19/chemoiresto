@@ -85,6 +85,16 @@ export default {
           '0%, 100%': { transform: 'translateY(0)', opacity: '0.45' },
           '50%': { transform: 'translateY(-2px)', opacity: '0.15' },
         },
+        // Le trait de l'assiette qui se dessine pendant le chargement.
+        trace: {
+          '0%': { strokeDashoffset: '260' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        // Reflet qui traverse le badge "DU JOUR".
+        reflet: {
+          '0%, 65%': { transform: 'translateX(-120%)' },
+          '100%': { transform: 'translateX(220%)' },
+        },
         // Surlignage bref d'une ligne qui vient d'arriver. On finit sur le
         // blanc exact d'une carte, pas sur "transparent" : sinon le fond de
         // page apparait une fraction de seconde a la fin.
@@ -110,6 +120,8 @@ export default {
         entree: 'slide-up 0.3s ease-out backwards',
         pop: 'pop 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.4)',
         vapeur: 'vapeur 3.2s ease-in-out infinite',
+        trace: 'trace 1.6s ease-in-out infinite alternate',
+        reflet: 'reflet 4.5s ease-in-out infinite',
       },
     },
   },

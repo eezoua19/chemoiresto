@@ -18,13 +18,16 @@ import { CartProvider, useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { publicApi } from '../../services/endpoints';
 import { imageUrl } from '../../services/api';
-import { connectSocket, getSocket } from '../../services/socket';
+import { getSocket } from '../../services/socket';
 import useSocketEvent from '../../hooks/useSocketEvent';
+import useSocketRoom from '../../hooks/useSocketRoom';
 import ProductCard from '../../components/client/ProductCard';
+import ChargementGourmand from '../../components/client/ChargementGourmand';
+import ChiffresQuiRoulent from '../../components/client/ChiffresQuiRoulent';
 import ProductSheet from '../../components/client/ProductSheet';
 import CartSheet from '../../components/client/CartSheet';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
-import { Button, EmptyState, ErrorState, Footer, Modal, Skeleton } from '../../components/ui';
+import { Button, EmptyState, ErrorState, Footer, Modal } from '../../components/ui';
 import { formatLongDate, formatMoney } from '../../utils/format';
 import { ORDER_STATUS, ordersKey } from '../../utils/constants';
 import { applyBrandColor } from '../../utils/color';
@@ -146,16 +149,9 @@ function ClientMenuContent({ token, service }) {
   }, [loadOrders, loadRequests]);
 
   // -------------------------- Temps réel --------------------------------
-  useEffect(() => {
-    const socket = connectSocket(null);
-    // Le salon d'une table n'existe que pour le service en salle. À emporter,
-    // le suivi passe par le salon de la commande (track_order).
-    if (emporter) return undefined;
-    const join = () => socket.emit('join_table', token);
-    join();
-    socket.on('connect', join);
-    return () => socket.off('connect', join);
-  }, [token, emporter]);
+  // Le salon d'une table n'existe que pour le service en salle. À emporter,
+  // le suivi passe par le salon de la commande (track_order).
+  useSocketRoom('join_table', emporter ? null : token);
 
   useSocketEvent('order_status', (updated) => {
     // Seules les commandes passees depuis ce téléphone declenchent une alerte.
@@ -167,6 +163,55 @@ function ClientMenuContent({ token, service }) {
   });
 
   useSocketEvent('service_request_updated', () => loadRequests());
+
+  // ----------------------- En-tete qui se replie ------------------------
+  // Deux seuils au lieu d'un : avec un seul, un doigt qui hesite autour de la
+  // limite ferait clignoter la barre.
+  const enteteRef = useRef(null);
+  const [compact, setCompact] = useState(false);
+
+  useEffect(() => {
+    let image = null;
+    const surDefilement = () => {
+      if (image) return;
+      image = requestAnimationFrame(() => {
+        image = null;
+        const y = window.scrollY;
+        setCompact((actuel) => (actuel ? y > 110 : y > 170));
+        // Le motif suit le defilement au quart de sa vitesse.
+        enteteRef.current?.style.setProperty('--decalage-motif', `${Math.round(y * 0.25)}px`);
+      });
+    };
+
+    window.addEventListener('scroll', surDefilement, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', surDefilement);
+      if (image) cancelAnimationFrame(image);
+    };
+  }, []);
+
+  // --------------------- Pastille de categorie ---------------------------
+  // Elle glisse d'un onglet a l'autre : on mesure l'onglet actif et on
+  // deplace un seul element, plutot que d'allumer et d'eteindre des fonds.
+  const ongletsRef = useRef(null);
+  const [pastille, setPastille] = useState(null);
+
+  useEffect(() => {
+    const piste = ongletsRef.current;
+    if (!piste) return undefined;
+
+    const mesurer = () => {
+      const actif = piste.querySelector('[data-actif="true"]');
+      if (!actif) return;
+      setPastille({ left: actif.offsetLeft, width: actif.offsetWidth });
+      // L'onglet choisi doit rester visible quand la liste deborde.
+      actif.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    };
+
+    mesurer();
+    window.addEventListener('resize', mesurer);
+    return () => window.removeEventListener('resize', mesurer);
+  }, [activeCategory, state.data]);
 
   // Horloge locale : elle ne sert qu'a reactiver le bouton « Rappeler » au bon
   // moment. Elle ne tourne que s'il y a une demande en cours, pour ne pas
@@ -249,7 +294,7 @@ function ClientMenuContent({ token, service }) {
   };
 
   // ---------------------------- Rendu -----------------------------------
-  if (state.loading) return <MenuSkeleton />;
+  if (state.loading) return <ChargementGourmand />;
 
   if (state.error) {
     const status = state.error.status;
@@ -306,6 +351,7 @@ function ClientMenuContent({ token, service }) {
       {/* Le motif de couverts donne une texture de maison : sans lui,
           l'en-tete est un aplat de couleur qui pourrait etre n'importe quoi. */}
       <header
+        ref={enteteRef}
         className="motif-cuisine px-5 pb-6 pt-8 text-white"
         style={{ background: 'linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 100%)' }}
       >
@@ -366,6 +412,26 @@ function ClientMenuContent({ token, service }) {
           )}
         </div>
       </header>
+
+      {/* --------- En-tete compact : apparait quand on descend --------- */}
+      <div
+        className={`fixed inset-x-0 top-0 z-40 text-white shadow-float transition-transform duration-300 ${
+          compact ? 'translate-y-0' : '-translate-y-full'
+        }`}
+        style={{ background: 'linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 100%)' }}
+      >
+        <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20 text-xs font-bold">
+            {restaurant.name.slice(0, 2).toUpperCase()}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold leading-tight">{restaurant.name}</p>
+            <p className="truncate text-xs text-white/75">
+              {emporter ? 'À emporter' : `Table ${table.number}`}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="mx-auto max-w-2xl px-4">
         {/* ------------------ Commandes en cours ------------------ */}
@@ -500,24 +566,50 @@ function ClientMenuContent({ token, service }) {
               </section>
             )}
 
-            <div className="sticky top-0 z-20 -mx-4 mt-6 bg-ink-50/95 px-4 py-3 backdrop-blur">
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {categories.map((category) => {
-                  const isActive = activeCategory === (category.id === 'all' ? 'all' : category.id);
-                  return (
-                    <button
-                      key={category.slug}
-                      type="button"
-                      onClick={() => setActiveCategory(category.id === 'all' ? 'all' : category.id)}
-                      className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                        isActive ? 'text-white' : 'border border-ink-200 bg-white text-ink-600'
-                      }`}
-                      style={isActive ? { backgroundColor: 'var(--brand)' } : undefined}
-                    >
-                      {category.name}
-                    </button>
-                  );
-                })}
+            {/* La barre descend quand l'en-tete compact apparait, pour ne
+                pas passer dessous. */}
+            <div
+              className="sticky z-20 -mx-4 mt-6 bg-ink-50/95 px-4 py-3 backdrop-blur transition-[top] duration-300"
+              style={{ top: compact ? 56 : 0 }}
+            >
+              <div className="overflow-x-auto pb-1">
+                <div
+                  ref={ongletsRef}
+                  className="relative inline-flex gap-1 rounded-full border border-ink-200 bg-white p-1"
+                >
+                  {/* Un seul fond, qui se deplace. Rien ne s'allume ni ne
+                      s'eteint : c'est ce glissement qui rend la barre vivante. */}
+                  {pastille && (
+                    <span
+                      aria-hidden
+                      className="absolute top-1 rounded-full transition-all duration-300"
+                      style={{
+                        left: pastille.left,
+                        width: pastille.width,
+                        height: 'calc(100% - 0.5rem)',
+                        backgroundColor: 'var(--brand)',
+                        transitionTimingFunction: 'cubic-bezier(0.3, 1.2, 0.4, 1)',
+                      }}
+                    />
+                  )}
+
+                  {categories.map((category) => {
+                    const isActive = activeCategory === (category.id === 'all' ? 'all' : category.id);
+                    return (
+                      <button
+                        key={category.slug}
+                        type="button"
+                        data-actif={isActive}
+                        onClick={() => setActiveCategory(category.id === 'all' ? 'all' : category.id)}
+                        className={`relative z-10 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                          isActive ? 'text-white' : 'text-ink-600'
+                        }`}
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -548,6 +640,7 @@ function ClientMenuContent({ token, service }) {
       {cart.count > 0 && (
         <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 animate-slide-up px-4 pt-3">
           <button
+            id="barre-panier"
             type="button"
             onClick={() => setCartOpen(true)}
             className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3 rounded-2xl px-5 py-4 text-white shadow-float transition active:scale-[0.99]"
@@ -567,7 +660,7 @@ function ClientMenuContent({ token, service }) {
               </span>
               <span className="font-semibold">Voir le panier</span>
             </span>
-            <span className="font-bold">{formatMoney(cart.total, currency)}</span>
+            <ChiffresQuiRoulent className="font-bold" valeur={formatMoney(cart.total, currency)} />
           </button>
         </div>
       )}
@@ -646,37 +739,6 @@ function ClientMenuContent({ token, service }) {
       </Modal>
 
       <Footer />
-    </div>
-  );
-}
-
-/** Squelette de chargement, calque sur la mise en page réelle. */
-function MenuSkeleton() {
-  return (
-    <div className="min-h-screen bg-ink-50">
-      <div className="bg-ink-200 px-5 pb-6 pt-8">
-        <div className="mx-auto max-w-2xl">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-12 w-12 rounded-xl bg-white/40" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-40 bg-white/40" />
-              <Skeleton className="h-3 w-56 bg-white/30" />
-            </div>
-          </div>
-          <Skeleton className="mt-5 h-20 w-full rounded-2xl bg-white/30" />
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-2xl space-y-3 px-4 pt-6">
-        <div className="flex gap-2">
-          {[1, 2, 3, 4].map((index) => (
-            <Skeleton key={index} className="h-9 w-24 rounded-full" />
-          ))}
-        </div>
-        {[1, 2, 3, 4, 5].map((index) => (
-          <Skeleton key={index} className="h-28 w-full rounded-2xl" />
-        ))}
-      </div>
     </div>
   );
 }

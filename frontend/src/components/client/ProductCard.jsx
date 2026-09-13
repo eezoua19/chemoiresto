@@ -40,8 +40,16 @@ export default function ProductCard({ item, currency, onSelect, index = 0 }) {
           <PlatSansPhoto taille="sm" />
         )}
         {item.isDishOfDay && (
-          <span className="absolute left-1 top-1 flex items-center gap-0.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-amber-950">
-            <Star size={10} className="fill-amber-950" /> DU JOUR
+          // Un reflet traverse le badge toutes les quelques secondes. Assez
+          // lent pour attirer l'oeil sans le harceler - et la couche qui
+          // brille est masquee par le badge lui-meme.
+          <span className="absolute left-1 top-1 flex items-center gap-0.5 overflow-hidden rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-amber-950">
+            <span
+              aria-hidden
+              className="absolute inset-y-0 -left-4 w-4 animate-reflet bg-white/70 blur-[2px]"
+            />
+            <Star size={10} className="relative fill-amber-950" />
+            <span className="relative">DU JOUR</span>
           </span>
         )}
       </div>

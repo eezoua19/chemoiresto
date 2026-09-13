@@ -35,6 +35,31 @@ function initSocket(httpServer) {
   io.on('connection', async (socket) => {
     const token = socket.handshake.auth?.token;
 
+    // ---- Salons du client ----------------------------------------------
+    //
+    // Ces ecoutes sont posees AVANT toute attente, et c'est essentiel.
+    // Socket.IO vide la file d'attente du client des la connexion etablie :
+    // une demande d'inscription partie avant que la page ne soit prete
+    // arrive donc immediatement. Si le serveur etait encore en train de
+    // verifier un jeton et d'interroger la base, l'evenement tombait dans le
+    // vide, sans erreur nulle part - et le suivi de commande n'avancait
+    // jamais.
+    socket.on('join_table', (tableToken) => {
+      if (typeof tableToken === 'string' && /^[a-f0-9]{16,64}$/i.test(tableToken)) {
+        socket.join(tableRoom(tableToken));
+      }
+    });
+
+    socket.on('track_order', (trackingToken) => {
+      if (typeof trackingToken === 'string' && /^[a-f0-9]{16,64}$/i.test(trackingToken)) {
+        socket.join(orderRoom(trackingToken));
+      }
+    });
+
+    socket.on('untrack_order', (trackingToken) => {
+      if (typeof trackingToken === 'string') socket.leave(orderRoom(trackingToken));
+    });
+
     // ---- Connexion du personnel (ADMIN / SERVEUSE) --------------------
     if (token) {
       try {
@@ -56,22 +81,6 @@ function initSocket(httpServer) {
       }
     }
 
-    // ---- Connexion côté client ----------------------------------------
-    socket.on('join_table', (tableToken) => {
-      if (typeof tableToken === 'string' && /^[a-f0-9]{16,64}$/i.test(tableToken)) {
-        socket.join(tableRoom(tableToken));
-      }
-    });
-
-    socket.on('track_order', (trackingToken) => {
-      if (typeof trackingToken === 'string' && /^[a-f0-9]{16,64}$/i.test(trackingToken)) {
-        socket.join(orderRoom(trackingToken));
-      }
-    });
-
-    socket.on('untrack_order', (trackingToken) => {
-      if (typeof trackingToken === 'string') socket.leave(orderRoom(trackingToken));
-    });
   });
 
   return io;

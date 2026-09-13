@@ -62,12 +62,21 @@ async function login(email, password) {
 }
 
 /** Client Socket.IO connecte au serveur de test. */
-function connectSocket(token) {
+/**
+ * Client Socket.IO connecte au serveur de test.
+ *
+ * `attendre: false` renvoie la socket SANS attendre la connexion : c'est le
+ * seul moyen de reproduire une inscription envoyee avant que la connexion ne
+ * soit etablie, exactement comme le fait un navigateur qui charge une page.
+ */
+function connectSocket(token, { attendre = true } = {}) {
   const socket = io(baseUrl, {
     auth: token ? { token } : {},
     transports: ['websocket'],
     forceNew: true,
   });
+
+  if (!attendre) return socket;
 
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Socket.IO : delai depasse')), 5000);

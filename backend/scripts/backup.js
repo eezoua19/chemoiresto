@@ -2,7 +2,11 @@
 /**
  * Sauvegarde quotidienne des donnees de production.
  *
- * Les sauvegardes de volume de l'hebergeur sont reservees aux offres payantes.
+ * Depuis l'ajout du planificateur (services/planificateur.js), l'API prend
+ * elle-meme un instantane chaque nuit : ce script n'est plus le filet
+ * principal. Il reste utile pour une raison, et une seule - deposer une copie
+ * AILLEURS que sur le serveur, la seule qui survivrait a la perte de la base.
+ *
  * Ce script telecharge l'export complet via l'API et le range dans un dossier
  * local, avec rotation automatique.
  *

@@ -35,6 +35,8 @@ export const LIBELLES_ACTION = {
   PARAMETRES_MODIFIES: 'Paramètres modifiés',
   EMPORTER_BASCULE: 'Commandes à emporter',
   SAUVEGARDE_EXPORTEE: 'Sauvegarde exportée',
+  SAUVEGARDE_MANUELLE: 'Sauvegarde manuelle',
+  CLOTURE_RECALCULEE: 'Clôture recalculée',
 };
 
 const ROUGE = { point: 'bg-red-500', badge: 'bg-red-100 text-red-800' };

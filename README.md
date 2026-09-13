@@ -604,12 +604,40 @@ l'offre d'essai, la mutation `volumeInstanceBackupScheduleUpdate` répond
 `Not Authorized`. Tant que le projet n'est pas sur une offre payante, la sauvegarde
 repose entièrement sur le mécanisme ci-dessous.
 
+#### Sauvegarde automatique côté serveur (par défaut)
+
+Chaque nuit à 3 h (heure d'Abidjan, le serveur vit à UTC comme la Côte d'Ivoire),
+le processus de l'API clôture la veille puis prend un instantané complet, rangé
+en base et conservé avec les 13 précédents. Aucun ordinateur n'a besoin d'être
+allumé, et le résultat est visible dans **Administration → Sauvegardes** : date,
+taille, contenu, et une alerte rouge passé 30 h sans sauvegarde.
+
+Au démarrage, le planificateur rattrape ce qui a été manqué (redémarrage,
+déploiement à 3 h) : les journées non clôturées le sont, et un instantané est
+pris si le dernier date de plus de 20 h.
+
+⚠️ Ces instantanés vivent dans la base qu'ils sauvegardent : ils protègent de
+l'erreur humaine, pas de la perte de la base. Le bouton **Télécharger** reste le
+seul moyen d'obtenir une copie hors site.
+
+| Route | Rôle | Effet |
+|---|---|---|
+| `GET /api/backup` | ADMIN | instantané JSON téléchargé à la volée |
+| `GET /api/backup/list` | ADMIN | les instantanés conservés |
+| `POST /api/backup` | ADMIN | en prendre un tout de suite |
+| `GET /api/backup/:id/download` | ADMIN | retélécharger un instantané |
+
 #### Export manuel
 
-_Connecté en administrateur_ : `GET /api/backup` renvoie un instantané JSON des
-16 tables du schéma. Réservé au rôle `ADMIN` — une serveuse reçoit `403`.
+_Connecté en administrateur_ : `GET /api/backup` renvoie un instantané JSON du
+schéma complet, abonnements et journal des actions compris. Réservé au rôle
+`ADMIN` — une serveuse reçoit `403`.
 
-#### Sauvegarde automatique
+#### Copie locale planifiée (facultative, seconde ligne de défense)
+
+Depuis que la sauvegarde tourne sur le serveur, ce script n'est plus le filet
+principal : il sert à déposer une copie **hors site**, sur un poste ou un dossier
+synchronisé. Sans lui, tout repose sur l'hébergeur.
 
 ```bash
 cd backend

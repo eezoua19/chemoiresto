@@ -3,6 +3,7 @@ const app = require('./app');
 const env = require('./config/env');
 const prisma = require('./config/prisma');
 const { initSocket } = require('./sockets');
+const planificateur = require('./services/planificateur');
 
 const server = http.createServer(app);
 initSocket(server);
@@ -18,6 +19,9 @@ async function start() {
     console.error('       Vérifiez que MySQL est démarré et que DATABASE_URL est correcte.');
     process.exit(1);
   }
+
+  // Cloture de la veille et sauvegarde complete, chaque nuit a 3 h.
+  planificateur.demarrer();
 
   // 0.0.0.0 explicite : en conteneur, écouter sur la boucle locale rend le
   // service injoignable depuis le proxy de l'hebergeur (healthcheck en échec

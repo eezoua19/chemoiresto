@@ -120,6 +120,44 @@ export const notificationApi = {
   markAllRead: () => api.put('/notifications/read-all').then(unwrap),
 };
 
+// ------------------------------ Sauvegardes --------------------------------
+// Construire ou transferer un instantane complet depasse largement le delai
+// habituel : on laisse 2 minutes a ces deux appels-la, et a eux seuls.
+const DELAI_SAUVEGARDE = 120000;
+
+/** Le corps d'erreur arrive en Blob : on le relit pour retrouver le message. */
+async function messageDuBlob(error) {
+  const corps = error?.response?.data;
+  if (corps instanceof Blob) {
+    try {
+      const texte = await corps.text();
+      error.message = JSON.parse(texte).message || error.message;
+    } catch {
+      // Corps illisible : on garde le message generique.
+    }
+  }
+  throw error;
+}
+
+export const backupApi = {
+  list: () => api.get('/backup/list').then(unwrap),
+  run: () => api.post('/backup', null, { timeout: DELAI_SAUVEGARDE }).then(unwrap),
+  // Fichier brut : pas de "unwrap", c'est le contenu lui-meme qui nous interesse.
+  download: (id) =>
+    api
+      .get(`/backup/${id}/download`, { responseType: 'blob', timeout: DELAI_SAUVEGARDE })
+      .then((r) => r.data)
+      .catch(messageDuBlob),
+};
+
+// --------------------------- Clotures de journee ---------------------------
+export const closingApi = {
+  list: (params) => api.get('/closings', { params }).then(unwrap),
+  today: () => api.get('/closings/today').then(unwrap),
+  detail: (date) => api.get(`/closings/${date}`).then(unwrap),
+  close: (date) => api.post(`/closings/${date}`).then(unwrap),
+};
+
 // --------------------------- Journal des actions ---------------------------
 export const auditApi = {
   list: (params) => api.get('/audit', { params }).then(unwrap),

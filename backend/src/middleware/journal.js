@@ -198,6 +198,18 @@ const DESCRIPTEURS = {
     entity: 'Sauvegarde',
     label: () => 'Export complet des données téléchargé',
   },
+  'POST /backup': {
+    action: 'SAUVEGARDE_MANUELLE',
+    entity: 'Sauvegarde',
+    label: () => 'Sauvegarde déclenchée à la main',
+  },
+
+  // ------------------------------- Clotures ------------------------------
+  'POST /closings/:date': {
+    action: 'CLOTURE_RECALCULEE',
+    entity: 'Cloture',
+    label: (req) => `Journée du ${enFrancais(req.params.date)} clôturée à la main`,
+  },
 };
 
 /** "DELETE /products/:id" a partir de la requete, une fois le routage fait. */

@@ -392,6 +392,22 @@ const auditQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
 });
 
+// ---------------------------------------------------------------------------
+// Clotures de journee
+// ---------------------------------------------------------------------------
+
+const dateParam = z.object({ date: dateString });
+
+const closingsQuerySchema = z.object({
+  from: dateString.optional(),
+  to: dateString.optional(),
+  // Les journees sans service sont bien enregistrees, mais masquees par
+  // defaut : une page de zeros noie les journees qui comptent.
+  includeEmpty: booleanish.optional().default(false),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).optional().default(31),
+});
+
 module.exports = {
   idParam,
   tokenParam,
@@ -431,4 +447,6 @@ module.exports = {
   subscriptionsQuerySchema,
   subscriptionLookupSchema,
   auditQuerySchema,
+  dateParam,
+  closingsQuerySchema,
 };

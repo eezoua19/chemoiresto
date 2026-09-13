@@ -12,7 +12,9 @@ import {
   History,
   BadgeCheck,
   BarChart3,
+  CalendarCheck,
   ScrollText,
+  DatabaseBackup,
   Settings,
   LogOut,
   Menu as MenuIcon,
@@ -43,7 +45,9 @@ const LINKS = [
   { to: '/admin/abonnements', label: 'Abonnements', icon: BadgeCheck },
   { to: '/admin/historique', label: 'Historique', icon: History },
   { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
+  { to: '/admin/clotures', label: 'Clôtures', icon: CalendarCheck },
   { to: '/admin/journal', label: 'Journal', icon: ScrollText },
+  { to: '/admin/sauvegardes', label: 'Sauvegardes', icon: DatabaseBackup },
   { to: '/admin/parametres', label: 'Paramètres', icon: Settings },
 ];
 

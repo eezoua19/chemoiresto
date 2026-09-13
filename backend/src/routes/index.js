@@ -15,6 +15,7 @@ const publicRoutes = require('./public.routes');
 const backupRoutes = require('./backup.routes');
 const subscriptionRoutes = require('./subscription.routes');
 const auditRoutes = require('./audit.routes');
+const closingRoutes = require('./closing.routes');
 
 const { journalMiddleware } = require('../middleware/journal');
 
@@ -45,5 +46,6 @@ router.use('/restaurant', restaurantRoutes);
 router.use('/backup', backupRoutes);
 router.use('/subscriptions', subscriptionRoutes);
 router.use('/audit', auditRoutes);
+router.use('/closings', closingRoutes);
 
 module.exports = router;

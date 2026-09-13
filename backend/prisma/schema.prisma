@@ -136,6 +136,8 @@ model Restaurant {
   subscriptions   Subscription[]
   subscriptionUsages SubscriptionUsage[]
   auditLogs       AuditLog[]
+  snapshots       BackupSnapshot[]
+  closings        DailyClosing[]
 }
 
 // -------------------------------- USER -------------------------------------
@@ -551,4 +553,61 @@ model AuditLog {
   @@index([restaurantId, createdAt])
   @@index([action])
   @@index([entity, entityId])
+}
+
+// ------------------------------ SAUVEGARDES --------------------------------
+
+// Instantane complet des donnees, pris automatiquement chaque nuit.
+//
+// Le contenu vit dans la base elle-meme : cela protege de l'erreur humaine
+// (une suppression de trop), ce qui est le risque courant. Cela ne protege pas
+// de la perte de la base entiere - d'ou le telechargement, qui reste le seul
+// moyen d'avoir une copie ailleurs.
+model BackupSnapshot {
+  id           Int      @id @default(autoincrement())
+  restaurantId Int
+  // AUTOMATIQUE (planificateur) ou MANUEL (bouton de l'administration).
+  trigger      String   @db.VarChar(20)
+  sizeBytes    Int
+  // Nombre de lignes par table, pour lire le contenu sans le telecharger.
+  counts       String?  @db.Text
+  content      String?  @db.LongText
+  note         String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId, createdAt])
+}
+
+// -------------------------------- CLOTURES ---------------------------------
+
+// Ce qu'a donne une journee, fige une fois pour toutes.
+//
+// Tout est recalculable depuis les commandes ; on fige quand meme, parce que
+// c'est ce qui permet de comparer deux jours sans rejouer des agregations, et
+// parce qu'une cloture doit dire ce qu'on a lu ce soir-la.
+model DailyClosing {
+  id             Int      @id @default(autoincrement())
+  restaurantId   Int
+  date           DateTime @db.Date
+  revenue        Decimal  @db.Decimal(12, 2)
+  ordersCount    Int
+  cancelledCount Int
+  averageTicket  Decimal  @db.Decimal(12, 2)
+  dineInRevenue  Decimal  @db.Decimal(12, 2)
+  takeawayRevenue Decimal @db.Decimal(12, 2)
+  // [{ name, quantity, revenue }], les plats les plus vendus du jour.
+  topProducts    String?  @db.Text
+  // [{ id, name, orders, revenue }], une ligne par serveuse.
+  servers        String?  @db.Text
+  peakHour       Int?
+  subscriptionUsages Int  @default(0)
+  serviceRequests    Int  @default(0)
+  closedAt       DateTime @default(now())
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, date])
+  @@index([restaurantId, date])
 }

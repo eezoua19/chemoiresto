@@ -1,132 +1,109 @@
 const prisma = require('../config/prisma');
+const ApiError = require('../utils/apiError');
 const asyncHandler = require('../utils/asyncHandler');
+const { success } = require('../utils/response');
+const {
+  CONSERVES,
+  construireInstantane,
+  enregistrerInstantane,
+  serialiser,
+} = require('../services/backup.service');
 
 /**
- * Export complet des données du restaurant.
+ * Sauvegardes du restaurant.
  *
  * Les sauvegardes de volume de l'hebergeur sont reservees aux offres payantes :
- * cet export est le filet de sécurité qui fonctionne sur toutes les offres. Il
- * produit un instantane JSON restaurable, telechargeable par l'administrateur
- * ou récupère automatiquement par `npm run backup`.
- *
- * Les empreintes de mots de passe sont volontairement exclues : un export qui
- * circule par courriel ou dort dans un dossier synchronise ne doit jamais
- * contenir de quoi rejouer une authentification. Apres une restauration, les
- * mots de passe du personnel sont a redefinir.
+ * ces instantanes sont le filet de securite qui fonctionne sur toutes les
+ * offres. Une prise automatique a lieu chaque nuit ; celle qu'on telecharge
+ * reste la seule qui survivrait a la perte de la base.
  */
 
-/** Les Decimal de Prisma et les BigInt ne sont pas serialisables tels quels. */
-function normaliser(valeur) {
-  if (valeur === null || valeur === undefined) return valeur;
-  if (typeof valeur === 'bigint') return Number(valeur);
-  if (valeur instanceof Date) return valeur.toISOString();
-  if (Array.isArray(valeur)) return valeur.map(normaliser);
-  if (typeof valeur === 'object') {
-    // Decimal de Prisma : expose une conversion en chaine fidele.
-    if (typeof valeur.toFixed === 'function' && typeof valeur.toNumber === 'function') {
-      return valeur.toString();
-    }
-    return Object.fromEntries(Object.entries(valeur).map(([cle, val]) => [cle, normaliser(val)]));
-  }
-  return valeur;
+/** Nom de fichier lisible et trie naturellement. */
+function nomDeFichier(date) {
+  const horodatage = new Date(date).toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  return `chemoiresto-${horodatage}.json`;
 }
 
-/** GET /api/backup - instantane complet (ADMIN) */
+/** GET /api/backup - instantane complet, telecharge a la volee (ADMIN) */
 const exporter = asyncHandler(async (req, res) => {
-  const restaurantId = req.user.restaurantId;
-  const parRestaurant = { where: { restaurantId } };
+  const instantane = await construireInstantane(req.user.restaurantId);
 
-  const [
-    restaurant,
-    users,
-    categories,
-    products,
-    productOptions,
-    productOptionValues,
-    tables,
-    qrCodes,
-    dailyMenus,
-    dailyMenuItems,
-    customers,
-    orders,
-    orderItems,
-    orderItemOptions,
-    orderStatusHistory,
-    serviceRequests,
-  ] = await Promise.all([
-    prisma.restaurant.findUnique({ where: { id: restaurantId } }),
-    prisma.user.findMany({
-      ...parRestaurant,
-      // Tout sauf le mot de passe.
-      select: {
-        id: true,
-        restaurantId: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        role: true,
-        status: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    }),
-    prisma.category.findMany(parRestaurant),
-    prisma.product.findMany(parRestaurant),
-    prisma.productOption.findMany({ where: { product: { restaurantId } } }),
-    prisma.productOptionValue.findMany({ where: { option: { product: { restaurantId } } } }),
-    prisma.restaurantTable.findMany(parRestaurant),
-    prisma.qRCode.findMany({ where: { table: { restaurantId } } }),
-    prisma.dailyMenu.findMany(parRestaurant),
-    prisma.dailyMenuItem.findMany({ where: { dailyMenu: { restaurantId } } }),
-    prisma.customer.findMany(parRestaurant),
-    prisma.order.findMany(parRestaurant),
-    prisma.orderItem.findMany({ where: { order: { restaurantId } } }),
-    prisma.orderItemOption.findMany({ where: { orderItem: { order: { restaurantId } } } }),
-    prisma.orderStatusHistory.findMany({ where: { order: { restaurantId } } }),
-    prisma.serviceRequest.findMany(parRestaurant),
-  ]);
-
-  const donnees = {
-    restaurant,
-    users,
-    categories,
-    products,
-    productOptions,
-    productOptionValues,
-    tables,
-    qrCodes,
-    dailyMenus,
-    dailyMenuItems,
-    customers,
-    orders,
-    orderItems,
-    orderItemOptions,
-    orderStatusHistory,
-    serviceRequests,
-  };
-
-  const comptes = Object.fromEntries(
-    Object.entries(donnees).map(([nom, valeur]) => [nom, Array.isArray(valeur) ? valeur.length : valeur ? 1 : 0])
-  );
-
-  const horodatage = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.setHeader('Content-Disposition', `attachment; filename="chemoiresto-${horodatage}.json"`);
+  res.setHeader('Content-Disposition', `attachment; filename="${nomDeFichier(new Date())}"`);
+  return res.json(instantane);
+});
 
-  return res.json(
-    normaliser({
-      metadonnees: {
-        version: 1,
-        genereLe: new Date(),
-        restaurantId,
-        motsDePasseExclus: true,
-        comptes,
-      },
-      donnees,
-    })
+/** GET /api/backup/list - les sauvegardes conservees (ADMIN) */
+const list = asyncHandler(async (req, res) => {
+  const restaurantId = req.user.restaurantId;
+
+  // Le contenu n'est jamais charge ici : plusieurs Mo par ligne.
+  const lignes = await prisma.backupSnapshot.findMany({
+    where: { restaurantId },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      trigger: true,
+      sizeBytes: true,
+      counts: true,
+      note: true,
+      createdAt: true,
+    },
+  });
+
+  const derniere = lignes[0] || null;
+
+  return success(
+    res,
+    {
+      snapshots: lignes.map(serialiser),
+      last: derniere ? serialiser(derniere) : null,
+      // Ce que l'interface doit pouvoir dire sans le recalculer elle-meme.
+      hoursSinceLast: derniere
+        ? Math.floor((Date.now() - derniere.createdAt.getTime()) / 3600000)
+        : null,
+      kept: CONSERVES,
+    },
+    'Sauvegardes récupérées'
   );
 });
 
-module.exports = { exporter };
+/** POST /api/backup - prend une sauvegarde tout de suite (ADMIN) */
+const run = asyncHandler(async (req, res) => {
+  const resultat = await enregistrerInstantane(req.user.restaurantId, 'MANUEL');
+  if (!resultat.ok) throw ApiError.internal(`Sauvegarde impossible : ${resultat.erreur}`);
+
+  const ligne = await prisma.backupSnapshot.findUnique({
+    where: { id: resultat.snapshot.id },
+    select: {
+      id: true,
+      trigger: true,
+      sizeBytes: true,
+      counts: true,
+      note: true,
+      createdAt: true,
+    },
+  });
+
+  return success(res, serialiser(ligne), 'Sauvegarde effectuée');
+});
+
+/** GET /api/backup/:id/download - retelecharge une sauvegarde conservee */
+const download = asyncHandler(async (req, res) => {
+  const ligne = await prisma.backupSnapshot.findFirst({
+    where: { id: req.params.id, restaurantId: req.user.restaurantId },
+  });
+  if (!ligne) throw ApiError.notFound('Sauvegarde introuvable');
+  if (!ligne.content) {
+    throw ApiError.badRequest(
+      ligne.note || 'Le contenu de cette sauvegarde n\'a pas été conservé.'
+    );
+  }
+
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${nomDeFichier(ligne.createdAt)}"`);
+  // Deja serialise en base : on l'envoie tel quel plutot que de le reparser.
+  return res.send(ligne.content);
+});
+
+module.exports = { exporter, list, run, download };

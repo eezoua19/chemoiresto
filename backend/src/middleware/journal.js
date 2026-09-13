@@ -190,6 +190,18 @@ const DESCRIPTEURS = {
       data?.takeawayEnabled ? 'Commandes à emporter ouvertes' : 'Commandes à emporter fermées',
   },
 
+  // ---------------------------- Remise a zero ----------------------------
+  // Le journal vient d'etre efface par l'operation elle-meme : cette ligne
+  // s'ecrit juste apres, et devient la premiere du nouveau journal.
+  'POST /reset': {
+    action: 'REMISE_A_ZERO',
+    entity: 'Restaurant',
+    label: (req, data) =>
+      `Remise à zéro : ${data?.total || 0} ligne(s) effacée(s)${
+        data?.resetMenus ? ', menus du jour compris' : ''
+      }`,
+  },
+
   // ------------------------------ Sauvegarde -----------------------------
   // Un export emporte toutes les donnees du restaurant : il doit laisser une
   // trace, meme si techniquement c'est une simple lecture.

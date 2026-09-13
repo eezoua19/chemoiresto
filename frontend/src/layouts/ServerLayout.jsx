@@ -84,6 +84,14 @@ export default function ServerLayout() {
     );
   });
 
+  // Remise a zero decidee au bureau : l'ecran de la salle affiche encore des
+  // commandes qui n'existent plus. On previent, puis on recharge.
+  useSocketEvent('data_reset', () => {
+    voice.stop();
+    toast.warning("Les données ont été remises à zéro par l'administration", 6000);
+    setTimeout(() => window.location.reload(), 2500);
+  });
+
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });

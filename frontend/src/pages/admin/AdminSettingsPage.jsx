@@ -6,6 +6,7 @@ import { imageUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { applyBrandColor } from '../../utils/color';
+import DangerZone from '../../components/admin/DangerZone';
 import {
   Button,
   Card,
@@ -280,6 +281,9 @@ export default function AdminSettingsPage() {
       {/* Hors du formulaire : la vente à emporter a son propre enregistrement,
           elle ne doit pas dependre du bouton "Enregistrer" de l'identite. */}
       <TakeawayCard initial={takeaway} restaurantName={form.name} />
+
+      {/* En dernier, volontairement : on ne tombe pas dessus par hasard. */}
+      <DangerZone restaurantName={form.name} />
     </div>
   );
 }

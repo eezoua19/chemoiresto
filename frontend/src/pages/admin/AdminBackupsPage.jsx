@@ -21,6 +21,14 @@ function taille(octets) {
   return `${(octets / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
+/** D'ou vient une sauvegarde, dit en francais. */
+const ORIGINES = {
+  MANUEL: 'lancée à la main',
+  AVANT_RAZ: 'avant une remise à zéro',
+  AUTOMATIQUE: 'automatique',
+};
+const origine = (declencheur) => ORIGINES[declencheur] || 'automatique';
+
 function nomDeFichier(date) {
   const horodatage = new Date(date).toISOString().replace(/[:.]/g, '-').slice(0, 19);
   return `chemoiresto-${horodatage}.json`;
@@ -131,9 +139,9 @@ export default function AdminBackupsPage() {
                   </p>
                   <p className={`text-xs ${alerte ? 'text-red-900/80' : 'text-emerald-900/80'}`}>
                     {derniere
-                      ? `Dernière : ${formatDateTime(derniere.createdAt)} (${taille(derniere.sizeBytes)}${
-                          derniere.trigger === 'MANUEL' ? ', à la main' : ''
-                        })`
+                      ? `Dernière : ${formatDateTime(derniere.createdAt)} (${taille(
+                          derniere.sizeBytes
+                        )}, ${origine(derniere.trigger)})`
                       : 'La première sauvegarde automatique aura lieu cette nuit à 3 h.'}
                   </p>
                 </div>
@@ -193,7 +201,7 @@ export default function AdminBackupsPage() {
                     </p>
                     <p className="mt-0.5 text-xs text-ink-500">
                       {taille(sauvegarde.sizeBytes)}
-                      {sauvegarde.trigger === 'MANUEL' ? ' - lancée à la main' : ' - automatique'}
+                      {` - ${origine(sauvegarde.trigger)}`}
                       {sauvegarde.counts &&
                         ` - ${sauvegarde.counts.products || 0} plats, ${
                           sauvegarde.counts.orders || 0

@@ -120,6 +120,13 @@ export const notificationApi = {
   markAllRead: () => api.put('/notifications/read-all').then(unwrap),
 };
 
+// ------------------------------ Remise a zero ------------------------------
+export const resetApi = {
+  // La suppression passe par une sauvegarde complete : c'est long, on laisse
+  // le temps qu'il faut plutot que d'abandonner en plein milieu.
+  run: (payload) => api.post('/reset', payload, { timeout: 120000 }).then((r) => r.data),
+};
+
 // ------------------------------ Sauvegardes --------------------------------
 // Construire ou transferer un instantane complet depasse largement le delai
 // habituel : on laisse 2 minutes a ces deux appels-la, et a eux seuls.

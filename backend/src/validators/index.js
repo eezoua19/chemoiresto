@@ -393,6 +393,16 @@ const auditQuerySchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Remise a zero
+// ---------------------------------------------------------------------------
+
+const resetSchema = z.object({
+  // Le nom du restaurant, tape a la main. La comparaison se fait cote serveur.
+  confirmation: trimmed(1, 120, 'Confirmation'),
+  resetMenus: booleanish.optional().default(false),
+});
+
+// ---------------------------------------------------------------------------
 // Clotures de journee
 // ---------------------------------------------------------------------------
 
@@ -449,4 +459,5 @@ module.exports = {
   auditQuerySchema,
   dateParam,
   closingsQuerySchema,
+  resetSchema,
 };

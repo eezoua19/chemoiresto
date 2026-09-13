@@ -37,6 +37,7 @@ export const LIBELLES_ACTION = {
   SAUVEGARDE_EXPORTEE: 'Sauvegarde exportée',
   SAUVEGARDE_MANUELLE: 'Sauvegarde manuelle',
   CLOTURE_RECALCULEE: 'Clôture recalculée',
+  REMISE_A_ZERO: 'Remise à zéro',
 };
 
 const ROUGE = { point: 'bg-red-500', badge: 'bg-red-100 text-red-800' };
@@ -52,6 +53,7 @@ const NEUTRE = { point: 'bg-ink-300', badge: 'bg-ink-100 text-ink-700' };
  */
 export function tonDeLAction(action) {
   if (!action) return NEUTRE;
+  if (action === 'REMISE_A_ZERO') return ROUGE;
   if (action.endsWith('_SUPPRIME') || action.endsWith('_SUPPRIMEE')) return ROUGE;
   if (
     action === 'MOT_DE_PASSE_REINITIALISE' ||

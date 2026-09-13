@@ -11,6 +11,7 @@ const {
   updateOrderStatusSchema,
   assignOrderSchema,
   ordersQuerySchema,
+  orderEstimateSchema,
 } = require('../validators');
 
 const router = express.Router();
@@ -30,6 +31,13 @@ router.put(
   '/:id/status',
   validate({ params: idParam, body: updateOrderStatusSchema }),
   controller.updateStatus
+);
+
+// Le temps d'attente annonce au client : la serveuse en repond, elle le pose.
+router.patch(
+  '/:id/estimate',
+  validate({ params: idParam, body: orderEstimateSchema }),
+  controller.setEstimate
 );
 
 router.put(

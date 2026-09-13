@@ -6,6 +6,7 @@ import useSocketEvent from '../../hooks/useSocketEvent';
 import useSocketRoom from '../../hooks/useSocketRoom';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
 import Confettis from '../../components/client/Confettis';
+import TempsDAttente from '../../components/client/TempsDAttente';
 import { EmptyState, ErrorState, Footer, LoadingState } from '../../components/ui';
 import { formatDateTime, formatMoney } from '../../utils/format';
 import { ORDER_STATUS } from '../../utils/constants';
@@ -118,6 +119,10 @@ export default function OrderTrackingPage() {
               </p>
             </div>
           )}
+
+          <div className="mb-4">
+            <TempsDAttente order={order} />
+          </div>
 
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-ink-900">Suivi</h2>

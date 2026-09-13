@@ -192,6 +192,7 @@ export default function AdminOrdersPage() {
                           order={order}
                           currency={currency}
                           nouveau={estNouveau(order.id)}
+                          onEstimate={load}
                           busy={busy}
                           onAdvance={advance}
                           onCancel={setCancelTarget}

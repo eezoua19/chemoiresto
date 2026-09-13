@@ -88,6 +88,8 @@ export const orderApi = {
   updateStatus: (id, status, comment) =>
     api.put(`/orders/${id}/status`, { status, comment }).then(unwrap),
   assign: (id, serverId) => api.put(`/orders/${id}/assign`, { serverId }).then(unwrap),
+  // Temps d'attente annonce au client. 0 retire l'annonce.
+  setEstimate: (id, minutes) => api.patch(`/orders/${id}/estimate`, { minutes }).then(unwrap),
 };
 
 // ------------------------------- Serveuses ---------------------------------

@@ -27,6 +27,7 @@ import ChiffresQuiRoulent from '../../components/client/ChiffresQuiRoulent';
 import ProductSheet from '../../components/client/ProductSheet';
 import CartSheet from '../../components/client/CartSheet';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
+import TempsDAttente from '../../components/client/TempsDAttente';
 import { Button, EmptyState, ErrorState, Footer, Modal } from '../../components/ui';
 import { formatLongDate, formatMoney } from '../../utils/format';
 import { ORDER_STATUS, ordersKey } from '../../utils/constants';
@@ -454,6 +455,12 @@ function ClientMenuContent({ token, service }) {
                 <div className="mt-3">
                   <OrderStatusTracker order={order} compact />
                 </div>
+
+                {order.estimatedReadyAt && (
+                  <div className="mt-3">
+                    <TempsDAttente order={order} />
+                  </div>
+                )}
 
                 <div className="mt-3 flex items-center justify-between">
                   <span className="text-sm font-semibold text-ink-900">

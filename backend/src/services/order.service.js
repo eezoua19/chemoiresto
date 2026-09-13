@@ -333,6 +333,8 @@ function serializeOrder(order) {
     total: toNumber(order.total),
     currency: order.currency,
     createdAt: order.createdAt,
+    estimatedMinutes: order.estimatedMinutes,
+    estimatedReadyAt: order.estimatedReadyAt,
     acceptedAt: order.acceptedAt,
     preparingAt: order.preparingAt,
     readyAt: order.readyAt,

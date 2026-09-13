@@ -3,6 +3,7 @@ import { ORDER_STATUS } from '../../utils/constants';
 import { formatMoney, timeAgo } from '../../utils/format';
 import { estAEmporter } from '../../utils/order';
 import { Button } from '../ui';
+import TempsAnnonce from './TempsAnnonce';
 
 /**
  * Carte de commande utilisée par la serveuse et par l'administrateur.
@@ -18,6 +19,7 @@ export default function OrderCard({
   busy,
   compact = false,
   nouveau = false,
+  onEstimate,
 }) {
   const config = ORDER_STATUS[order.status];
   const emporter = estAEmporter(order);
@@ -100,6 +102,10 @@ export default function OrderCard({
           )}
         </div>
       </div>
+
+      {/* Le temps annoncé se décide en lisant la commande, pas en la
+          clôturant : il vit donc entre le détail et les actions. */}
+      {onEstimate && <TempsAnnonce order={order} onChange={onEstimate} />}
 
       {(onAdvance || onCancel || onPrint || onOpen) && (
         <div className="flex flex-wrap gap-2 border-t border-ink-100 px-4 py-3">

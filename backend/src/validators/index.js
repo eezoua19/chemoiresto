@@ -392,6 +392,18 @@ const auditQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
 });
 
+/**
+ * Temps d'attente annonce au client.
+ * 0 efface l'annonce ; 240 minutes est une borne de securite, pas une cible.
+ */
+const orderEstimateSchema = z.object({
+  minutes: z.coerce
+    .number()
+    .int()
+    .min(0, 'Le temps annoncé ne peut pas être négatif')
+    .max(240, 'Temps annoncé trop long'),
+});
+
 // ---------------------------------------------------------------------------
 // Remise a zero
 // ---------------------------------------------------------------------------
@@ -460,4 +472,5 @@ module.exports = {
   dateParam,
   closingsQuerySchema,
   resetSchema,
+  orderEstimateSchema,
 };

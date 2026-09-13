@@ -297,6 +297,62 @@ const updateStatus = asyncHandler(async (req, res) => {
   return success(res, payload, `Commande ${STATUS_LABEL[status].toLowerCase()}`);
 });
 
+/**
+ * PATCH /api/orders/:id/estimate (personnel)
+ *
+ * La serveuse annonce au client dans combien de temps ce sera pret.
+ *
+ * Pourquoi elle, et pas un calcul : une moyenne ne voit pas que le braiseur
+ * est deja plein, ni qu'il ne reste qu'un poisson. Elle, si. Et un temps
+ * annonce par quelqu'un engage ce quelqu'un - c'est ce qui le rend fiable.
+ *
+ * On enregistre l'heure d'arrivee prevue en plus de la duree : un compte a
+ * rebours calcule a partir d'une duree glisserait a chaque rechargement de
+ * page, et le client verrait « 20 minutes » indefiniment.
+ */
+const setEstimate = asyncHandler(async (req, res) => {
+  const order = await prisma.order.findFirst({
+    where: { id: req.params.id, restaurantId: req.user.restaurantId },
+    include: { table: true },
+  });
+  if (!order) throw ApiError.notFound('Commande introuvable');
+
+  if (['SERVED', 'CANCELLED'].includes(order.status)) {
+    throw ApiError.badRequest('Cette commande est terminée : plus rien à annoncer');
+  }
+
+  // Une serveuse ne parle pas au client d'une autre.
+  if (req.user.role === 'SERVER' && order.serverId && order.serverId !== req.user.id) {
+    throw ApiError.forbidden('Cette commande est attribuée à une autre serveuse');
+  }
+
+  const { minutes } = req.body;
+  // 0 : on retire l'annonce plutot que d'annoncer « tout de suite ».
+  const efface = minutes === 0;
+
+  const updated = await prisma.order.update({
+    where: { id: order.id },
+    data: {
+      estimatedMinutes: efface ? null : minutes,
+      estimatedReadyAt: efface ? null : new Date(Date.now() + minutes * 60000),
+    },
+    include: orderInclude,
+  });
+
+  const payload = serializeOrder(updated);
+  const pourLeClient = serializeOrderForClient(updated);
+
+  emitToStaff(order.restaurantId, 'order_updated', payload);
+  emitToOrder(updated.trackingToken, 'order_status', pourLeClient);
+  if (order.table) emitToTable(order.table.token, 'order_status', pourLeClient);
+
+  return success(
+    res,
+    payload,
+    efface ? "Temps d'attente retiré" : `Temps annoncé au client : ${minutes} min`
+  );
+});
+
 /** PUT /api/orders/:id/assign (ADMIN) */
 const assign = asyncHandler(async (req, res) => {
   const restaurantId = req.user.restaurantId;
@@ -336,4 +392,5 @@ const assign = asyncHandler(async (req, res) => {
   return success(res, payload, serverId ? 'Commande attribuée' : 'Attribution retirée');
 });
 
-module.exports = { create, list, board, detail, updateStatus, assign, buildPeriodFilter };
+module.exports = {
+  setEstimate, create, list, board, detail, updateStatus, assign, buildPeriodFilter };

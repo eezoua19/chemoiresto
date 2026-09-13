@@ -162,6 +162,7 @@ export default function ServerOrdersPage() {
               key={order.id}
               order={order}
               nouveau={estNouveau(order.id)}
+              onEstimate={load}
               currency={restaurant?.currency}
               busy={busy}
               onAdvance={advance}

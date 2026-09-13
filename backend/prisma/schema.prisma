@@ -347,6 +347,13 @@ model Order {
   subtotal      Decimal     @db.Decimal(12, 2)
   total         Decimal     @db.Decimal(12, 2)
   currency      String      @default("FCFA")
+  // Temps d'attente annonce au client. C'est la serveuse qui le decide : elle
+  // voit la cuisine, une moyenne calculee ne la voit pas. On garde les deux :
+  // la duree annoncee (pour l'afficher telle qu'elle a ete dite) et l'heure
+  // d'arrivee prevue (pour qu'un compte a rebours reste juste apres un
+  // rechargement de page).
+  estimatedMinutes Int?
+  estimatedReadyAt DateTime?
   acceptedAt    DateTime?
   preparingAt   DateTime?
   readyAt       DateTime?

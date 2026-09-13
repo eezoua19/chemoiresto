@@ -240,6 +240,8 @@ const remove = asyncHandler(async (req, res) => {
   });
   if (!menu) throw ApiError.notFound('Menu introuvable');
 
+  const [annee, mois, jour] = formatDate(menu.date).split('-');
+  req.journal = { label: `Menu du ${jour}/${mois}/${annee} supprimé` };
   await prisma.dailyMenu.delete({ where: { id: menu.id } });
   emitToStaff(req.user.restaurantId, 'menu_updated', { date: formatDate(menu.date) });
   return success(res, null, 'Menu supprimé');

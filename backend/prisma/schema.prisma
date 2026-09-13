@@ -135,6 +135,7 @@ model Restaurant {
   serviceRequests ServiceRequest[]
   subscriptions   Subscription[]
   subscriptionUsages SubscriptionUsage[]
+  auditLogs       AuditLog[]
 }
 
 // -------------------------------- USER -------------------------------------
@@ -160,6 +161,7 @@ model User {
   notifications   Notification[]
   subscriptionsCreated Subscription[]      @relation("SubscriptionAuthor")
   subscriptionUsages   SubscriptionUsage[] @relation("SubscriptionUsageAuthor")
+  auditLogs            AuditLog[]          @relation("AuditAuthor")
 
   @@index([restaurantId])
 }
@@ -520,4 +522,33 @@ model SubscriptionUsage {
   @@index([restaurantId])
   @@index([subscriptionId])
   @@index([createdAt])
+}
+
+// ------------------------------- JOURNAL -----------------------------------
+
+// Trace des actions de gestion : qui a fait quoi, quand.
+//
+// Le nom de l'auteur est recopie ici. Sans cette copie, supprimer un compte
+// effacerait du meme coup la trace de ce qu'il a fait - exactement ce que le
+// journal doit empecher.
+model AuditLog {
+  id           Int      @id @default(autoincrement())
+  restaurantId Int
+  userId       Int?
+  userName     String
+  userRole     Role
+  action       String   @db.VarChar(60)
+  entity       String   @db.VarChar(40)
+  entityId     Int?
+  label        String   @db.Text
+  // Complement au format JSON : ancien et nouveau prix, par exemple.
+  details      String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  user       User?      @relation("AuditAuthor", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([restaurantId, createdAt])
+  @@index([action])
+  @@index([entity, entityId])
 }

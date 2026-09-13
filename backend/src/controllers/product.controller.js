@@ -158,6 +158,17 @@ const update = asyncHandler(async (req, res) => {
 
   if (imageToDelete) removeProductImage(imageToDelete);
 
+  // Le changement de prix est ce qu'on cherche le plus souvent dans le
+  // journal : il merite sa propre ligne, chiffres avant et apres.
+  const ancienPrix = Number(existing.basePrice);
+  const nouveauPrix = Number(product.basePrice);
+  if (ancienPrix !== nouveauPrix) {
+    req.journal = {
+      label: `Prix modifié : ${product.name}, ${ancienPrix} → ${nouveauPrix} FCFA`,
+      details: { ancienPrix, nouveauPrix },
+    };
+  }
+
   return success(res, serialize(product), 'Produit mis à jour');
 });
 
@@ -175,6 +186,8 @@ const remove = asyncHandler(async (req, res) => {
   if (!product) throw ApiError.notFound('Produit introuvable');
 
   if (product._count.orderItems > 0) {
+    // Le journal doit dire ce qui s'est reellement passe : archive, pas supprime.
+    req.journal = { label: `Plat archivé (figure dans des commandes) : ${product.name}` };
     const archived = await prisma.product.update({
       where: { id },
       data: { isActive: false, isAvailable: false },
@@ -188,6 +201,7 @@ const remove = asyncHandler(async (req, res) => {
   }
 
   if (product.image) removeProductImage(product.image);
+  req.journal = { label: `Plat supprimé : ${product.name}` };
   await prisma.product.delete({ where: { id } });
   return success(res, null, 'Produit supprimé');
 });

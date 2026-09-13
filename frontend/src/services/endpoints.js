@@ -120,6 +120,12 @@ export const notificationApi = {
   markAllRead: () => api.put('/notifications/read-all').then(unwrap),
 };
 
+// --------------------------- Journal des actions ---------------------------
+export const auditApi = {
+  list: (params) => api.get('/audit', { params }).then(unwrap),
+  filters: () => api.get('/audit/filters').then(unwrap),
+};
+
 // ------------------------------- Abonnements -------------------------------
 export const subscriptionApi = {
   list: (params) => api.get('/subscriptions', { params }).then(unwrap),

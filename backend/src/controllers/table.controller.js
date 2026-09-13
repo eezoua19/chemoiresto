@@ -122,6 +122,7 @@ const remove = asyncHandler(async (req, res) => {
     );
   }
 
+  req.journal = { label: `Table supprimée : ${table.number}` };
   await prisma.restaurantTable.delete({ where: { id } });
   return success(res, null, 'Table supprimée');
 });

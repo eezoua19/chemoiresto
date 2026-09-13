@@ -378,6 +378,20 @@ const subscriptionsQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
 });
 
+// ---------------------------------------------------------------------------
+// Journal des actions
+// ---------------------------------------------------------------------------
+
+const auditQuerySchema = z.object({
+  action: z.string().trim().max(60).optional(),
+  entity: z.string().trim().max(40).optional(),
+  q: z.string().trim().max(80).optional(),
+  from: dateString.optional(),
+  to: dateString.optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
+});
+
 module.exports = {
   idParam,
   tokenParam,
@@ -416,4 +430,5 @@ module.exports = {
   subscriptionUseSchema,
   subscriptionsQuerySchema,
   subscriptionLookupSchema,
+  auditQuerySchema,
 };

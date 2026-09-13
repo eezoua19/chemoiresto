@@ -14,8 +14,14 @@ const restaurantRoutes = require('./restaurant.routes');
 const publicRoutes = require('./public.routes');
 const backupRoutes = require('./backup.routes');
 const subscriptionRoutes = require('./subscription.routes');
+const auditRoutes = require('./audit.routes');
+
+const { journalMiddleware } = require('../middleware/journal');
 
 const router = express.Router();
+
+// Observe les reponses reussies et trace les actions de gestion.
+router.use(journalMiddleware);
 
 router.get('/health', (_req, res) =>
   res.json({ success: true, message: 'API opérationnelle', data: { time: new Date().toISOString() } })
@@ -38,5 +44,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/restaurant', restaurantRoutes);
 router.use('/backup', backupRoutes);
 router.use('/subscriptions', subscriptionRoutes);
+router.use('/audit', auditRoutes);
 
 module.exports = router;

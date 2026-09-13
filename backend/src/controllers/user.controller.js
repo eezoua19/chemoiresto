@@ -107,6 +107,9 @@ const remove = asyncHandler(async (req, res) => {
 
   // Historique preserve : on désactivé au lieu de supprimer.
   if (user._count.orders > 0) {
+    req.journal = {
+      label: `Compte désactivé (a traité des commandes) : ${user.firstName} ${user.lastName}`,
+    };
     const disabled = await prisma.user.update({ where: { id }, data: { status: 'INACTIVE' } });
     return success(
       res,
@@ -115,6 +118,7 @@ const remove = asyncHandler(async (req, res) => {
     );
   }
 
+  req.journal = { label: `Compte supprimé : ${user.firstName} ${user.lastName}` };
   await prisma.user.delete({ where: { id } });
   return success(res, null, 'Compte supprimé');
 });

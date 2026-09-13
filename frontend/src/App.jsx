@@ -30,6 +30,7 @@ import AdminHistoryPage from './pages/admin/AdminHistoryPage';
 import AdminStatsPage from './pages/admin/AdminStatsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 import AdminSubscriptionsPage from './pages/admin/AdminSubscriptionsPage';
+import AdminJournalPage from './pages/admin/AdminJournalPage';
 
 export default function App() {
   return (
@@ -92,6 +93,7 @@ export default function App() {
         <Route path="historique" element={<AdminHistoryPage />} />
         <Route path="statistiques" element={<AdminStatsPage />} />
         <Route path="abonnements" element={<AdminSubscriptionsPage />} />
+        <Route path="journal" element={<AdminJournalPage />} />
         <Route path="parametres" element={<AdminSettingsPage />} />
       </Route>
 

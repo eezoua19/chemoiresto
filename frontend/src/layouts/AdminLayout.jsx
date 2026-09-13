@@ -12,6 +12,7 @@ import {
   History,
   BadgeCheck,
   BarChart3,
+  ScrollText,
   Settings,
   LogOut,
   Menu as MenuIcon,
@@ -42,6 +43,7 @@ const LINKS = [
   { to: '/admin/abonnements', label: 'Abonnements', icon: BadgeCheck },
   { to: '/admin/historique', label: 'Historique', icon: History },
   { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
+  { to: '/admin/journal', label: 'Journal', icon: ScrollText },
   { to: '/admin/parametres', label: 'Paramètres', icon: Settings },
 ];
 

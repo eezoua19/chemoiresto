@@ -90,6 +90,7 @@ const remove = asyncHandler(async (req, res) => {
     );
   }
 
+  req.journal = { label: `Catégorie supprimée : ${category.name}` };
   await prisma.category.delete({ where: { id } });
   return success(res, null, 'Catégorie supprimée');
 });

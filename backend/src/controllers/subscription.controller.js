@@ -465,6 +465,10 @@ const remove = asyncHandler(async (req, res) => {
     where: { subscriptionId: existant.id },
   });
 
+  req.journal = {
+    label: `Abonnement supprimé : ${existant.firstName} ${existant.lastName} (${existant.number})`,
+    details: { passages },
+  };
   await prisma.subscription.delete({ where: { id: existant.id } });
 
   // Le personnel peut avoir la fiche ouverte au comptoir : on previent, sinon

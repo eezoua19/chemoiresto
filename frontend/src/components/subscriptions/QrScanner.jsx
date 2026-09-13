@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import usePresence from '../../hooks/usePresence';
 import { X, CameraOff, Flashlight, Loader2, KeyRound } from 'lucide-react';
 import jsQR from 'jsqr';
 import { Button, Input } from '../ui';
@@ -25,6 +26,9 @@ export default function QrScanner({ open, onClose, onDetect }) {
   const [torche, setTorche] = useState(false);
   const [torcheDispo, setTorcheDispo] = useState(false);
   const [saisie, setSaisie] = useState('');
+
+  // Le plein ecran s'efface au lieu de disparaitre d'un bloc.
+  const { monte, sortant } = usePresence(open, 180);
 
   /** Coupe la caméra pour de bon : sans ça le voyant reste allumé. */
   const arreter = useCallback(() => {
@@ -184,10 +188,14 @@ export default function QrScanner({ open, onClose, onDetect }) {
     trouve(jeton);
   };
 
-  if (!open) return null;
+  if (!monte) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex flex-col bg-ink-900">
+    <div
+      className={`fixed inset-0 z-50 flex flex-col bg-ink-900 ${
+        sortant ? 'animate-fade-out' : 'animate-fade-in'
+      }`}
+    >
       <div className="flex items-center justify-between px-4 py-3 text-white">
         <div>
           <h2 className="text-base font-bold">Scanner un ticket</h2>

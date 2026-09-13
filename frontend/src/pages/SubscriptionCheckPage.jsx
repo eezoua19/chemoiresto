@@ -133,7 +133,15 @@ export default function SubscriptionCheckPage() {
         </div>
 
         {/* --------------------- Le verdict, en grand --------------------- */}
-        <div className={`mt-5 rounded-3xl border-2 p-6 text-center ${etat.bloc}`}>
+        {/*
+          La cle force l'animation a rejouer a chaque nouveau verdict : sans
+          elle, scanner un second ticket changerait le texte sans que rien ne
+          bouge, et la serveuse pourrait lire l'ancien etat.
+        */}
+        <div
+          key={`${token}-${abonnement.state || 'introuvable'}`}
+          className={`mt-5 animate-verdict-in rounded-3xl border-2 p-6 text-center ${etat.bloc}`}
+        >
           <p className="text-2xl font-extrabold leading-tight sm:text-3xl">
             {introuvable ? ETATS.INTROUVABLE.label : etat.label}
           </p>

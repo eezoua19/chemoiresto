@@ -17,6 +17,9 @@ const STYLES = {
   warning: 'border-amber-200 bg-amber-50 text-amber-800',
 };
 
+/** Duree de l'animation de sortie, alignee sur `animate-slide-down`. */
+const RETRAIT_MS = 180;
+
 /** Systeme de notifications ephemeres (toasts) accessible partout. */
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
@@ -31,7 +34,15 @@ export function ToastProvider({ children }) {
       rappels.current.delete(id);
       rappel();
     }
-    setToasts((current) => current.filter((toast) => toast.id !== id));
+    // On marque le depart, puis on retire : sans ce temps mort le toast
+    // disparaitrait d'un coup, alors qu'il est arrive en glissant.
+    setToasts((current) =>
+      current.map((toast) => (toast.id === id ? { ...toast, sortant: true } : toast))
+    );
+    setTimeout(
+      () => setToasts((current) => current.filter((toast) => toast.id !== id)),
+      RETRAIT_MS
+    );
   }, []);
 
   const push = useCallback(
@@ -72,9 +83,10 @@ export function ToastProvider({ children }) {
             <div
               key={toast.id}
               role="status"
-              className={`pointer-events-auto flex w-full max-w-sm animate-slide-up items-start gap-3 rounded-xl border px-4 py-3 shadow-float ${
-                STYLES[toast.type]
-              }`}
+              className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl
+                          border px-4 py-3 shadow-float ${STYLES[toast.type]} ${
+                            toast.sortant ? 'animate-slide-down' : 'animate-slide-up'
+                          }`}
             >
               <Icon size={18} className="mt-0.5 shrink-0" />
               <div className="flex-1">

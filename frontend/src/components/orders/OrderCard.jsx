@@ -17,12 +17,13 @@ export default function OrderCard({
   onOpen,
   busy,
   compact = false,
+  nouveau = false,
 }) {
   const config = ORDER_STATUS[order.status];
   const emporter = estAEmporter(order);
 
   return (
-    <article className="card overflow-hidden">
+    <article className={`card overflow-hidden ${nouveau ? 'animate-surlignage' : ''}`}>
       <div className="flex items-start justify-between gap-3 border-b border-ink-100 px-4 py-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">

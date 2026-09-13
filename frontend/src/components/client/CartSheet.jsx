@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import usePresence from '../../hooks/usePresence';
 import { X, Minus, Plus, Trash2, ShoppingBag, ChevronLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { formatMoney } from '../../utils/format';
@@ -25,7 +26,9 @@ export default function CartSheet({
   const [customerPhone, setCustomerPhone] = useState('');
   const [comment, setComment] = useState('');
 
-  if (!open) return null;
+  // Le panneau reste monte le temps de redescendre hors de l'ecran.
+  const { monte, sortant } = usePresence(open);
+  if (!monte) return null;
 
   // À emporter, le nom est le seul moyen d'appeler le bon client au comptoir :
   // il devient obligatoire. A table, le numéro de table suffit.
@@ -47,9 +50,20 @@ export default function CartSheet({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 animate-fade-in bg-ink-900/60" onClick={close} aria-hidden />
+      <div
+        className={`absolute inset-0 bg-ink-900/60 ${sortant ? 'animate-fade-out' : 'animate-fade-in'}`}
+        onClick={close}
+        aria-hidden
+      />
 
-      <div className="relative flex max-h-[92vh] w-full max-w-lg animate-sheet-in flex-col overflow-hidden rounded-t-3xl bg-white sm:animate-slide-up sm:rounded-3xl">
+      <div
+        className={`relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden
+                    rounded-t-3xl bg-white sm:rounded-3xl ${
+                      sortant
+                        ? 'animate-sheet-out sm:animate-slide-down'
+                        : 'animate-sheet-in sm:animate-slide-up'
+                    }`}
+      >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-ink-100 px-5 py-4">
           <div className="flex items-center gap-2">
             {step === 'confirm' && (

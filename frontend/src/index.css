@@ -13,6 +13,25 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /*
+   * Certaines personnes ont le mal des transports numerique, d'autres coupent
+   * les animations pour economiser la batterie. Leur systeme le signale : on
+   * l'ecoute, partout, sans avoir a y penser dans chaque composant.
+   *
+   * On ne supprime pas les animations, on les rend instantanees : les etats de
+   * fin (un panneau ferme, un voile efface) restent appliques.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   body {
     @apply bg-ink-50 text-ink-900 antialiased;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;

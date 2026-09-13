@@ -54,12 +54,45 @@ export default {
           '70%': { boxShadow: '0 0 0 12px rgba(228, 87, 46, 0)' },
           '100%': { boxShadow: '0 0 0 0 rgba(228, 87, 46, 0)' },
         },
+        // Sorties. Une interface ou tout entre en scene et rien n'en sort
+        // donne l'impression d'un site web, pas d'une application.
+        'fade-out': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        'sheet-out': {
+          '0%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(100%)' },
+        },
+        'slide-down': {
+          '0%': { transform: 'translateY(0)', opacity: '1' },
+          '100%': { transform: 'translateY(8px)', opacity: '0' },
+        },
+        // Le verdict d'un scan : il doit arriver, pas apparaitre.
+        'verdict-in': {
+          '0%': { transform: 'scale(0.96)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        // Surlignage bref d'une ligne qui vient d'arriver. On finit sur le
+        // blanc exact d'une carte, pas sur "transparent" : sinon le fond de
+        // page apparait une fraction de seconde a la fin.
+        surlignage: {
+          '0%': { backgroundColor: '#fef3c7' },
+          '100%': { backgroundColor: '#ffffff' },
+        },
       },
       animation: {
         'slide-up': 'slide-up 0.25s ease-out',
         'fade-in': 'fade-in 0.2s ease-out',
         'sheet-in': 'sheet-in 0.28s cubic-bezier(0.32, 0.72, 0, 1)',
         'pulse-ring': 'pulse-ring 1.8s infinite',
+        // "forwards" : sans lui l'element reapparait le temps d'une image
+        // juste avant d'etre retire du document.
+        'fade-out': 'fade-out 0.18s ease-in forwards',
+        'sheet-out': 'sheet-out 0.22s cubic-bezier(0.32, 0.72, 0, 1) forwards',
+        'slide-down': 'slide-down 0.18s ease-in forwards',
+        'verdict-in': 'verdict-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)',
+        surlignage: 'surlignage 1.8s ease-out',
       },
     },
   },

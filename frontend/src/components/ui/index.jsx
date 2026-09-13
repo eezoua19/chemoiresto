@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Loader2, Inbox, WifiOff, ShieldAlert, SearchX } from 'lucide-react';
+import usePresence from '../../hooks/usePresence';
 
 // ------------------------------- Bouton ------------------------------------
 
@@ -131,6 +132,9 @@ export function Toggle({ checked, onChange, label, disabled }) {
 // -------------------------------- Modal ------------------------------------
 
 export function Modal({ open, onClose, title, subtitle, children, footer, size = 'md' }) {
+  // La fenetre reste montee le temps de sortir de l'ecran.
+  const { monte, sortant } = usePresence(open);
+
   useEffect(() => {
     if (!open) return undefined;
     const onKeyDown = (event) => event.key === 'Escape' && onClose();
@@ -142,22 +146,28 @@ export function Modal({ open, onClose, title, subtitle, children, footer, size =
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!monte) return null;
 
   const sizes = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-6xl' };
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div
-        className="absolute inset-0 animate-fade-in bg-ink-900/50 backdrop-blur-sm"
+        className={`absolute inset-0 bg-ink-900/50 backdrop-blur-sm ${
+          sortant ? 'animate-fade-out' : 'animate-fade-in'
+        }`}
         onClick={onClose}
         aria-hidden
       />
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative flex max-h-[92vh] w-full ${sizes[size]} animate-sheet-in flex-col
-                    rounded-t-2xl bg-white shadow-float sm:animate-slide-up sm:rounded-2xl`}
+        className={`relative flex max-h-[92vh] w-full ${sizes[size]} flex-col rounded-t-2xl
+                    bg-white shadow-float sm:rounded-2xl ${
+                      sortant
+                        ? 'animate-sheet-out sm:animate-slide-down'
+                        : 'animate-sheet-in sm:animate-slide-up'
+                    }`}
       >
         <div className="flex items-start justify-between gap-4 border-b border-ink-100 px-5 py-4">
           <div>

@@ -4,6 +4,7 @@ import { orderApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
+import useNouveautes from '../../hooks/useNouveautes';
 import OrderCard from '../../components/orders/OrderCard';
 import { printOrderTicket } from '../../components/orders/printOrder';
 import { Button, EmptyState, ErrorState, Input, Select, Skeleton } from '../../components/ui';
@@ -49,7 +50,13 @@ export default function ServerOrdersPage() {
     return () => clearTimeout(timer);
   }, [load, filters.search]);
 
-  useSocketEvent('new_order', load);
+  // Le son et la voix disent qu'une commande arrive ; le surlignage dit
+  // laquelle, ce qu'aucune alerte ne peut faire dans une liste de douze cartes.
+  const { marquer, estNouveau } = useNouveautes();
+  useSocketEvent('new_order', (order) => {
+    marquer(order?.id);
+    load();
+  });
   useSocketEvent('order_updated', load);
 
   const advance = async (order, nextStatus) => {
@@ -154,6 +161,7 @@ export default function ServerOrdersPage() {
             <OrderCard
               key={order.id}
               order={order}
+              nouveau={estNouveau(order.id)}
               currency={restaurant?.currency}
               busy={busy}
               onAdvance={advance}

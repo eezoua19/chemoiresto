@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import OrderCard from '../../components/orders/OrderCard';
 import { printOrderTicket } from '../../components/orders/printOrder';
+import useNouveautes from '../../hooks/useNouveautes';
 import {
   Button,
   ConfirmDialog,
@@ -58,7 +59,11 @@ export default function AdminOrdersPage() {
     load();
   }, [load]);
 
-  useSocketEvent('new_order', load);
+  const { marquer, estNouveau } = useNouveautes();
+  useSocketEvent('new_order', (order) => {
+    marquer(order?.id);
+    load();
+  });
   useSocketEvent('order_updated', load);
 
   const advance = async (order, nextStatus) => {
@@ -186,6 +191,7 @@ export default function AdminOrdersPage() {
                         <OrderCard
                           order={order}
                           currency={currency}
+                          nouveau={estNouveau(order.id)}
                           busy={busy}
                           onAdvance={advance}
                           onCancel={setCancelTarget}

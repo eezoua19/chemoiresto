@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import usePresence from '../../hooks/usePresence';
 import { X, Minus, Plus, UtensilsCrossed, Star } from 'lucide-react';
 import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
@@ -8,11 +9,18 @@ import { formatMoney } from '../../utils/format';
  * Fiche produit : choix des options, des supplements, de la quantité.
  * Le prix affiche est recalcule en direct à chaque changement.
  */
-export default function ProductSheet({ item, currency, open, onClose, onAdd }) {
+export default function ProductSheet({ item: plat, currency, open, onClose, onAdd }) {
   const [selected, setSelected] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState('');
   const [error, setError] = useState(null);
+  const { monte, sortant } = usePresence(open);
+
+  // En fermant, le parent efface le plat selectionne. Sans cette memoire, le
+  // panneau se viderait d'un coup au lieu de redescendre.
+  const dernier = useRef(plat);
+  if (plat) dernier.current = plat;
+  const item = plat || dernier.current;
 
   // Reinitialise à chaque ouverture, en pre-selectionnant les choix obligatoires.
   useEffect(() => {
@@ -52,7 +60,8 @@ export default function ProductSheet({ item, currency, open, onClose, onAdd }) {
     return total;
   }, [item, selectedIds]);
 
-  if (!open || !item) return null;
+  // Le panneau reste monte le temps de redescendre hors de l'ecran.
+  if (!monte || !item) return null;
 
   const toggle = (group, valueId) => {
     setError(null);
@@ -86,9 +95,20 @@ export default function ProductSheet({ item, currency, open, onClose, onAdd }) {
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 animate-fade-in bg-ink-900/60" onClick={onClose} aria-hidden />
+      <div
+        className={`absolute inset-0 bg-ink-900/60 ${sortant ? 'animate-fade-out' : 'animate-fade-in'}`}
+        onClick={onClose}
+        aria-hidden
+      />
 
-      <div className="relative flex max-h-[92vh] w-full max-w-lg animate-sheet-in flex-col overflow-hidden rounded-t-3xl bg-white sm:animate-slide-up sm:rounded-3xl">
+      <div
+        className={`relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden
+                    rounded-t-3xl bg-white sm:rounded-3xl ${
+                      sortant
+                        ? 'animate-sheet-out sm:animate-slide-down'
+                        : 'animate-sheet-in sm:animate-slide-up'
+                    }`}
+      >
         <div className="relative h-44 shrink-0 bg-ink-100 sm:h-52">
           {image ? (
             <img src={image} alt={item.name} className="h-full w-full object-cover" />

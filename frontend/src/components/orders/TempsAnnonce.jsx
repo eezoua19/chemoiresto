@@ -4,8 +4,11 @@ import { orderApi } from '../../services/endpoints';
 import { useToast } from '../../context/ToastContext';
 import { formatTime } from '../../utils/format';
 
-/** Les durées qu'on annonce vraiment dans un maquis. */
-const CHOIX = [10, 15, 20, 30, 45];
+/**
+ * Les durées qu'on annonce vraiment dans un maquis.
+ * On commence à 5 minutes : une boisson ou un plat déjà prêt n'attend pas dix.
+ */
+const CHOIX = [5, 10, 15, 20, 30, 45];
 
 /**
  * Le temps d'attente annoncé au client, posé par la serveuse.

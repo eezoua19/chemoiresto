@@ -5,6 +5,7 @@ const { success, created } = require('../utils/response');
 const { toNumber } = require('../utils/helpers');
 const { removeProductImage } = require('../middleware/upload');
 const { emitToStaff } = require('../sockets');
+const { createNotification } = require('../services/notification.service');
 
 const include = {
   category: { select: { id: true, name: true, slug: true, icon: true } },
@@ -227,6 +228,19 @@ const toggleAvailability = asyncHandler(async (req, res) => {
     name: updated.name,
     isAvailable: updated.isAvailable,
   });
+
+  // Notification persistante + push : la rupture doit joindre l'admin meme
+  // s'il n'a pas l'appli ouverte, pas seulement les sessions deja connectees
+  // au socket. Le retour en stock n'a pas cette urgence, donc rien a pousser.
+  if (!updated.isAvailable) {
+    await createNotification({
+      restaurantId: req.user.restaurantId,
+      type: 'SYSTEM',
+      title: `Rupture : ${updated.name}`,
+      body: `${req.user.firstName} a déclaré ${updated.name} indisponible.`,
+      data: { productId: updated.id },
+    });
+  }
 
   return success(
     res,

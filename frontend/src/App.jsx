@@ -75,6 +75,7 @@ export default function App() {
         <Route path="demandes" element={<ServerRequestsPage />} />
         <Route path="carte" element={<ServerMenuPage />} />
         <Route path="abonnements" element={<ServerSubscriptionsPage />} />
+        <Route path="fidelite" element={<AdminLoyaltyPage />} />
       </Route>
 
       {/* ------------------ Administration ------------------ */}

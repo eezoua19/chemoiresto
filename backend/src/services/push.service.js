@@ -25,8 +25,12 @@ if (configured) {
 async function sendPush({ restaurantId, userId = null, orderId = null, payload }) {
   if (!configured) return;
 
+  // "Tout le personnel" ne doit matcher que des abonnements du personnel :
+  // sans `userId: { not: null }`, un client qui suit sa commande sur ce
+  // meme restaurant recevrait aussi les alertes internes (nouvelle commande,
+  // appel serveuse...), puisque son abonnement porte le meme restaurantId.
   const subscriptions = await prisma.pushSubscription.findMany({
-    where: orderId ? { orderId } : userId ? { userId } : { restaurantId },
+    where: orderId ? { orderId } : userId ? { userId } : { restaurantId, userId: { not: null } },
   });
   if (!subscriptions.length) return;
 

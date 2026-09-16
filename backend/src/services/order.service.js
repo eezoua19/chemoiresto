@@ -341,7 +341,7 @@ function serializeOrder(order) {
     servedAt: order.servedAt,
     cancelledAt: order.cancelledAt,
     table: order.table
-      ? { id: order.table.id, number: order.table.number, label: order.table.label }
+      ? { id: order.table.id, number: order.table.number, label: order.table.label, token: order.table.token }
       : null,
     server: order.server
       ? {

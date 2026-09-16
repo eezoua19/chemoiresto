@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Star, RefreshCw } from 'lucide-react';
+import { Star, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { reviewApi } from '../../services/endpoints';
 import { Button, Card, EmptyState, ErrorState, NoResults, PageHeader, Select, Skeleton } from '../../components/ui';
 import { formatDateTime } from '../../utils/format';
@@ -28,13 +28,14 @@ export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [rating, setRating] = useState('');
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      const params = {};
+      const params = { page };
       if (rating) params.rating = rating;
       const result = await reviewApi.list(params);
       setReviews(result.reviews);
@@ -44,11 +45,19 @@ export default function AdminReviewsPage() {
     } finally {
       setLoading(false);
     }
-  }, [rating]);
+  }, [rating, page]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Change le filtre et revient a la page 1 dans le meme evenement (React les
+  // regroupe) : deux effets separes deux rendus produiraient un aller-retour
+  // visible, l'ancienne page se chargeant brievement avec le nouveau filtre.
+  const changerNote = (value) => {
+    setRating(value);
+    setPage(1);
+  };
 
   if (loading) {
     return (
@@ -70,7 +79,7 @@ export default function AdminReviewsPage() {
       />
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <Select value={rating} onChange={(event) => setRating(event.target.value)}>
+        <Select value={rating} onChange={(event) => changerNote(event.target.value)}>
           {FILTRES.map((f) => (
             <option key={f.value} value={f.value}>
               {f.label}
@@ -115,6 +124,29 @@ export default function AdminReviewsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {pagination && pagination.pages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <Button
+            variant="secondary"
+            icon={ChevronLeft}
+            disabled={page <= 1}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            Précédent
+          </Button>
+          <span className="px-3 text-sm text-ink-600">
+            Page {pagination.page} sur {pagination.pages}
+          </span>
+          <Button
+            variant="secondary"
+            disabled={page >= pagination.pages}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Suivant <ChevronRight size={16} />
+          </Button>
         </div>
       )}
     </div>

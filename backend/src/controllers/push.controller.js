@@ -27,10 +27,24 @@ const subscribe = asyncHandler(async (req, res) => {
   return created(res, { id: subscription.id }, 'Notifications push activées');
 });
 
-/** POST /api/push/unsubscribe (personnel) */
+/**
+ * POST /api/push/unsubscribe (personnel)
+ *
+ * Le meme appareil peut aussi suivre une commande passee comme client (voir
+ * subscribeClient) : si c'est le cas, on ne retire que la part "personnel"
+ * de l'abonnement plutot que de supprimer la ligne, pour ne pas couper au
+ * passage le suivi de sa propre commande.
+ */
 const unsubscribe = asyncHandler(async (req, res) => {
   const { endpoint } = req.body;
-  await prisma.pushSubscription.deleteMany({ where: { endpoint, userId: req.user.id } });
+  const row = await prisma.pushSubscription.findFirst({ where: { endpoint, userId: req.user.id } });
+  if (row) {
+    if (row.orderId) {
+      await prisma.pushSubscription.update({ where: { id: row.id }, data: { userId: null } });
+    } else {
+      await prisma.pushSubscription.delete({ where: { id: row.id } });
+    }
+  }
   return success(res, null, 'Notifications push désactivées');
 });
 
@@ -52,6 +66,9 @@ const subscribeClient = asyncHandler(async (req, res) => {
   });
   if (!order) throw ApiError.notFound('Commande introuvable');
 
+  // Ne touche pas `userId` : sur un appareil deja abonne cote personnel (une
+  // serveuse qui teste aussi le menu client, par exemple), l'ecraser a null
+  // couperait silencieusement ses propres notifications de service.
   const subscription = await prisma.pushSubscription.upsert({
     where: { endpoint },
     create: {
@@ -65,7 +82,6 @@ const subscribeClient = asyncHandler(async (req, res) => {
     update: {
       restaurantId: order.restaurantId,
       orderId: order.id,
-      userId: null,
       p256dh: keys.p256dh,
       auth: keys.auth,
     },
@@ -74,10 +90,17 @@ const subscribeClient = asyncHandler(async (req, res) => {
   return created(res, { id: subscription.id }, 'Notifications activées');
 });
 
-/** POST /api/push/unsubscribe-client (route publique) */
+/** POST /api/push/unsubscribe-client (route publique) - miroir de unsubscribe, voir son commentaire. */
 const unsubscribeClient = asyncHandler(async (req, res) => {
   const { endpoint } = req.body;
-  await prisma.pushSubscription.deleteMany({ where: { endpoint, orderId: { not: null } } });
+  const row = await prisma.pushSubscription.findFirst({ where: { endpoint, orderId: { not: null } } });
+  if (row) {
+    if (row.userId) {
+      await prisma.pushSubscription.update({ where: { id: row.id }, data: { orderId: null } });
+    } else {
+      await prisma.pushSubscription.delete({ where: { id: row.id } });
+    }
+  }
   return success(res, null, 'Notifications désactivées');
 });
 

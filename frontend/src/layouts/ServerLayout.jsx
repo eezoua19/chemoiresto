@@ -8,6 +8,7 @@ import {
   BadgeCheck,
   LogOut,
   ChefHat,
+  Gift,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -30,6 +31,8 @@ const LINKS = [
   { to: '/serveuse/abonnements', label: 'Abonnés', icon: BadgeCheck },
 ];
 
+const LOYALTY_LINK = { to: '/serveuse/fidelite', label: 'Fidélité', icon: Gift };
+
 /** Interface de la serveuse : pensee pour un usage tablette / téléphone. */
 export default function ServerLayout() {
   const { user, restaurant, logout } = useAuth();
@@ -41,6 +44,10 @@ export default function ServerLayout() {
   useEffect(() => {
     applyBrandColor(restaurant?.primaryColor);
   }, [restaurant]);
+
+  // Meme regle que cote admin : la serveuse valide les recompenses en salle,
+  // mais l'onglet n'a aucune raison d'exister si le programme est desactive.
+  const links = restaurant?.loyaltyEnabled ? [...LINKS, LOYALTY_LINK] : LINKS;
 
   // Le signal sonore attire l'attention, la voix donne le détail, et l'alerte
   // reste à l'écran tant qu'elle n'a pas été fermee à la main.
@@ -131,7 +138,7 @@ export default function ServerLayout() {
 
         {/* Navigation principale : onglets en haut sur grand écran */}
         <nav className="mx-auto hidden max-w-6xl gap-1 px-4 pb-2 sm:flex">
-          {LINKS.map((link) => (
+          {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
@@ -156,7 +163,7 @@ export default function ServerLayout() {
 
       {/* Navigation basse sur telephone */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-ink-100 bg-white/95 backdrop-blur sm:hidden">
-        {LINKS.map((link) => (
+        {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}

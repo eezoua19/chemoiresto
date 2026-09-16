@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import usePresence from '../../hooks/usePresence';
 import { X, Minus, Plus, Trash2, ShoppingBag, ChevronLeft } from 'lucide-react';
@@ -29,16 +29,29 @@ export default function CartSheet({
 
   // Le panneau reste monte le temps de redescendre hors de l'ecran.
   const { monte, sortant } = usePresence(open);
+
+  // Le parent peut fermer le panneau sans passer par `close()` ci-dessous
+  // (c'est le cas juste apres l'envoi d'une commande) : sans cet effet,
+  // rouvrir le panier pour une seconde commande retombait directement sur
+  // l'etape "confirmer" avec le nom/telephone de la commande precedente.
+  useEffect(() => {
+    if (!open) {
+      setStep('cart');
+      setCustomerName('');
+      setCustomerPhone('');
+      setComment('');
+    }
+  }, [open]);
+
   if (!monte) return null;
 
   // À emporter, le nom est le seul moyen d'appeler le bon client au comptoir :
   // il devient obligatoire. A table, le numéro de table suffit.
   const nomManquant = takeaway && customerName.trim().length < 2;
 
-  const close = () => {
-    setStep('cart');
-    onClose();
-  };
+  // Le reset (step + champs) est gere par l'effet ci-dessus, declenche par
+  // `open` - `close` n'a plus qu'a prevenir le parent.
+  const close = onClose;
 
   const handleConfirm = () => {
     if (nomManquant) return;

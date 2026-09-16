@@ -150,3 +150,87 @@ test('Notifications push : abonnement automatique du client (sans compte)', asyn
     assert.equal(row, null);
   });
 });
+
+test('Notifications push : un même appareil peut être à la fois personnel et client', async (suite) => {
+  await startServer();
+  suite.after(() => stopServer());
+
+  const server = await login('marie@chemoiresto.ci', 'Serveuse@2026');
+  const restaurantId = server.user.restaurantId;
+  await ensureTodayMenu(restaurantId);
+
+  const table = await prisma.restaurantTable.findFirst({
+    where: { restaurantId, status: 'ACTIVE' },
+    orderBy: { number: 'asc' },
+  });
+  const menuResponse = await api(`/api/menu/table/${table.token}`);
+  const menuItems = menuResponse.data.menu.items;
+  const product = menuItems.find((item) => item.options.length === 0) || menuItems[0];
+
+  const orderResult = await api('/api/orders', {
+    method: 'POST',
+    body: { tableToken: table.token, items: [{ productId: product.productId, quantity: 1 }] },
+  });
+  const order = orderResult.data;
+  suite.after(() => prisma.order.delete({ where: { id: order.id } }));
+
+  // Une serveuse qui teste aussi le menu client depuis son propre téléphone :
+  // navigateur unique, donc un seul abonnement push (meme endpoint) pour les
+  // deux usages.
+  const endpoint = `https://fcm.googleapis.com/fcm/send/${unique('partage')}`;
+  suite.after(() => prisma.pushSubscription.deleteMany({ where: { endpoint } }));
+
+  await suite.test('abonnement personnel puis client sur le même endpoint : les deux tiennent ensemble', async () => {
+    await api('/api/push/subscribe', {
+      method: 'POST',
+      token: server.token,
+      body: { endpoint, keys: { p256dh: 'clé-p256dh', auth: 'clé-auth' } },
+    });
+    await api('/api/push/subscribe-client', {
+      method: 'POST',
+      body: { trackingToken: order.trackingToken, endpoint, keys: { p256dh: 'clé-p256dh', auth: 'clé-auth' } },
+    });
+
+    const row = await prisma.pushSubscription.findUnique({ where: { endpoint } });
+    assert.equal(row.userId, server.user.id, 'le second abonnement ne doit pas effacer le premier');
+    assert.equal(row.orderId, order.id);
+  });
+
+  await suite.test(
+    "une diffusion « tout le personnel » ne cible que les abonnements du personnel",
+    async () => {
+      // Reproduit exactement la clause de push.service.js:sendPush pour le cas
+      // restaurantId seul (diffusion), sans dépendre d'un vrai envoi web-push.
+      const cibles = await prisma.pushSubscription.findMany({
+        where: { restaurantId, userId: { not: null } },
+        select: { endpoint: true },
+      });
+      assert.ok(cibles.some((s) => s.endpoint === endpoint));
+
+      const clientSeul = `https://fcm.googleapis.com/fcm/send/${unique('client-seul')}`;
+      await api('/api/push/subscribe-client', {
+        method: 'POST',
+        body: { trackingToken: order.trackingToken, endpoint: clientSeul, keys: { p256dh: 'x', auth: 'y' } },
+      });
+      suite.after(() => prisma.pushSubscription.deleteMany({ where: { endpoint: clientSeul } }));
+
+      const cibles2 = await prisma.pushSubscription.findMany({
+        where: { restaurantId, userId: { not: null } },
+        select: { endpoint: true },
+      });
+      assert.ok(
+        !cibles2.some((s) => s.endpoint === clientSeul),
+        'un abonnement client pur ne doit jamais recevoir une diffusion destinée au personnel'
+      );
+    }
+  );
+
+  await suite.test('désabonnement personnel : ne retire que la part personnel, le suivi client survit', async () => {
+    await api('/api/push/unsubscribe', { method: 'POST', token: server.token, body: { endpoint } });
+
+    const row = await prisma.pushSubscription.findUnique({ where: { endpoint } });
+    assert.ok(row, 'la ligne doit survivre : le suivi client est toujours actif');
+    assert.equal(row.userId, null);
+    assert.equal(row.orderId, order.id);
+  });
+});

@@ -92,7 +92,7 @@ export default function OrderTrackingPage() {
         <div className="mx-auto max-w-lg">
           <div className="flex items-center justify-between">
             <Link
-              to={order.table ? `/menu/table/${order.tableToken || ''}` : '/'}
+              to={order.table ? `/menu/table/${order.table.token || ''}` : '/'}
               onClick={(event) => {
                 event.preventDefault();
                 window.history.length > 1 ? window.history.back() : (window.location.href = '/');

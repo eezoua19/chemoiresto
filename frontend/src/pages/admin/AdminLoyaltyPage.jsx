@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Gift, Search, RefreshCw, History, PlusCircle, MinusCircle, Sparkles } from 'lucide-react';
+import {
+  Gift,
+  Search,
+  RefreshCw,
+  History,
+  PlusCircle,
+  MinusCircle,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { loyaltyApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -32,6 +42,7 @@ export default function AdminLoyaltyPage() {
   const [accounts, setAccounts] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(null);
@@ -45,7 +56,7 @@ export default function AdminLoyaltyPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const params = {};
+      const params = { page };
       if (search.trim()) params.search = search.trim();
       const result = await loyaltyApi.list(params);
       setAccounts(result.accounts);
@@ -55,7 +66,7 @@ export default function AdminLoyaltyPage() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, page]);
 
   useEffect(() => {
     load();
@@ -96,10 +107,19 @@ export default function AdminLoyaltyPage() {
   const ajuster = async (event) => {
     event.preventDefault();
     if (!adjustTarget) return;
+    const delta = Number(adjustForm.delta);
+    if (!delta) {
+      toast.error('Le montant ne peut pas être nul');
+      return;
+    }
+    if (adjustForm.note.trim().length < 3) {
+      toast.error('Motif trop court (3 caractères minimum)');
+      return;
+    }
     setSaving(true);
     try {
       await loyaltyApi.adjust(adjustTarget.id, {
-        delta: Number(adjustForm.delta),
+        delta,
         note: adjustForm.note.trim(),
       });
       toast.success('Points ajustés');
@@ -143,7 +163,10 @@ export default function AdminLoyaltyPage() {
             className="pl-9"
             placeholder="Rechercher par téléphone ou nom"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
           />
         </div>
         <Button variant="secondary" icon={RefreshCw} onClick={load}>
@@ -213,6 +236,29 @@ export default function AdminLoyaltyPage() {
         </div>
       )}
 
+      {pagination && pagination.pages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <Button
+            variant="secondary"
+            icon={ChevronLeft}
+            disabled={page <= 1}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            Précédent
+          </Button>
+          <span className="px-3 text-sm text-ink-600">
+            Page {pagination.page} sur {pagination.pages}
+          </span>
+          <Button
+            variant="secondary"
+            disabled={page >= pagination.pages}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Suivant <ChevronRight size={16} />
+          </Button>
+        </div>
+      )}
+
       {/* -------------------------- Historique ------------------------- */}
       <Modal open={Boolean(detail)} onClose={() => setDetail(null)} title={detail?.name || detail?.phone} size="lg">
         {detail && (
@@ -275,6 +321,7 @@ export default function AdminLoyaltyPage() {
           <Field label="Motif" required>
             <Textarea
               rows={2}
+              minLength={3}
               maxLength={300}
               value={adjustForm.note}
               onChange={(event) => setAdjustForm({ ...adjustForm, note: event.target.value })}

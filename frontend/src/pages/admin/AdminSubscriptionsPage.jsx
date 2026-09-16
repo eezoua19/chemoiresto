@@ -18,6 +18,8 @@ import {
   Users,
   CalendarClock,
   History,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { subscriptionApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
@@ -88,7 +90,8 @@ export default function AdminSubscriptionsPage() {
 
   const [stats, setStats] = useState(null);
   const [subscriptions, setSubscriptions] = useState([]);
-  const [filters, setFilters] = useState({ search: '', state: '' });
+  const [pagination, setPagination] = useState(null);
+  const [filters, setFilters] = useState({ search: '', state: '', page: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(null);
@@ -110,7 +113,7 @@ export default function AdminSubscriptionsPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const params = {};
+      const params = { page: filters.page };
       if (filters.search.trim()) params.search = filters.search.trim();
       if (filters.state) params.state = filters.state;
 
@@ -119,6 +122,7 @@ export default function AdminSubscriptionsPage() {
         subscriptionApi.stats(),
       ]);
       setSubscriptions(liste.subscriptions);
+      setPagination(liste.pagination);
       setStats(compteurs);
     } catch (err) {
       setError(err);
@@ -379,12 +383,12 @@ export default function AdminSubscriptionsPage() {
             className="pl-9"
             placeholder="Nom, téléphone ou numéro d'abonnement"
             value={filters.search}
-            onChange={(event) => setFilters({ ...filters, search: event.target.value })}
+            onChange={(event) => setFilters({ ...filters, search: event.target.value, page: 1 })}
           />
         </div>
         <Select
           value={filters.state}
-          onChange={(event) => setFilters({ ...filters, state: event.target.value })}
+          onChange={(event) => setFilters({ ...filters, state: event.target.value, page: 1 })}
         >
           {FILTRES.map((f) => (
             <option key={f.value} value={f.value}>
@@ -517,6 +521,29 @@ export default function AdminSubscriptionsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {pagination && pagination.pages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <Button
+            variant="secondary"
+            icon={ChevronLeft}
+            disabled={filters.page <= 1}
+            onClick={() => setFilters({ ...filters, page: filters.page - 1 })}
+          >
+            Précédent
+          </Button>
+          <span className="px-3 text-sm text-ink-600">
+            Page {pagination.page} sur {pagination.pages}
+          </span>
+          <Button
+            variant="secondary"
+            disabled={filters.page >= pagination.pages}
+            onClick={() => setFilters({ ...filters, page: filters.page + 1 })}
+          >
+            Suivant <ChevronRight size={16} />
+          </Button>
         </div>
       )}
 

@@ -6,3 +6,7 @@ dist/
 
 # Les sauvegardes contiennent les donnees du restaurant : jamais dans Git.
 backups/
+
+# Scaffold local genere par la CLI Railway (IaC) : la migration vers le code
+# reste en pause (voir memoire railway-iac-migration-bloquee), pas encore a commiter.
+.railway/

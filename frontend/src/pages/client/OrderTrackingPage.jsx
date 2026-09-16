@@ -5,7 +5,7 @@ import { publicApi } from '../../services/endpoints';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import useSocketRoom from '../../hooks/useSocketRoom';
 import useClientPushSubscription from '../../hooks/useClientPushSubscription';
-import OrderStatusTracker from '../../components/client/OrderStatusTracker';
+import OrderJourneyTracker from '../../components/client/OrderJourneyTracker';
 import Confettis from '../../components/client/Confettis';
 import TempsDAttente from '../../components/client/TempsDAttente';
 import LoyaltyCard from '../../components/client/LoyaltyCard';
@@ -132,7 +132,7 @@ export default function OrderTrackingPage() {
             <h2 className="font-semibold text-ink-900">Suivi</h2>
             <span className={`badge ${config.badge}`}>{config.clientLabel}</span>
           </div>
-          <OrderStatusTracker order={order} />
+          <OrderJourneyTracker order={order} />
           {order.server && (
             <p className="mt-4 rounded-xl bg-ink-50 px-4 py-2.5 text-sm text-ink-600">
               Votre serveuse : <span className="font-semibold text-ink-900">{order.server.firstName}</span>

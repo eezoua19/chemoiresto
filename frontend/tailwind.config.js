@@ -102,6 +102,12 @@ export default {
           '0%': { backgroundColor: '#fef3c7' },
           '100%': { backgroundColor: '#ffffff' },
         },
+        // Le marqueur du suivi de commande respire doucement sur son rail,
+        // comme un vehicule qui roule - pas un pion pose sur une case.
+        flotte: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-3px)' },
+        },
       },
       animation: {
         'slide-up': 'slide-up 0.25s ease-out',
@@ -122,6 +128,7 @@ export default {
         vapeur: 'vapeur 3.2s ease-in-out infinite',
         trace: 'trace 1.6s ease-in-out infinite alternate',
         reflet: 'reflet 4.5s ease-in-out infinite',
+        flotte: 'flotte 2.4s ease-in-out infinite',
       },
     },
   },

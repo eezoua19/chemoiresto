@@ -90,16 +90,24 @@ export default function OrderTrackingPage() {
         style={{ background: 'linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 100%)' }}
       >
         <div className="mx-auto max-w-lg">
-          <Link
-            to={order.table ? `/menu/table/${order.tableToken || ''}` : '/'}
-            onClick={(event) => {
-              event.preventDefault();
-              window.history.length > 1 ? window.history.back() : (window.location.href = '/');
-            }}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-white/85 hover:text-white"
-          >
-            <ArrowLeft size={16} /> Retour au menu
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link
+              to={order.table ? `/menu/table/${order.tableToken || ''}` : '/'}
+              onClick={(event) => {
+                event.preventDefault();
+                window.history.length > 1 ? window.history.back() : (window.location.href = '/');
+              }}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-white/85 hover:text-white"
+            >
+              <ArrowLeft size={16} /> Retour au menu
+            </Link>
+            <Link
+              to="/mes-commandes"
+              className="text-sm font-medium text-white/85 hover:text-white"
+            >
+              Mes commandes
+            </Link>
+          </div>
 
           <p className="mt-5 text-xs uppercase tracking-wide text-white/70">Votre commande</p>
           <h1 className="text-2xl font-extrabold">{order.orderNumber}</h1>

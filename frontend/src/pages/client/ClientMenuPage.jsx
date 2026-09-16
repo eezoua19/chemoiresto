@@ -13,6 +13,7 @@ import {
   Clock,
   PartyPopper,
   ChevronRight,
+  History,
 } from 'lucide-react';
 import { CartProvider, useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
@@ -31,6 +32,7 @@ import TempsDAttente from '../../components/client/TempsDAttente';
 import { Button, EmptyState, ErrorState, Footer, Modal } from '../../components/ui';
 import { formatLongDate, formatMoney } from '../../utils/format';
 import { ORDER_STATUS, ordersKey } from '../../utils/constants';
+import { enregistrerCommande } from '../../utils/orderHistory';
 import { applyBrandColor } from '../../utils/color';
 
 /** Le client peut relancer 90 s apres son appel, trois fois au plus. */
@@ -250,6 +252,21 @@ function ClientMenuContent({ token, service }) {
         // Stockage indisponible : le suivi reste possible via le lien affiche.
       }
 
+      // Et dans l'historique global, "Mes commandes" : celui-ci traverse les
+      // visites et les restaurants, contrairement au suivi ci-dessus qui ne
+      // sert qu'a cette table pour cette journee.
+      enregistrerCommande({
+        trackingToken: order.trackingToken,
+        orderNumber: order.orderNumber,
+        restaurantName: state.data.restaurant.name,
+        type: order.type,
+        tableLabel: emporter ? null : `Table ${state.data.table.number}`,
+        total: order.total,
+        currency: order.currency,
+        status: order.status,
+        createdAt: order.createdAt,
+      });
+
       const socket = getSocket();
       socket.emit('track_order', order.trackingToken);
 
@@ -369,10 +386,18 @@ function ClientMenuContent({ token, service }) {
                 {restaurant.name.slice(0, 2).toUpperCase()}
               </span>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h1 className="truncate text-xl font-bold">{restaurant.name}</h1>
               <p className="text-sm text-white/80">{restaurant.welcomeMessage || 'Bienvenue !'}</p>
             </div>
+            <Link
+              to="/mes-commandes"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white transition hover:bg-white/25"
+              title="Mes commandes"
+              aria-label="Mes commandes"
+            >
+              <History size={19} />
+            </Link>
           </div>
 
           <div className="mt-5 flex animate-entree items-center justify-between rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">

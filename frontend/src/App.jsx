@@ -10,6 +10,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import ClientMenuPage from './pages/client/ClientMenuPage';
 import SubscriptionCheckPage from './pages/SubscriptionCheckPage';
 import OrderTrackingPage from './pages/client/OrderTrackingPage';
+import MesCommandesPage from './pages/client/MesCommandesPage';
 
 import ServerDashboardPage from './pages/server/ServerDashboardPage';
 import ServerMenuPage from './pages/server/ServerMenuPage';
@@ -47,6 +48,7 @@ export default function App() {
       <Route path="/menu/table/:token" element={<ClientMenuPage />} />
       <Route path="/menu/emporter/:token" element={<ClientMenuPage service="TAKEAWAY" />} />
       <Route path="/commande/:trackingToken" element={<OrderTrackingPage />} />
+      <Route path="/mes-commandes" element={<MesCommandesPage />} />
 
       {/* ------ Verification d'un ticket d'abonnement (personnel) ------ */}
       <Route

@@ -17,6 +17,7 @@ export default function CartSheet({
   currency,
   destination,
   takeaway = false,
+  loyaltyEnabled = false,
   onConfirm,
   submitting,
 }) {
@@ -43,7 +44,7 @@ export default function CartSheet({
     if (nomManquant) return;
     onConfirm({
       customerName: customerName.trim(),
-      customerPhone: takeaway ? customerPhone.trim() : '',
+      customerPhone: customerPhone.trim(),
       comment: comment.trim(),
     });
   };
@@ -215,26 +216,28 @@ export default function CartSheet({
                 )}
               </div>
 
-              {takeaway && (
-                <div>
-                  <label className="label" htmlFor="customer-phone">
-                    Votre numéro (facultatif)
-                  </label>
-                  <input
-                    id="customer-phone"
-                    className="input"
-                    type="tel"
-                    inputMode="tel"
-                    maxLength={30}
-                    placeholder="Ex : 07 00 00 00 00"
-                    value={customerPhone}
-                    onChange={(event) => setCustomerPhone(event.target.value)}
-                  />
-                  <p className="mt-1 text-xs text-ink-500">
-                    Pour vous prévenir si vous n&apos;êtes pas la quand c&apos;est prêt.
-                  </p>
-                </div>
-              )}
+              <div>
+                <label className="label" htmlFor="customer-phone">
+                  Votre numéro (facultatif)
+                </label>
+                <input
+                  id="customer-phone"
+                  className="input"
+                  type="tel"
+                  inputMode="tel"
+                  maxLength={30}
+                  placeholder="Ex : 07 00 00 00 00"
+                  value={customerPhone}
+                  onChange={(event) => setCustomerPhone(event.target.value)}
+                />
+                <p className="mt-1 text-xs text-ink-500">
+                  {takeaway
+                    ? "Pour vous prévenir si vous n'êtes pas la quand c'est prêt."
+                    : loyaltyEnabled
+                      ? 'Pour cumuler vos points fidélité.'
+                      : "Pour vous prévenir en cas de besoin."}
+                </p>
+              </div>
 
               <div>
                 <label className="label" htmlFor="order-comment">

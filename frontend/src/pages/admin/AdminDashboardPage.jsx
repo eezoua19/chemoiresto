@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   TrendingUp,
+  Star,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -142,7 +143,7 @@ export default function AdminDashboardPage() {
       </Card>
 
       {period && (
-        <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <StatCard label="Commandes du mois" value={period.orders} icon={ShoppingBag} tone="brand" />
           <StatCard
             label="Chiffre d'affaires"
@@ -167,6 +168,13 @@ export default function AdminDashboardPage() {
                 ? `Meilleur jour : ${formatShortDate(period.bestDay.date)}`
                 : undefined
             }
+          />
+          <StatCard
+            label="Note moyenne"
+            value={period.averageRating ? `${period.averageRating} / 5` : '—'}
+            icon={Star}
+            tone="indigo"
+            hint={period.reviewsCount ? `${period.reviewsCount} avis` : 'Aucun avis ce mois-ci'}
           />
         </div>
       )}

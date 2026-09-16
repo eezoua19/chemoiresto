@@ -18,6 +18,9 @@ const auditRoutes = require('./audit.routes');
 const closingRoutes = require('./closing.routes');
 const resetRoutes = require('./reset.routes');
 const setupRoutes = require('./setup.routes');
+const loyaltyRoutes = require('./loyalty.routes');
+const reviewRoutes = require('./review.routes');
+const pushRoutes = require('./push.routes');
 
 const { journalMiddleware } = require('../middleware/journal');
 
@@ -51,5 +54,8 @@ router.use('/audit', auditRoutes);
 router.use('/closings', closingRoutes);
 router.use('/reset', resetRoutes);
 router.use('/setup', setupRoutes);
+router.use('/loyalty', loyaltyRoutes);
+router.use('/reviews', reviewRoutes);
+router.use('/push', pushRoutes);
 
 module.exports = router;

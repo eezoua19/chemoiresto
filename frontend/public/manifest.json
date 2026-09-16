@@ -1,0 +1,8 @@
+{
+  "name": "CHEMOIRESTO",
+  "short_name": "CHEMOIRESTO",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E4572E"
+}

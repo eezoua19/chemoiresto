@@ -18,6 +18,7 @@ import { annonceCommande, annonceDemande, annonceRappel } from '../utils/announc
 import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
+import PushSubscribeToggle from '../components/PushSubscribeToggle';
 import { initials } from '../utils/format';
 import { applyBrandColor } from '../utils/color';
 
@@ -111,6 +112,7 @@ export default function ServerLayout() {
             <p className="truncate text-xs text-ink-500">{restaurant?.name}</p>
           </div>
 
+          <PushSubscribeToggle />
           <NotificationBell />
 
           <span className="hidden h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700 sm:flex">

@@ -228,6 +228,19 @@ const DESCRIPTEURS = {
     entity: 'Cloture',
     label: (req) => `Journée du ${enFrancais(req.params.date)} clôturée à la main`,
   },
+
+  // ------------------------------- Fidélité -------------------------------
+  'POST /loyalty/:id/adjust': {
+    action: 'POINTS_AJUSTES',
+    entity: 'Fidelite',
+    label: (req, data) =>
+      `Points ajustés pour ${data?.phone || `#${req.params.id}`} : nouveau solde ${data?.points ?? '?'}`,
+  },
+  'POST /loyalty/:id/redeem': {
+    action: 'RECOMPENSE_UTILISEE',
+    entity: 'Fidelite',
+    label: (req, data) => `Récompense validée pour ${data?.phone || `#${req.params.id}`}`,
+  },
 };
 
 /** "DELETE /products/:id" a partir de la requete, une fois le routage fait. */

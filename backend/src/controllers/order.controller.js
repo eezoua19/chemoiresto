@@ -15,6 +15,7 @@ const {
 } = require('../services/order.service');
 const { loadTableByToken, loadRestaurantByTakeawayToken } = require('./public.controller');
 const { createNotification } = require('../services/notification.service');
+const { awardForOrder } = require('../services/loyalty.service');
 const { emitToStaff, emitToUser, emitToOrder, emitToTable } = require('../sockets');
 
 /** Événement Socket.IO associe à chaque statut. */
@@ -72,7 +73,10 @@ const create = asyncHandler(async (req, res) => {
     subtotal,
     total,
     customerName,
-    customerPhone: emporter ? customerPhone : null,
+    // Autrefois reserve a l'emporter (pour prevenir le client). Le programme
+    // de fidelite en a maintenant besoin aussi a table ; le champ reste
+    // facultatif cote client dans les deux cas.
+    customerPhone,
     comment,
   });
 
@@ -271,7 +275,10 @@ const detail = asyncHandler(async (req, res) => {
 const updateStatus = asyncHandler(async (req, res) => {
   const order = await prisma.order.findFirst({
     where: { id: req.params.id, restaurantId: req.user.restaurantId },
-    include: { table: true },
+    include: {
+      table: true,
+      restaurant: { select: { id: true, loyaltyEnabled: true, loyaltyRewardThreshold: true } },
+    },
   });
   if (!order) throw ApiError.notFound('Commande introuvable');
 
@@ -284,6 +291,12 @@ const updateStatus = asyncHandler(async (req, res) => {
 
   const updated = await changeStatus({ order, nextStatus: status, user: req.user, comment });
   const payload = serializeOrder(updated);
+
+  if (status === 'SERVED') {
+    await awardForOrder(order, order.restaurant).catch((error) => {
+      console.error('[FIDELITE] attribution des points échouée :', error.message);
+    });
+  }
 
   // Temps réel : personnel + client suivant la commande + table.
   emitToStaff(order.restaurantId, 'order_updated', payload);

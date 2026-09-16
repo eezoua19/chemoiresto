@@ -5,6 +5,7 @@ const { success } = require('../utils/response');
 const { today, formatDate } = require('../utils/helpers');
 const { getMenuByDate, serializeMenuForClient } = require('../services/menu.service');
 const { serializeOrderForClient, orderInclude } = require('../services/order.service');
+const { findAccountByPhone } = require('../services/loyalty.service');
 
 /**
  * Charge une table à partir de son jeton QR Code et vérifie qu'elle est active.
@@ -60,6 +61,8 @@ function ficheRestaurant(restaurant) {
     primaryColor: restaurant.primaryColor,
     welcomeMessage: restaurant.welcomeMessage,
     openingHours: restaurant.openingHours,
+    loyaltyEnabled: restaurant.loyaltyEnabled,
+    loyaltyRewardLabel: restaurant.loyaltyRewardLabel,
   };
 }
 
@@ -152,7 +155,37 @@ const trackOrder = asyncHandler(async (req, res) => {
   });
   if (!order) throw ApiError.notFound('Commande introuvable');
 
-  return success(res, serializeOrderForClient(order), 'Commande récupérée');
+  const payload = serializeOrderForClient(order);
+
+  // Fidélité et avis ne concernent le client qu'une fois la commande servie :
+  // avant, il n'y a rien à afficher et la requête supplémentaire est évitée.
+  if (order.status === 'SERVED') {
+    const review = await prisma.review.findUnique({
+      where: { orderId: order.id },
+      select: { rating: true, comment: true },
+    });
+    payload.review = review || null;
+
+    if (order.customerPhone) {
+      const restaurant = await prisma.restaurant.findUnique({
+        where: { id: order.restaurantId },
+        select: { loyaltyEnabled: true, loyaltyRewardThreshold: true, loyaltyRewardLabel: true },
+      });
+      if (restaurant.loyaltyEnabled) {
+        const account = await findAccountByPhone(order.restaurantId, order.customerPhone);
+        payload.loyalty = account
+          ? {
+              points: account.points,
+              rewardsAvailable: account.rewardsAvailable,
+              threshold: restaurant.loyaltyRewardThreshold,
+              rewardLabel: restaurant.loyaltyRewardLabel,
+            }
+          : null;
+      }
+    }
+  }
+
+  return success(res, payload, 'Commande récupérée');
 });
 
 module.exports = {

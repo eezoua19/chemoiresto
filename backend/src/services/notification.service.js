@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const { emitToStaff, emitToUser } = require('../sockets');
+const { sendPush } = require('./push.service');
 
 /**
  * Crée une notification persistante et la pousse en temps réel.
@@ -27,6 +28,13 @@ async function createNotification({ restaurantId, userId = null, type, title, bo
 
   if (userId) emitToUser(userId, 'notification', payload);
   else emitToStaff(restaurantId, 'notification', payload);
+
+  // Meme evenement, second canal : recu meme si l'onglet est ferme. Sans
+  // await volontairement - un envoi push lent ne doit jamais retarder la
+  // reponse HTTP de l'action qui a declenche la notification.
+  sendPush({ restaurantId, userId, payload: { title, body } }).catch((error) => {
+    console.error('[PUSH] déclenchement échoué :', error.message);
+  });
 
   return notification;
 }

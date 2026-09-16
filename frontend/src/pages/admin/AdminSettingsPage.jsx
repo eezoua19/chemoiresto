@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Settings, Save, Upload, X, ShoppingBag, Copy, Printer } from 'lucide-react';
+import { Settings, Save, Upload, X, ShoppingBag, Copy, Printer, Gift } from 'lucide-react';
 import { restaurantApi } from '../../services/endpoints';
 import { printTakeawayPoster } from '../../components/orders/printOrder';
 import { imageUrl } from '../../services/api';
@@ -48,6 +48,9 @@ export default function AdminSettingsPage() {
         openingHours: restaurant.openingHours || '',
         primaryColor: restaurant.primaryColor || '#E4572E',
         welcomeMessage: restaurant.welcomeMessage || '',
+        loyaltyEnabled: restaurant.loyaltyEnabled || false,
+        loyaltyRewardThreshold: restaurant.loyaltyRewardThreshold || 10,
+        loyaltyRewardLabel: restaurant.loyaltyRewardLabel || '',
       });
       setTakeaway(restaurant.takeaway || null);
       setLogoPreview(restaurant.logo ? imageUrl(restaurant.logo) : null);
@@ -273,6 +276,46 @@ export default function AdminSettingsPage() {
               >
                 Aperçu de la couleur
               </div>
+            </div>
+          </Card>
+
+          <Card>
+            <CardHeader
+              title="Programme de fidélité"
+              subtitle="Un point par commande servie, une récompense tous les N points"
+              icon={Gift}
+            />
+            <div className="space-y-4 p-5">
+              <Toggle
+                checked={form.loyaltyEnabled}
+                onChange={(value) => setForm({ ...form, loyaltyEnabled: value })}
+                label={form.loyaltyEnabled ? 'Activé' : 'Désactivé'}
+              />
+
+              {form.loyaltyEnabled && (
+                <>
+                  <Field label="Récompense tous les..." hint="Nombre de commandes servies avant une récompense">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={1000}
+                      value={form.loyaltyRewardThreshold}
+                      onChange={(event) =>
+                        setForm({ ...form, loyaltyRewardThreshold: event.target.value })
+                      }
+                    />
+                  </Field>
+
+                  <Field label="Récompense proposée">
+                    <Input
+                      maxLength={120}
+                      placeholder="Ex : Un plat offert"
+                      value={form.loyaltyRewardLabel}
+                      onChange={(event) => setForm({ ...form, loyaltyRewardLabel: event.target.value })}
+                    />
+                  </Field>
+                </>
+              )}
             </div>
           </Card>
         </div>

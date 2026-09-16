@@ -25,6 +25,12 @@ const env = {
   uploadsDir: path.resolve(__dirname, '../../uploads'),
   isProduction: (process.env.NODE_ENV || 'development') === 'production',
   isTest: process.env.NODE_ENV === 'test',
+  // Notifications push : facultatives. Tant qu'elles ne sont pas configurees,
+  // push.service.js n'envoie simplement rien - le reste de l'app fonctionne
+  // sans (le temps reel Socket.IO existant n'en depend pas).
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY || null,
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY || null,
+  vapidSubject: process.env.VAPID_SUBJECT || null,
 };
 
 module.exports = env;

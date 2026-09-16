@@ -203,3 +203,23 @@ export const restaurantApi = {
     api.put('/restaurant', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(unwrap),
   setTakeaway: (payload) => api.patch('/restaurant/emporter', payload).then(unwrap),
 };
+
+// -------------------------------- Fidélité ---------------------------------
+export const loyaltyApi = {
+  list: (params) => api.get('/loyalty', { params }).then(unwrap),
+  detail: (id) => api.get(`/loyalty/${id}`).then(unwrap),
+  redeem: (id) => api.post(`/loyalty/${id}/redeem`).then(unwrap),
+  adjust: (id, payload) => api.post(`/loyalty/${id}/adjust`, payload).then(unwrap),
+};
+
+// ---------------------------------- Avis ------------------------------------
+export const reviewApi = {
+  create: (payload) => api.post('/reviews', payload).then(unwrap),
+  list: (params) => api.get('/reviews', { params }).then(unwrap),
+};
+
+// ----------------------------- Notifications push ---------------------------
+export const pushApi = {
+  subscribe: (subscription) => api.post('/push/subscribe', subscription).then(unwrap),
+  unsubscribe: (endpoint) => api.post('/push/unsubscribe', { endpoint }).then((r) => r.data),
+};

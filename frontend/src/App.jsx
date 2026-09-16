@@ -33,6 +33,8 @@ import AdminSubscriptionsPage from './pages/admin/AdminSubscriptionsPage';
 import AdminJournalPage from './pages/admin/AdminJournalPage';
 import AdminClosingsPage from './pages/admin/AdminClosingsPage';
 import AdminBackupsPage from './pages/admin/AdminBackupsPage';
+import AdminLoyaltyPage from './pages/admin/AdminLoyaltyPage';
+import AdminReviewsPage from './pages/admin/AdminReviewsPage';
 
 export default function App() {
   return (
@@ -95,6 +97,8 @@ export default function App() {
         <Route path="historique" element={<AdminHistoryPage />} />
         <Route path="statistiques" element={<AdminStatsPage />} />
         <Route path="abonnements" element={<AdminSubscriptionsPage />} />
+        <Route path="fidelite" element={<AdminLoyaltyPage />} />
+        <Route path="avis" element={<AdminReviewsPage />} />
         <Route path="clotures" element={<AdminClosingsPage />} />
         <Route path="journal" element={<AdminJournalPage />} />
         <Route path="sauvegardes" element={<AdminBackupsPage />} />

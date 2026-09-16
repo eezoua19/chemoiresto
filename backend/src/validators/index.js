@@ -302,6 +302,9 @@ const updateRestaurantSchema = z.object({
     .regex(/^#[0-9a-fA-F]{6}$/, 'Couleur attendue au format #RRGGBB')
     .optional(),
   welcomeMessage: optionalText(300),
+  loyaltyEnabled: booleanish.optional(),
+  loyaltyRewardThreshold: z.coerce.number().int().min(1).max(1000).optional(),
+  loyaltyRewardLabel: optionalText(120),
 });
 
 // z.boolean() et non z.coerce.boolean() : la coercition transformerait la
@@ -376,6 +379,55 @@ const subscriptionsQuerySchema = z.object({
   state: z.enum(['VALIDE', 'EXPIRE', 'SUSPENDU', 'INACTIF', 'BIENTOT']).optional(),
   page: z.coerce.number().int().min(1).optional().default(1),
   pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
+});
+
+// ---------------------------------------------------------------------------
+// Fidélité
+// ---------------------------------------------------------------------------
+
+const loyaltyAdjustSchema = z.object({
+  delta: z.coerce.number().int().refine((v) => v !== 0, 'Le montant ne peut pas être nul'),
+  note: trimmed(3, 300, 'Motif'),
+});
+
+const loyaltyQuerySchema = z.object({
+  search: z.string().trim().max(80).optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
+});
+
+// ---------------------------------------------------------------------------
+// Avis
+// ---------------------------------------------------------------------------
+
+const createReviewSchema = z.object({
+  trackingToken: jetonClient,
+  rating: z.coerce.number().int().min(1, 'Note minimale : 1').max(5, 'Note maximale : 5'),
+  comment: optionalText(1000),
+});
+
+const reviewsQuerySchema = z.object({
+  rating: z.coerce.number().int().min(1).max(5).optional(),
+  from: dateString.optional(),
+  to: dateString.optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(200).optional().default(50),
+});
+
+// ---------------------------------------------------------------------------
+// Notifications push
+// ---------------------------------------------------------------------------
+
+const pushSubscribeSchema = z.object({
+  endpoint: z.string().trim().url('Endpoint invalide').max(500),
+  keys: z.object({
+    p256dh: trimmed(1, 255, 'Clé p256dh'),
+    auth: trimmed(1, 255, 'Clé auth'),
+  }),
+});
+
+const pushUnsubscribeSchema = z.object({
+  endpoint: z.string().trim().url('Endpoint invalide').max(500),
 });
 
 // ---------------------------------------------------------------------------
@@ -473,4 +525,10 @@ module.exports = {
   closingsQuerySchema,
   resetSchema,
   orderEstimateSchema,
+  loyaltyAdjustSchema,
+  loyaltyQuerySchema,
+  createReviewSchema,
+  reviewsQuerySchema,
+  pushSubscribeSchema,
+  pushUnsubscribeSchema,
 };

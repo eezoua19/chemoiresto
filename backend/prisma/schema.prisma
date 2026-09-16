@@ -98,6 +98,13 @@ enum SubscriptionUsageType {
   AUTRE
 }
 
+enum LoyaltyTransactionType {
+  EARN
+  REWARD_GRANTED
+  REWARD_REDEEMED
+  ADJUST
+}
+
 // ----------------------------- RESTAURANT ----------------------------------
 
 model Restaurant {
@@ -121,6 +128,13 @@ model Restaurant {
   takeawayEnabled Boolean @default(false)
   takeawayToken   String? @unique
 
+  // Programme de fidelite. Desactive par defaut : un restaurant qui ne
+  // collecte pas de telephone client n'a de toute facon aucun compte a
+  // rattacher aux commandes.
+  loyaltyEnabled         Boolean @default(false)
+  loyaltyRewardThreshold Int     @default(10)
+  loyaltyRewardLabel     String? @db.VarChar(120)
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -138,6 +152,10 @@ model Restaurant {
   auditLogs       AuditLog[]
   snapshots       BackupSnapshot[]
   closings        DailyClosing[]
+  loyaltyAccounts     LoyaltyAccount[]
+  loyaltyTransactions LoyaltyTransaction[]
+  reviews             Review[]
+  pushSubscriptions   PushSubscription[]
 }
 
 // -------------------------------- USER -------------------------------------
@@ -164,6 +182,8 @@ model User {
   subscriptionsCreated Subscription[]      @relation("SubscriptionAuthor")
   subscriptionUsages   SubscriptionUsage[] @relation("SubscriptionUsageAuthor")
   auditLogs            AuditLog[]          @relation("AuditAuthor")
+  loyaltyTransactions  LoyaltyTransaction[] @relation("LoyaltyTransactionAuthor")
+  pushSubscriptions    PushSubscription[]
 
   @@index([restaurantId])
 }
@@ -373,6 +393,8 @@ model Order {
   items         OrderItem[]
   statusHistory OrderStatusHistory[]
   subscriptionUsages SubscriptionUsage[]
+  review              Review?
+  loyaltyTransactions LoyaltyTransaction[]
 
   @@index([restaurantId])
   @@index([tableId])
@@ -531,6 +553,93 @@ model SubscriptionUsage {
   @@index([restaurantId])
   @@index([subscriptionId])
   @@index([createdAt])
+}
+
+// ------------------------------- FIDELITE -----------------------------------
+
+// Un compte par (restaurant, telephone). Comme les abonnements, aucun mot de
+// passe : le client n'a que son numero, tape a la commande, comme preuve.
+model LoyaltyAccount {
+  id               Int      @id @default(autoincrement())
+  restaurantId     Int
+  phone            String
+  name             String?
+  points           Int      @default(0)
+  rewardsAvailable Int      @default(0)
+  rewardsRedeemed  Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  restaurant   Restaurant           @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  transactions LoyaltyTransaction[]
+
+  @@unique([restaurantId, phone])
+  @@index([restaurantId])
+}
+
+// Une ligne par mouvement : gain a une commande servie, recompense debloquee,
+// recompense utilisee en salle, ajustement manuel. Meme logique que
+// SubscriptionUsage/AuditLog : l'historique doit rester lisible meme apres
+// coup, pas seulement le solde courant.
+model LoyaltyTransaction {
+  id               Int                    @id @default(autoincrement())
+  restaurantId     Int
+  loyaltyAccountId Int
+  orderId          Int?
+  userId           Int?
+  type             LoyaltyTransactionType
+  points           Int
+  note             String?                @db.Text
+  createdAt        DateTime               @default(now())
+
+  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  loyaltyAccount LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+  order          Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  user           User?          @relation("LoyaltyTransactionAuthor", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([restaurantId])
+  @@index([loyaltyAccountId])
+}
+
+// -------------------------------- AVIS --------------------------------------
+
+// Un avis par commande (contrainte unique sur orderId) : uniquement possible
+// une fois la commande SERVED, cote controller.
+model Review {
+  id           Int      @id @default(autoincrement())
+  restaurantId Int
+  orderId      Int      @unique
+  rating       Int
+  comment      String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  order      Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@index([rating])
+}
+
+// --------------------------- NOTIFICATIONS PUSH ------------------------------
+
+// Un abonnement Web Push par navigateur/appareil ou le personnel a accepte les
+// notifications. Un utilisateur peut en avoir plusieurs (telephone + poste
+// fixe). Nettoye automatiquement si l'endpoint est revoque (404/410).
+model PushSubscription {
+  id           Int      @id @default(autoincrement())
+  restaurantId Int
+  userId       Int
+  endpoint     String   @unique @db.VarChar(500)
+  p256dh       String   @db.VarChar(255)
+  auth         String   @db.VarChar(255)
+  userAgent    String?  @db.VarChar(255)
+  createdAt    DateTime @default(now())
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@index([userId])
 }
 
 // ------------------------------- JOURNAL -----------------------------------

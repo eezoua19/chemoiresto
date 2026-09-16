@@ -40,4 +40,19 @@ const serviceRequestLimiter = rateLimit({
   message: { success: false, message: 'Votre demande a déjà été envoyée. Patientez un instant.' },
 });
 
-module.exports = { globalLimiter, loginLimiter, orderLimiter, serviceRequestLimiter };
+/** Anti-spam sur les avis : un client ne note qu'une fois par commande de toute facon. */
+const reviewLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: env.isProduction ? 6 : 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Trop de requêtes, veuillez patienter un instant' },
+});
+
+module.exports = {
+  globalLimiter,
+  loginLimiter,
+  orderLimiter,
+  serviceRequestLimiter,
+  reviewLimiter,
+};

@@ -20,6 +20,8 @@ import {
   Menu as MenuIcon,
   X,
   ChefHat,
+  Gift,
+  Star,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -30,6 +32,7 @@ import { annonceCommande, annonceDemande, annonceRappel } from '../utils/announc
 import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
+import PushSubscribeToggle from '../components/PushSubscribeToggle';
 import { initials } from '../utils/format';
 import { applyBrandColor } from '../utils/color';
 
@@ -43,6 +46,8 @@ const LINKS = [
   { to: '/admin/qrcodes', label: 'QR Codes', icon: QrCode },
   { to: '/admin/serveuses', label: 'Serveuses', icon: Users },
   { to: '/admin/abonnements', label: 'Abonnements', icon: BadgeCheck },
+  { to: '/admin/fidelite', label: 'Fidélité', icon: Gift },
+  { to: '/admin/avis', label: 'Avis', icon: Star },
   { to: '/admin/historique', label: 'Historique', icon: History },
   { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
   { to: '/admin/clotures', label: 'Clôtures', icon: CalendarCheck },
@@ -185,6 +190,7 @@ export default function AdminLayout() {
           </button>
 
           <div className="ml-auto flex items-center gap-1">
+            <PushSubscribeToggle />
             <NotificationBell />
           </div>
         </header>

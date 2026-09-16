@@ -73,6 +73,9 @@ const update = asyncHandler(async (req, res) => {
     'openingHours',
     'primaryColor',
     'welcomeMessage',
+    'loyaltyEnabled',
+    'loyaltyRewardThreshold',
+    'loyaltyRewardLabel',
   ];
 
   for (const field of fields) {

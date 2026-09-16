@@ -7,6 +7,8 @@ import useSocketRoom from '../../hooks/useSocketRoom';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
 import Confettis from '../../components/client/Confettis';
 import TempsDAttente from '../../components/client/TempsDAttente';
+import LoyaltyCard from '../../components/client/LoyaltyCard';
+import ReviewForm from '../../components/client/ReviewForm';
 import { EmptyState, ErrorState, Footer, LoadingState } from '../../components/ui';
 import { formatDateTime, formatMoney } from '../../utils/format';
 import { ORDER_STATUS } from '../../utils/constants';
@@ -170,6 +172,17 @@ export default function OrderTrackingPage() {
             <span>{formatMoney(order.total, order.currency)}</span>
           </div>
         </section>
+
+        {order.status === 'SERVED' && (
+          <section className="animate-entree space-y-3" style={{ animationDelay: '150ms' }}>
+            <LoyaltyCard loyalty={order.loyalty} />
+            <ReviewForm
+              trackingToken={trackingToken}
+              review={order.review}
+              onSubmitted={(review) => setOrder((current) => ({ ...current, review }))}
+            />
+          </section>
+        )}
       </div>
 
       <Footer />

@@ -128,6 +128,11 @@ const stats = asyncHandler(async (req, res) => {
     status: { not: 'CANCELLED' },
   };
 
+  const [avisAgregat, avisParNote] = await Promise.all([
+    prisma.review.aggregate({ where: { order: surLaPeriode }, _avg: { rating: true }, _count: { _all: true } }),
+    prisma.review.groupBy({ by: ['rating'], where: { order: surLaPeriode }, _count: { _all: true } }),
+  ]);
+
   const topItems = await prisma.orderItem.groupBy({
     by: ['productName'],
     where: { order: surLaPeriode },
@@ -220,6 +225,12 @@ const stats = asyncHandler(async (req, res) => {
         daysWithService: journees.filter((jour) => jour.orders > 0).length,
         daysInMonth: nombreDeJours,
         bestDay: meilleurJour && meilleurJour.revenue > 0 ? meilleurJour : null,
+        averageRating: avisAgregat._avg.rating ? Math.round(avisAgregat._avg.rating * 10) / 10 : null,
+        reviewsCount: avisAgregat._count._all,
+        ratingDistribution: [5, 4, 3, 2, 1].map((rating) => ({
+          rating,
+          count: avisParNote.find((g) => g.rating === rating)?._count._all || 0,
+        })),
       },
       today: {
         date: formatDate(today()),

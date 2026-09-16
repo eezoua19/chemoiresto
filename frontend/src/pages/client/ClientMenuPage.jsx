@@ -689,6 +689,7 @@ function ClientMenuContent({ token, service }) {
         currency={currency}
         destination={emporter ? 'À emporter' : `Table ${table.number}`}
         takeaway={emporter}
+        loyaltyEnabled={restaurant.loyaltyEnabled}
         onConfirm={handleConfirmOrder}
         submitting={submitting}
       />

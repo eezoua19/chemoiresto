@@ -26,7 +26,19 @@ const login = asyncHandler(async (req, res) => {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { restaurant: { select: { id: true, name: true, slug: true, currency: true, logo: true, primaryColor: true } } },
+    include: {
+      restaurant: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          currency: true,
+          logo: true,
+          primaryColor: true,
+          loyaltyEnabled: true,
+        },
+      },
+    },
   });
 
   // Message volontairement identique pour ne pas reveler l'existence du compte.
@@ -54,7 +66,15 @@ const login = asyncHandler(async (req, res) => {
 const me = asyncHandler(async (req, res) => {
   const restaurant = await prisma.restaurant.findUnique({
     where: { id: req.user.restaurantId },
-    select: { id: true, name: true, slug: true, currency: true, logo: true, primaryColor: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      currency: true,
+      logo: true,
+      primaryColor: true,
+      loyaltyEnabled: true,
+    },
   });
   return success(res, { user: publicUser(req.user), restaurant }, 'Profil récupéré');
 });

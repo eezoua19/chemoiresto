@@ -46,7 +46,7 @@ const LINKS = [
   { to: '/admin/qrcodes', label: 'QR Codes', icon: QrCode },
   { to: '/admin/serveuses', label: 'Serveuses', icon: Users },
   { to: '/admin/abonnements', label: 'Abonnements', icon: BadgeCheck },
-  { to: '/admin/fidelite', label: 'Fidélité', icon: Gift },
+  // Fidélité : insérée dynamiquement, uniquement si activée (voir Paramètres).
   { to: '/admin/avis', label: 'Avis', icon: Star },
   { to: '/admin/historique', label: 'Historique', icon: History },
   { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
@@ -56,6 +56,8 @@ const LINKS = [
   { to: '/admin/parametres', label: 'Paramètres', icon: Settings },
 ];
 
+const LOYALTY_LINK = { to: '/admin/fidelite', label: 'Fidélité', icon: Gift };
+
 export default function AdminLayout() {
   const { user, restaurant, logout } = useAuth();
   const toast = useToast();
@@ -64,6 +66,15 @@ export default function AdminLayout() {
   const playSound = useNotificationSound();
   const voice = useVoiceAnnouncer();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Le lien "Fidélité" n'apparaît que si le programme est activé dans les
+  // paramètres : inutile de montrer un onglet vide à un restaurant qui ne
+  // l'utilise pas.
+  const links = (() => {
+    if (!restaurant?.loyaltyEnabled) return LINKS;
+    const apres = LINKS.findIndex((link) => link.to === '/admin/abonnements') + 1;
+    return [...LINKS.slice(0, apres), LOYALTY_LINK, ...LINKS.slice(apres)];
+  })();
 
   // Applique la couleur du restaurant à toute l'interface.
   useEffect(() => {
@@ -131,7 +142,7 @@ export default function AdminLayout() {
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
-        {LINKS.map((link) => (
+        {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}

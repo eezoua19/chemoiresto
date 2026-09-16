@@ -7,7 +7,12 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <meta name="theme-color" content="#E4572E" />
-    <meta name="description" content="Menu digital et commande à table par QR Code" />
+    <meta
+      name="description"
+      content="Chémoiresto, restaurant, cave et épicerie à Cocody (Abidjan) : plats africains, confection de commandes et traiteur événementiel. Consultez le menu du jour et commandez à table par QR Code."
+    />
+    <meta name="keywords" content="Chémoiresto, restaurant Abidjan, plats africains, traiteur Cocody, cave et épicerie, menu du jour, commande QR code" />
+    <link rel="canonical" href="https://chemoiresto.vercel.app/" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
@@ -17,7 +22,48 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <title>Menu digital - Commande à table</title>
+    <title>Chémoiresto — Restaurant, traiteur & épicerie à Cocody, Abidjan</title>
+
+    <!-- Open Graph / reseaux sociaux -->
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:site_name" content="Chémoiresto" />
+    <meta property="og:title" content="Chémoiresto — Restaurant, traiteur & épicerie à Cocody, Abidjan" />
+    <meta
+      property="og:description"
+      content="Plats africains, cave et épicerie, traiteur événementiel. Le menu du jour se consulte et se commande directement à table, par QR Code."
+    />
+    <meta property="og:image" content="https://chemoiresto.vercel.app/icons/icon-512.png" />
+    <meta property="og:url" content="https://chemoiresto.vercel.app/" />
+    <meta property="og:locale" content="fr_CI" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- Donnees structurees : ce que Google affiche dans les resultats enrichis -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "Chémoiresto",
+        "image": "https://chemoiresto.vercel.app/icons/icon-512.png",
+        "url": "https://chemoiresto.vercel.app/",
+        "telephone": "+225 01 43 97 00 00",
+        "email": "contact@chemoiresto.ci",
+        "servesCuisine": "Africaine",
+        "priceRange": "$$",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rue Washington, Gare des Bâchées de Cocody",
+          "addressLocality": "Abidjan",
+          "addressRegion": "Cocody",
+          "addressCountry": "CI"
+        },
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "11:00",
+          "closes": "19:00"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

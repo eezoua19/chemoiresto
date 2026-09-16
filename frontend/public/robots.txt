@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /serveuse
+Disallow: /login
+Disallow: /menu/table/
+Disallow: /menu/emporter/
+Disallow: /commande/
+Disallow: /mes-commandes
+Disallow: /abonnement/
+
+Sitemap: https://chemoiresto.vercel.app/sitemap.xml

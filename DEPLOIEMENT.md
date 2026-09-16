@@ -221,23 +221,23 @@ NODE_OPTIONS="--require /chemin/vers/ascii-hostname.cjs" vercel login
 
 Le même préfixe est nécessaire pour `vercel link`, `vercel env` et `vercel deploy`.
 
-### Dépôt privé : auto-déploiement non branché
+### Auto-déploiement branché (depuis le 2026-09-16)
 
-`vercel link` n'a pas pu connecter le dépôt GitHub (`eezoua19/chemoiresto` est privé) :
+Le dépôt est repassé public et la Vercel GitHub App a été autorisée dessus
+(https://github.com/apps/vercel/installations/new) puis liée avec
+`vercel git connect`. Railway **et** Vercel redéploient désormais tous les
+deux automatiquement à chaque `git push origin main` — plus besoin du CLI
+Vercel pour un déploiement normal.
 
-```
-Failed to connect eezoua19/chemoiresto to project.
-```
+`vercel --prod` reste utile pour un déploiement ponctuel hors `main`
+(prévisualisation, hotfix testé avant merge).
 
-Les déploiements se font donc **depuis le CLI** :
-
-```bash
-cd frontend && vercel --prod
-```
-
-Pour activer le déploiement automatique à chaque `git push`, autorisez Vercel sur
-le dépôt (https://github.com/apps/vercel/installations/new), puis `vercel git connect`.
-C'est la même manipulation que celle déjà faite pour Railway.
+> Piège rencontré lors du branchement : `vercel git connect` échoue avec
+> `You need admin or write access to the repository ... (400)` juste après
+> avoir autorisé l'app GitHub, même si tout semble correct (compte, droits,
+> tableau de bord affichant "connecté"). C'est un simple délai de propagation
+> côté Vercel — réessayez la commande toutes les quelques minutes, pas besoin
+> de re-vérifier les permissions.
 
 ### Config as Code Railway
 

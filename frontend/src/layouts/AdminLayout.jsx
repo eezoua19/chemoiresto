@@ -122,6 +122,17 @@ export default function AdminLayout() {
     );
   });
 
+  // Une rupture declaree en salle : pas aussi urgent qu'un appel client, donc
+  // un simple toast (sans son ni voix) suffit - mais l'admin doit le savoir
+  // meme s'il n'a pas la page Produits ouverte.
+  useSocketEvent('product_availability', (changement) => {
+    if (changement.isAvailable) {
+      toast.success(`${changement.name} est de nouveau disponible`);
+    } else {
+      toast.warning(`${changement.name} : rupture déclarée en salle`);
+    }
+  });
+
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });

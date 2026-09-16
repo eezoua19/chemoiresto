@@ -18,6 +18,7 @@ import { categoryApi, productApi, menuApi } from '../../services/endpoints';
 import { imageUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import useSocketEvent from '../../hooks/useSocketEvent';
 import {
   Button,
   Card,
@@ -90,6 +91,17 @@ export default function AdminProductsPage() {
       setLoading(false);
     }
   }, []);
+
+  // Une rupture declaree en salle par une serveuse doit apparaitre ici sans
+  // qu'il faille recharger la page - meme evenement, meme logique que
+  // ServerMenuPage.jsx.
+  useSocketEvent('product_availability', (changement) => {
+    setProducts((current) =>
+      current.map((product) =>
+        product.id === changement.id ? { ...product, isAvailable: changement.isAvailable } : product
+      )
+    );
+  });
 
   useEffect(() => {
     load();

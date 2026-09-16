@@ -395,6 +395,7 @@ model Order {
   subscriptionUsages SubscriptionUsage[]
   review              Review?
   loyaltyTransactions LoyaltyTransaction[]
+  pushSubscriptions   PushSubscription[]
 
   @@index([restaurantId])
   @@index([tableId])
@@ -628,7 +629,11 @@ model Review {
 model PushSubscription {
   id           Int      @id @default(autoincrement())
   restaurantId Int
-  userId       Int
+  // Personnel : abonnement lie a un compte. Client : lie a la commande qu'il
+  // suit (pas de compte cote client), d'ou les deux champs facultatifs -
+  // exactement un des deux est rempli selon qui s'abonne.
+  userId       Int?
+  orderId      Int?
   endpoint     String   @unique @db.VarChar(500)
   p256dh       String   @db.VarChar(255)
   auth         String   @db.VarChar(255)
@@ -636,10 +641,12 @@ model PushSubscription {
   createdAt    DateTime @default(now())
 
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order      Order?     @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId])
   @@index([userId])
+  @@index([orderId])
 }
 
 // ------------------------------- JOURNAL -----------------------------------

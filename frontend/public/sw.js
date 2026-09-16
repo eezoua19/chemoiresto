@@ -27,18 +27,36 @@ self.addEventListener('push', (event) => {
       body: payload.body || '',
       tag: 'chemoiresto-notification',
       renotify: true,
+      data: payload.url ? { url: payload.url } : undefined,
     })
   );
 });
 
-/** Un clic sur la notification ramène au poste déjà ouvert, sinon en ouvre un. */
+/**
+ * Un clic sur la notification ramène au poste déjà ouvert, sinon en ouvre un.
+ * Notification du personnel (pas d'URL ciblée) : n'importe quel onglet ouvert
+ * convient, on ne le redirige pas. Notification client (data.url = jeton de
+ * suivi) : on cible cette page précise - un onglet déjà dessus est focus tel
+ * quel, un autre onglet ouvert y est redirigé, sinon on en ouvre un nouveau.
+ */
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  const url = event.notification.data?.url;
+
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-      const existing = clients.find((client) => 'focus' in client);
-      if (existing) return existing.focus();
-      return self.clients.openWindow('/');
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsList) => {
+      if (!url) {
+        const existing = clientsList.find((client) => 'focus' in client);
+        return existing ? existing.focus() : self.clients.openWindow('/');
+      }
+
+      const exact = clientsList.find((client) => new URL(client.url).pathname === url);
+      if (exact) return exact.focus();
+
+      const any = clientsList.find((client) => 'navigate' in client);
+      if (any) return any.focus().then(() => any.navigate(url));
+
+      return self.clients.openWindow(url);
     })
   );
 });

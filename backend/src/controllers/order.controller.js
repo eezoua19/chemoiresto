@@ -16,6 +16,7 @@ const {
 const { loadTableByToken, loadRestaurantByTakeawayToken } = require('./public.controller');
 const { createNotification } = require('../services/notification.service');
 const { awardForOrder } = require('../services/loyalty.service');
+const { sendPush } = require('../services/push.service');
 const { emitToStaff, emitToUser, emitToOrder, emitToTable } = require('../sockets');
 
 /** Événement Socket.IO associe à chaque statut. */
@@ -25,6 +26,19 @@ const STATUS_EVENT = {
   READY: 'order_ready',
   SERVED: 'order_served',
   CANCELLED: 'order_cancelled',
+};
+
+/**
+ * Notification push envoyee au client qui suit la commande, a chaque
+ * changement de statut - c'est le second canal (recu meme onglet ferme),
+ * miroir des evenements Socket.IO ci-dessus qui ne marchent qu'a l'ecran ouvert.
+ */
+const STATUS_PUSH = {
+  ACCEPTED: { title: 'Commande acceptée', body: 'Le restaurant prépare votre commande.' },
+  PREPARING: { title: 'En préparation', body: 'Votre commande est en cours de préparation.' },
+  READY: { title: 'Votre commande est prête !', body: 'Rendez-vous est pris, elle vous attend.' },
+  SERVED: { title: 'Bon appétit !', body: 'Votre commande a été servie.' },
+  CANCELLED: { title: 'Commande annulée', body: 'Votre commande a été annulée.' },
 };
 
 const STATUS_LABEL = {
@@ -305,6 +319,15 @@ const updateStatus = asyncHandler(async (req, res) => {
   emitToOrder(updated.trackingToken, STATUS_EVENT[status], serializeOrderForClient(updated));
   if (order.table) {
     emitToTable(order.table.token, 'order_status', serializeOrderForClient(updated));
+  }
+
+  const pushInfo = STATUS_PUSH[status];
+  if (pushInfo) {
+    sendPush({
+      restaurantId: order.restaurantId,
+      orderId: order.id,
+      payload: { ...pushInfo, url: `/commande/${updated.trackingToken}` },
+    }).catch((error) => console.error('[PUSH] notification client échouée :', error.message));
   }
 
   return success(res, payload, `Commande ${STATUS_LABEL[status].toLowerCase()}`);

@@ -4,6 +4,7 @@ import { ArrowLeft, ReceiptText } from 'lucide-react';
 import { publicApi } from '../../services/endpoints';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import useSocketRoom from '../../hooks/useSocketRoom';
+import useClientPushSubscription from '../../hooks/useClientPushSubscription';
 import OrderStatusTracker from '../../components/client/OrderStatusTracker';
 import Confettis from '../../components/client/Confettis';
 import TempsDAttente from '../../components/client/TempsDAttente';
@@ -38,6 +39,7 @@ export default function OrderTrackingPage() {
   }, [load]);
 
   useSocketRoom('track_order', trackingToken, 'untrack_order');
+  useClientPushSubscription(trackingToken);
 
   // Le moment qu'on attend : le plat est pret. On ne fete que le passage,
   // pas l'etat - rouvrir la page une heure plus tard ne doit pas relancer la

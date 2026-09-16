@@ -2,22 +2,7 @@ import { useEffect, useState } from 'react';
 import { Bell, BellOff } from 'lucide-react';
 import { pushApi } from '../services/endpoints';
 import { useToast } from '../context/ToastContext';
-
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-
-const SUPPORTED =
-  typeof window !== 'undefined' &&
-  'serviceWorker' in navigator &&
-  'PushManager' in window &&
-  Boolean(VAPID_PUBLIC_KEY);
-
-/** Une clé VAPID en base64 URL-safe, telle que l'API PushManager l'exige. */
-function base64ToUint8Array(base64) {
-  const padding = '='.repeat((4 - (base64.length % 4)) % 4);
-  const base64Safe = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(base64Safe);
-  return Uint8Array.from([...raw].map((char) => char.charCodeAt(0)));
-}
+import { PUSH_SUPPORTED as SUPPORTED, VAPID_PUBLIC_KEY, base64ToUint8Array } from '../utils/push';
 
 /**
  * Bouton "Activer les notifications" à côté de la cloche in-app.

@@ -430,6 +430,21 @@ const pushUnsubscribeSchema = z.object({
   endpoint: z.string().trim().url('Endpoint invalide').max(500),
 });
 
+// Cote client (pas de compte) : l'abonnement est rattache a la commande
+// suivie via son jeton, pas a un utilisateur.
+const pushSubscribeClientSchema = z.object({
+  trackingToken: jetonClient,
+  endpoint: z.string().trim().url('Endpoint invalide').max(500),
+  keys: z.object({
+    p256dh: trimmed(1, 255, 'Clé p256dh'),
+    auth: trimmed(1, 255, 'Clé auth'),
+  }),
+});
+
+const pushUnsubscribeClientSchema = z.object({
+  endpoint: z.string().trim().url('Endpoint invalide').max(500),
+});
+
 // ---------------------------------------------------------------------------
 // Journal des actions
 // ---------------------------------------------------------------------------
@@ -531,4 +546,6 @@ module.exports = {
   reviewsQuerySchema,
   pushSubscribeSchema,
   pushUnsubscribeSchema,
+  pushSubscribeClientSchema,
+  pushUnsubscribeClientSchema,
 };

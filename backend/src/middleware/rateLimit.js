@@ -49,10 +49,20 @@ const reviewLimiter = rateLimit({
   message: { success: false, message: 'Trop de requêtes, veuillez patienter un instant' },
 });
 
+/** Anti-spam sur l'abonnement push cote client : un appareil se (re)abonne, pas en boucle. */
+const pushClientLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: env.isProduction ? 10 : 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message,
+});
+
 module.exports = {
   globalLimiter,
   loginLimiter,
   orderLimiter,
   serviceRequestLimiter,
   reviewLimiter,
+  pushClientLimiter,
 };

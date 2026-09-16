@@ -222,4 +222,8 @@ export const reviewApi = {
 export const pushApi = {
   subscribe: (subscription) => api.post('/push/subscribe', subscription).then(unwrap),
   unsubscribe: (endpoint) => api.post('/push/unsubscribe', { endpoint }).then((r) => r.data),
+  subscribeClient: (trackingToken, subscription) =>
+    api.post('/push/subscribe-client', { trackingToken, ...subscription }).then(unwrap),
+  unsubscribeClient: (endpoint) =>
+    api.post('/push/unsubscribe-client', { endpoint }).then((r) => r.data),
 };

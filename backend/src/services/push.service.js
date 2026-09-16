@@ -13,19 +13,20 @@ if (configured) {
 }
 
 /**
- * Envoie une notification push à un utilisateur precis, ou a tout le
- * personnel d'un restaurant. Miroir cote transport de emitToUser/emitToStaff
- * (sockets/index.js) : meme ciblage, mais recu meme onglet ferme.
+ * Envoie une notification push à un utilisateur precis, au client qui suit
+ * une commande precise, ou a tout le personnel d'un restaurant. Miroir cote
+ * transport de emitToUser/emitToStaff/emitToOrder (sockets/index.js) : meme
+ * ciblage, mais recu meme onglet ferme.
  *
  * Un abonnement expire ou revoque (404/410) est silencieusement supprime :
  * c'est le comportement standard de l'API Web Push, pas une erreur a
  * remonter au client qui a declenche l'evenement.
  */
-async function sendPush({ restaurantId, userId = null, payload }) {
+async function sendPush({ restaurantId, userId = null, orderId = null, payload }) {
   if (!configured) return;
 
   const subscriptions = await prisma.pushSubscription.findMany({
-    where: userId ? { userId } : { restaurantId },
+    where: orderId ? { orderId } : userId ? { userId } : { restaurantId },
   });
   if (!subscriptions.length) return;
 

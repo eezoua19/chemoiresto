@@ -239,6 +239,12 @@ Vercel pour un déploiement normal.
 > côté Vercel — réessayez la commande toutes les quelques minutes, pas besoin
 > de re-vérifier les permissions.
 
+> Second piège, juste après : le premier build déclenché par Git a échoué
+> (`package.json introuvable`) parce que le projet Vercel avait **Root
+> Directory** = `.` au lieu de `frontend` — invisible avec les déploiements
+> CLI, qui partent directement du dossier `frontend/`. Corrigé avec
+> `vercel project update chemoiresto --root-directory frontend --yes`.
+
 ### Config as Code Railway
 
 `railway.json` est déprécié et cesse de fonctionner le **1er décembre 2026**.

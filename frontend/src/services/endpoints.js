@@ -171,6 +171,12 @@ export const closingApi = {
   today: () => api.get('/closings/today').then(unwrap),
   detail: (date) => api.get(`/closings/${date}`).then(unwrap),
   close: (date) => api.post(`/closings/${date}`).then(unwrap),
+  // Fichier brut (PDF) : pas de "unwrap", c'est le contenu lui-meme qui nous interesse.
+  exportPdf: (params) =>
+    api
+      .get('/closings/export/pdf', { params, responseType: 'blob', timeout: DELAI_SAUVEGARDE })
+      .then((r) => r.data)
+      .catch(messageDuBlob),
 };
 
 // --------------------------- Journal des actions ---------------------------

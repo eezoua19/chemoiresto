@@ -51,7 +51,7 @@ async function api(path, { method = 'GET', body, token } = {}) {
   });
 
   const json = await response.json().catch(() => ({}));
-  return { status: response.status, ...json };
+  return { status: response.status, contentType: response.headers.get('content-type'), ...json };
 }
 
 /** Connexion et recuperation du jeton. */

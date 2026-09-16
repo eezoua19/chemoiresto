@@ -42,6 +42,14 @@ test('Sauvegardes automatiques et clôtures de journée', async (suite) => {
     assert.equal((await api('/api/backup', { method: 'POST', token: serveuse.token })).status, 403);
     assert.equal((await api('/api/closings', { token: serveuse.token })).status, 403);
     assert.equal((await api('/api/closings/today', { token: serveuse.token })).status, 403);
+    assert.equal(
+      (
+        await api(`/api/closings/export/pdf?from=${jour(-400)}&to=${jour(0)}`, {
+          token: serveuse.token,
+        })
+      ).status,
+      403
+    );
   });
 
   // ------------------------------------------------------------ sauvegardes
@@ -184,6 +192,27 @@ test('Sauvegardes automatiques et clôtures de journée', async (suite) => {
     assert.equal(result.data.totals.revenue, 8000);
     assert.equal(result.data.totals.orders, 2);
     assert.equal(result.data.totals.days, 1);
+  });
+
+  await suite.test("l'export comptable PDF couvre la période demandée", async () => {
+    const result = await api(`/api/closings/export/pdf?from=${jourTest}&to=${jourTest}`, {
+      token: admin.token,
+    });
+
+    assert.equal(result.status, 200);
+    assert.match(result.contentType, /application\/pdf/);
+  });
+
+  await suite.test("l'export comptable refuse une période inversée", async () => {
+    const result = await api(`/api/closings/export/pdf?from=${jour(0)}&to=${jourTest}`, {
+      token: admin.token,
+    });
+    assert.equal(result.status, 400);
+  });
+
+  await suite.test("l'export comptable refuse des dates manquantes", async () => {
+    const result = await api(`/api/closings/export/pdf?from=${jourTest}`, { token: admin.token });
+    assert.equal(result.status, 400);
   });
 
   await suite.test('la journée en cours se lit sans être figée', async () => {

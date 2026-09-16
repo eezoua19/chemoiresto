@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   Clock,
   Printer,
+  Download,
 } from 'lucide-react';
 import { closingApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
@@ -17,6 +18,7 @@ import {
   Card,
   EmptyState,
   ErrorState,
+  Input,
   Modal,
   PageHeader,
   Skeleton,
@@ -24,6 +26,18 @@ import {
 } from '../../components/ui';
 import { formatMoney, formatLongDate } from '../../utils/format';
 import { printClosing } from '../../components/closings/printClosing';
+import { telechargerFichier } from '../../utils/download';
+
+/** Premier jour du mois en cours, au format AAAA-MM-JJ. */
+function debutMoisCourant() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+}
+
+/** Date du jour, au format AAAA-MM-JJ. */
+function dateDuJour() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 /** "12 h" plutôt que "12" : une heure de pointe se lit comme une heure. */
 const heure = (valeur) => (valeur === null || valeur === undefined ? null : `${valeur} h`);
@@ -49,6 +63,10 @@ export default function AdminClosingsPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+
+  const [exportFrom, setExportFrom] = useState(debutMoisCourant);
+  const [exportTo, setExportTo] = useState(dateDuJour);
+  const [exportBusy, setExportBusy] = useState(false);
 
   const load = useCallback(async () => {
     setError(null);
@@ -92,6 +110,18 @@ export default function AdminClosingsPage() {
       toast.error(err.message);
     } finally {
       setBusy(false);
+    }
+  };
+
+  const exporterPDF = async () => {
+    setExportBusy(true);
+    try {
+      const fichier = await closingApi.exportPdf({ from: exportFrom, to: exportTo });
+      telechargerFichier(fichier, `export-comptable-${exportFrom}-au-${exportTo}.pdf`);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setExportBusy(false);
     }
   };
 
@@ -156,6 +186,32 @@ export default function AdminClosingsPage() {
           />
         </div>
       )}
+
+      {/* ------------------------- Export comptable ------------------------- */}
+      <Card className="mb-5 p-4">
+        <p className="text-sm font-bold text-ink-900">Export comptable</p>
+        <p className="mb-3 text-xs text-ink-500">
+          Un récapitulatif PDF de la période, prêt à envoyer au comptable.
+        </p>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="label">Du</label>
+            <Input type="date" value={exportFrom} onChange={(e) => setExportFrom(e.target.value)} />
+          </div>
+          <div>
+            <label className="label">Au</label>
+            <Input type="date" value={exportTo} onChange={(e) => setExportTo(e.target.value)} />
+          </div>
+          <Button
+            icon={Download}
+            onClick={exporterPDF}
+            loading={exportBusy}
+            disabled={!exportFrom || !exportTo}
+          >
+            Télécharger le PDF
+          </Button>
+        </div>
+      </Card>
 
       {loading ? (
         <div className="space-y-2">

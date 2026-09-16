@@ -3,6 +3,7 @@ const ApiError = require('../utils/apiError');
 const asyncHandler = require('../utils/asyncHandler');
 const { success } = require('../utils/response');
 const { calculer, cloturer, serialiser } = require('../services/closing.service');
+const { genererPdfComptable } = require('../services/accountingExport.service');
 const { formatDate, today, normalizeDate } = require('../utils/helpers');
 
 /**
@@ -115,4 +116,33 @@ const fermer = asyncHandler(async (req, res) => {
   );
 });
 
-module.exports = { list, detail, enCours, fermer };
+/**
+ * GET /api/closings/export/pdf (ADMIN)
+ * Recapitulatif comptable de la periode, pret a envoyer au comptable. Ne
+ * porte que sur les journees deja cloturees : une journee non figee pourrait
+ * encore bouger, un document comptable non.
+ */
+const exporterComptable = asyncHandler(async (req, res) => {
+  const restaurantId = req.user.restaurantId;
+  const from = normalizeDate(req.query.from);
+  const to = normalizeDate(req.query.to);
+  if (!from || !to) throw ApiError.badRequest('Période invalide');
+  if (from > to) throw ApiError.badRequest('La date de début doit précéder la date de fin');
+  if ((to - from) / 86400000 > 366) throw ApiError.badRequest('La période ne peut pas dépasser un an');
+
+  const [restaurant, lignes] = await Promise.all([
+    prisma.restaurant.findUnique({ where: { id: restaurantId }, select: { name: true, currency: true } }),
+    prisma.dailyClosing.findMany({
+      where: { restaurantId, date: { gte: from, lte: to } },
+      orderBy: { date: 'asc' },
+    }),
+  ]);
+
+  const nomFichier = `export-comptable-${formatDate(from)}-au-${formatDate(to)}.pdf`;
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${nomFichier}"`);
+
+  genererPdfComptable(res, { restaurant, from, to, closings: lignes.map(serialiser) });
+});
+
+module.exports = { list, detail, enCours, fermer, exporterComptable };

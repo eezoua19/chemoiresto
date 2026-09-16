@@ -487,6 +487,11 @@ const resetSchema = z.object({
 
 const dateParam = z.object({ date: dateString });
 
+const exportClosingsSchema = z.object({
+  from: dateString,
+  to: dateString,
+});
+
 const closingsQuerySchema = z.object({
   from: dateString.optional(),
   to: dateString.optional(),
@@ -538,6 +543,7 @@ module.exports = {
   auditQuerySchema,
   dateParam,
   closingsQuerySchema,
+  exportClosingsSchema,
   resetSchema,
   orderEstimateSchema,
   loyaltyAdjustSchema,

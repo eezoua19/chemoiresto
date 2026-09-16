@@ -36,6 +36,7 @@ import AdminClosingsPage from './pages/admin/AdminClosingsPage';
 import AdminBackupsPage from './pages/admin/AdminBackupsPage';
 import AdminLoyaltyPage from './pages/admin/AdminLoyaltyPage';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage';
+import AdminRuptureBoardPage from './pages/admin/AdminRuptureBoardPage';
 
 export default function App() {
   return (
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="menus" element={<AdminMenuCalendarPage />} />
         <Route path="menus/:date" element={<AdminMenuEditorPage />} />
         <Route path="produits" element={<AdminProductsPage />} />
+        <Route path="ruptures" element={<AdminRuptureBoardPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="tables" element={<AdminTablesPage />} />
         <Route path="qrcodes" element={<AdminQRCodesPage />} />

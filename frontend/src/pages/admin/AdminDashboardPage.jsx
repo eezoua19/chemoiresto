@@ -30,6 +30,7 @@ import { useAuth } from '../../context/AuthContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import { ErrorState, PageHeader, Skeleton, StatCard, Card, CardHeader, EmptyState } from '../../components/ui';
 import MiseEnService from '../../components/admin/MiseEnService';
+import RuptureBanner from '../../components/admin/RuptureBanner';
 import { formatMoney, formatShortDate } from '../../utils/format';
 
 /** Mois en cours, au format AAAA-MM. */
@@ -110,6 +111,7 @@ export default function AdminDashboardPage() {
 
       {/* Ce qui empeche un client de commander, avant tout le reste. */}
       <MiseEnService />
+      <RuptureBanner />
 
       {/* Selecteur de mois : le mois suivant reste bloque tant qu'il n'a pas
           commence, un tableau de bord vide n'apprend rien. */}

@@ -22,6 +22,7 @@ import {
   ChefHat,
   Gift,
   Star,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -33,6 +34,7 @@ import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import PushSubscribeToggle from '../components/PushSubscribeToggle';
+import { productApi } from '../services/endpoints';
 import { initials } from '../utils/format';
 import { applyBrandColor } from '../utils/color';
 
@@ -41,6 +43,7 @@ const LINKS = [
   { to: '/admin/commandes', label: 'Commandes', icon: ShoppingBag },
   { to: '/admin/menus', label: 'Menus', icon: CalendarDays },
   { to: '/admin/produits', label: 'Produits', icon: UtensilsCrossed },
+  { to: '/admin/ruptures', label: 'Ruptures', icon: AlertTriangle },
   { to: '/admin/categories', label: 'Catégories', icon: Tags },
   { to: '/admin/tables', label: 'Tables', icon: Table2 },
   { to: '/admin/qrcodes', label: 'QR Codes', icon: QrCode },
@@ -66,6 +69,9 @@ export default function AdminLayout() {
   const playSound = useNotificationSound();
   const voice = useVoiceAnnouncer();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Compteur global de ruptures, visible depuis n'importe quel écran (pastille
+  // sur le lien "Ruptures"), pas seulement quand la page dédiée est ouverte.
+  const [ruptureIds, setRuptureIds] = useState(() => new Set());
 
   // Le lien "Fidélité" n'apparaît que si le programme est activé dans les
   // paramètres : inutile de montrer un onglet vide à un restaurant qui ne
@@ -82,6 +88,15 @@ export default function AdminLayout() {
   }, [restaurant]);
 
   useEffect(() => setSidebarOpen(false), [location.pathname]);
+
+  // Etat initial de la pastille : les evenements temps reel ne couvrent que
+  // ce qui change APRES l'ouverture de la session.
+  useEffect(() => {
+    productApi
+      .list({ available: false })
+      .then((produits) => setRuptureIds(new Set(produits.map((p) => p.id))))
+      .catch(() => {});
+  }, []);
 
   // Le signal sonore attire l'attention, la voix donne le détail, et l'alerte
   // reste à l'écran tant qu'elle n'a pas été fermee à la main.
@@ -126,6 +141,13 @@ export default function AdminLayout() {
   // un simple toast (sans son ni voix) suffit - mais l'admin doit le savoir
   // meme s'il n'a pas la page Produits ouverte.
   useSocketEvent('product_availability', (changement) => {
+    setRuptureIds((current) => {
+      const suivant = new Set(current);
+      if (changement.isAvailable) suivant.delete(changement.id);
+      else suivant.add(changement.id);
+      return suivant;
+    });
+
     if (changement.isAvailable) {
       toast.success(`${changement.name} est de nouveau disponible`);
     } else {
@@ -161,6 +183,11 @@ export default function AdminLayout() {
           >
             <link.icon size={18} />
             {link.label}
+            {link.to === '/admin/ruptures' && ruptureIds.size > 0 && (
+              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white">
+                {ruptureIds.size}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

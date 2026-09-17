@@ -40,6 +40,30 @@ async function start() {
   });
 }
 
+/**
+ * Filet de securite : une erreur non geree qui echappe a `asyncHandler` ne
+ * doit pas laisser le process tourner dans un etat incertain (connexion DB a
+ * moitie rompue, timers orphelins...). On log bruyamment puis on sort
+ * proprement - Railway relance seul (`restartPolicyType: ON_FAILURE`, voir
+ * railway.json), une erreur localisee redevient donc un simple redemarrage
+ * au lieu d'un service qui repond n'importe quoi sans que personne ne le
+ * sache.
+ *
+ * Enregistrer ces handlers change le comportement par defaut de Node : sans
+ * eux, une promesse rejetee sans .catch() fait deja planter le process
+ * (Node >= 15). Avec eux, c'est nous qui devons declencher la sortie -
+ * sinon le process resterait vivant dans un etat casse, silencieusement.
+ */
+function crashSafely(origine, error) {
+  // eslint-disable-next-line no-console
+  console.error(`[FATAL] ${origine} :`, error);
+  server.close(() => process.exit(1));
+  setTimeout(() => process.exit(1), 5000).unref();
+}
+
+process.on('unhandledRejection', (error) => crashSafely('Promesse rejetée sans gestion', error));
+process.on('uncaughtException', (error) => crashSafely('Exception non interceptée', error));
+
 async function shutdown(signal) {
   // eslint-disable-next-line no-console
   console.log(`\n${signal} reçu, arrêt du serveur...`);

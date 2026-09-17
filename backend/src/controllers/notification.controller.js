@@ -1,4 +1,5 @@
 const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/apiError');
 const { success } = require('../utils/response');
 const service = require('../services/notification.service');
 
@@ -21,7 +22,10 @@ const list = asyncHandler(async (req, res) => {
 
 /** PUT /api/notifications/:id/read */
 const markRead = asyncHandler(async (req, res) => {
-  await service.markAsRead(Number(req.params.id), req.user.restaurantId);
+  // Scope sur le destinataire : une notification ciblee sur un autre compte
+  // ne doit pas pouvoir etre marquee lue en devinant son id.
+  const { count } = await service.markAsRead(Number(req.params.id), req.user.restaurantId, req.user.id);
+  if (count === 0) throw ApiError.notFound('Notification introuvable');
   return success(res, null, 'Notification marquée comme lue');
 });
 

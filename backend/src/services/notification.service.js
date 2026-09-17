@@ -51,9 +51,9 @@ async function listNotifications(restaurantId, userId, { onlyUnread = false, lim
   });
 }
 
-async function markAsRead(id, restaurantId) {
+async function markAsRead(id, restaurantId, userId) {
   return prisma.notification.updateMany({
-    where: { id, restaurantId },
+    where: { id, restaurantId, OR: [{ userId: null }, { userId }] },
     data: { isRead: true },
   });
 }

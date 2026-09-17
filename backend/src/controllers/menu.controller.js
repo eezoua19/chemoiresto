@@ -209,21 +209,24 @@ const update = asyncHandler(async (req, res) => {
     if (items !== undefined) {
       await tx.dailyMenuItem.deleteMany({ where: { dailyMenuId: id } });
       const seen = new Set();
-      for (const [index, item] of items.entries()) {
-        if (seen.has(item.productId)) continue;
+      const lignes = [];
+      items.forEach((item, index) => {
+        if (seen.has(item.productId)) return;
         seen.add(item.productId);
-        await tx.dailyMenuItem.create({
-          data: {
-            dailyMenuId: id,
-            productId: item.productId,
-            price: item.price ?? null,
-            description: item.description || null,
-            isAvailable: item.isAvailable ?? true,
-            isDishOfDay: item.isDishOfDay ?? false,
-            sortOrder: item.sortOrder ?? index,
-          },
+        lignes.push({
+          dailyMenuId: id,
+          productId: item.productId,
+          price: item.price ?? null,
+          description: item.description || null,
+          isAvailable: item.isAvailable ?? true,
+          isDishOfDay: item.isDishOfDay ?? false,
+          sortOrder: item.sortOrder ?? index,
         });
-      }
+      });
+      // Une seule requete plutot que N creations awaited une a une : la
+      // transaction tient les verrous MySQL sur DailyMenuItem/DailyMenu moins
+      // longtemps, ce qui compte pendant que des clients lisent le menu du jour.
+      if (lignes.length > 0) await tx.dailyMenuItem.createMany({ data: lignes });
     }
 
     return tx.dailyMenu.findUnique({ where: { id }, include: menuInclude });

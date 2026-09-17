@@ -212,19 +212,22 @@ const listQRCodes = asyncHandler(async (req, res) => {
   });
 
   // Génère à la volee les QR Codes manquants pour ne rien oublier à l'impression.
-  const withCodes = [];
-  for (const table of tables) {
-    let qrCode = table.qrCode;
-    if (!qrCode) qrCode = await upsertQRCode(table.id, table.token);
-    withCodes.push({
-      id: table.id,
-      number: table.number,
-      label: table.label,
-      status: table.status,
-      dataUrl: qrCode.dataUrl,
-      url: qrCode.url,
-    });
-  }
+  // Une table n'a aucun lien avec une autre : les generer en parallele evite
+  // qu'un restaurant avec beaucoup de tables bloque la requete plusieurs
+  // secondes a chaque QR Code rendu en sequence.
+  const withCodes = await Promise.all(
+    tables.map(async (table) => {
+      const qrCode = table.qrCode || (await upsertQRCode(table.id, table.token));
+      return {
+        id: table.id,
+        number: table.number,
+        label: table.label,
+        status: table.status,
+        dataUrl: qrCode.dataUrl,
+        url: qrCode.url,
+      };
+    })
+  );
 
   return success(res, { restaurant, tables: withCodes }, 'QR Codes récupérés');
 });

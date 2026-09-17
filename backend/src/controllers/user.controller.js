@@ -161,6 +161,7 @@ const activity = asyncHandler(async (req, res) => {
       where: { restaurantId, serverId: id },
       orderBy: { createdAt: 'desc' },
       take: 15,
+      // Une vente a emporter n'a pas de table : `table` vaut alors `null`.
       include: { table: { select: { number: true } } },
     }),
   ]);
@@ -179,7 +180,7 @@ const activity = asyncHandler(async (req, res) => {
         orderNumber: order.orderNumber,
         status: order.status,
         total: toNumber(order.total),
-        tableNumber: order.table.number,
+        tableNumber: order.table ? order.table.number : null,
         createdAt: order.createdAt,
       })),
     },

@@ -26,7 +26,15 @@ function serialize(product) {
   };
 }
 
-/** Remplace intégralement les groupes d'options d'un produit. */
+/**
+ * Remplace intégralement les groupes d'options d'un produit.
+ *
+ * Volontairement séquentiel malgré le nombre de requêtes : ceci s'exécute
+ * a l'interieur d'un `prisma.$transaction`, et Prisma ne garantit pas des
+ * requetes concurrentes sur le meme client de transaction (une seule
+ * connexion reservee) - paralleliser ici risquerait des ecritures qui se
+ * marchent dessus plutot qu'un vrai gain de vitesse.
+ */
 async function replaceOptions(tx, productId, options) {
   await tx.productOption.deleteMany({ where: { productId } });
   for (const [index, option] of options.entries()) {

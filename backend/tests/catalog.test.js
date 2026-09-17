@@ -6,7 +6,8 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
   await startServer();
   suite.after(() => stopServer());
 
-  const { token } = await login('admin@chemoiresto.ci', 'Admin@2026');
+  const { token, user } = await login('admin@chemoiresto.ci', 'Admin@2026');
+  const restaurantId = user.restaurantId;
   const created = { products: [], tables: [], categories: [] };
 
   suite.after(async () => {
@@ -254,5 +255,127 @@ test('Catalogue : produits, tables et QR Codes', async (suite) => {
     assert.equal(result.success, true);
     assert.ok(result.data.tables.length > 0);
     assert.ok(result.data.tables.every((table) => table.dataUrl.startsWith('data:image/png')));
+  });
+
+  // ------------------------------- Réordonnancement -----------------------
+
+  await suite.test('reorder des catégories', async () => {
+    const autre = await api('/api/categories', {
+      method: 'POST',
+      token,
+      body: { name: unique('Catégorie ordre') },
+    });
+    created.categories.push(autre.data.id);
+
+    const result = await api('/api/categories/reorder', {
+      method: 'PUT',
+      token,
+      body: {
+        items: [
+          { id: categoryId, sortOrder: 5 },
+          { id: autre.data.id, sortOrder: 1 },
+        ],
+      },
+    });
+    assert.equal(result.status, 200);
+
+    const [premiere, seconde] = await Promise.all([
+      prisma.category.findUnique({ where: { id: categoryId } }),
+      prisma.category.findUnique({ where: { id: autre.data.id } }),
+    ]);
+    assert.equal(premiere.sortOrder, 5);
+    assert.equal(seconde.sortOrder, 1);
+  });
+
+  await suite.test('reorder refusé si une catégorie n\'appartient pas au restaurant (403)', async () => {
+    const result = await api('/api/categories/reorder', {
+      method: 'PUT',
+      token,
+      body: { items: [{ id: 99999999, sortOrder: 0 }] },
+    });
+    assert.equal(result.status, 403);
+  });
+
+  // ---------------- Suppression vs archivage : table et produit -----------
+  // Meme besoin (« retirer ce qui a un historique »), deux comportements
+  // différents et volontaires : une table refuse, un produit archive.
+
+  await suite.test('une table sans historique se supprime vraiment', async () => {
+    const cree = await api('/api/tables', { method: 'POST', token, body: { number: unique('S') } });
+    const result = await api(`/api/tables/${cree.data.id}`, { method: 'DELETE', token });
+    assert.equal(result.status, 200);
+
+    const encore = await prisma.restaurantTable.findUnique({ where: { id: cree.data.id } });
+    assert.equal(encore, null);
+  });
+
+  await suite.test('une table avec un historique de commandes refuse la suppression (409)', async () => {
+    const cree = await api('/api/tables', { method: 'POST', token, body: { number: unique('H') } });
+    created.tables.push(cree.data.id);
+
+    const commande = await prisma.order.create({
+      data: {
+        restaurantId,
+        tableId: cree.data.id,
+        orderNumber: unique('cmd'),
+        trackingToken: unique('t').replace(/-/g, '').slice(0, 32),
+        status: 'SERVED',
+        subtotal: 1000,
+        total: 1000,
+      },
+    });
+
+    const result = await api(`/api/tables/${cree.data.id}`, { method: 'DELETE', token });
+    assert.equal(result.status, 409);
+
+    await prisma.order.delete({ where: { id: commande.id } });
+    const toujoursLa = await prisma.restaurantTable.findUnique({ where: { id: cree.data.id } });
+    assert.ok(toujoursLa, 'la table doit toujours exister');
+  });
+
+  await suite.test('un produit sans historique se supprime vraiment', async () => {
+    const cree = await api('/api/products', { method: 'POST', token, body: { name: unique('Plat seul'), basePrice: 1500 } });
+
+    const result = await api(`/api/products/${cree.data.id}`, { method: 'DELETE', token });
+    assert.equal(result.status, 200);
+
+    const encore = await prisma.product.findUnique({ where: { id: cree.data.id } });
+    assert.equal(encore, null);
+  });
+
+  await suite.test('un produit déjà commandé est archivé plutôt que supprimé', async () => {
+    const cree = await api('/api/products', { method: 'POST', token, body: { name: unique('Plat commandé'), basePrice: 2500 } });
+    created.products.push(cree.data.id);
+
+    const commande = await prisma.order.create({
+      data: {
+        restaurantId,
+        orderNumber: unique('cmd'),
+        trackingToken: unique('t').replace(/-/g, '').slice(0, 32),
+        status: 'SERVED',
+        subtotal: 2500,
+        total: 2500,
+        items: {
+          create: {
+            productId: cree.data.id,
+            productName: cree.data.name,
+            unitPrice: 2500,
+            quantity: 1,
+            lineTotal: 2500,
+          },
+        },
+      },
+    });
+
+    const result = await api(`/api/products/${cree.data.id}`, { method: 'DELETE', token });
+    assert.equal(result.status, 200);
+    assert.match(result.message, /archivé/);
+
+    const archive = await prisma.product.findUnique({ where: { id: cree.data.id } });
+    assert.ok(archive, 'le produit existe toujours');
+    assert.equal(archive.isActive, false);
+
+    await prisma.orderItem.deleteMany({ where: { orderId: commande.id } });
+    await prisma.order.delete({ where: { id: commande.id } });
   });
 });

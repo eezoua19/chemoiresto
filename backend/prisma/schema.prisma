@@ -402,6 +402,12 @@ model Order {
   @@index([serverId])
   @@index([status])
   @@index([createdAt])
+  // Les requetes chaudes (tableau de bord, historique, cloture de nuit)
+  // filtrent toujours restaurantId + une periode, parfois + status : un index
+  // a une seule colonne oblige MySQL a rescanner en memoire au-dela du
+  // premier filtre.
+  @@index([restaurantId, createdAt])
+  @@index([restaurantId, status, createdAt])
 }
 
 model OrderItem {

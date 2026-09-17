@@ -161,10 +161,14 @@ export default function AdminJournalPage() {
         </Card>
       ) : (
         <Card className="divide-y divide-ink-100 p-0">
-          {entrees.map((entree) => {
+          {entrees.map((entree, index) => {
             const ton = tonDeLAction(entree.action);
             return (
-              <div key={entree.id} className="flex flex-wrap items-start gap-3 p-4">
+              <div
+                key={entree.id}
+                className="animate-entree flex flex-wrap items-start gap-3 p-4"
+                style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+              >
                 <span className={`mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full ${ton.point}`} />
 
                 <div className="min-w-0 flex-1">

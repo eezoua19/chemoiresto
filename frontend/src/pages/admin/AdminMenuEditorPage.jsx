@@ -8,7 +8,6 @@ import {
   Star,
   Search,
   CalendarDays,
-  GripVertical,
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
@@ -367,7 +366,6 @@ export default function AdminMenuEditorPage() {
                       >
                         <ArrowUp size={14} />
                       </button>
-                      <GripVertical size={14} />
                       <button
                         type="button"
                         onClick={() => move(index, 1)}

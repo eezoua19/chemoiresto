@@ -3,7 +3,7 @@ import { Bell, BellRing, Receipt, RefreshCw, BellOff } from 'lucide-react';
 import { serviceRequestApi } from '../../services/endpoints';
 import { useToast } from '../../context/ToastContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
-import { Button, EmptyState, ErrorState, Skeleton } from '../../components/ui';
+import { Button, EmptyState, ErrorState, PageHeader, Skeleton } from '../../components/ui';
 import { SERVICE_REQUEST_STATUS } from '../../utils/constants';
 import { timeAgo } from '../../utils/format';
 
@@ -52,20 +52,21 @@ export default function ServerRequestsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-ink-900">Demandes des clients</h1>
-          <p className="text-sm text-ink-500">Appels et demandes d&apos;addition en temps réel</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => setShowClosed((value) => !value)}>
-            {showClosed ? 'Voir les demandes en cours' : 'Voir l\'historique'}
-          </Button>
-          <Button variant="secondary" icon={RefreshCw} onClick={load}>
-            Actualiser
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Demandes des clients"
+        subtitle="Appels et demandes d'addition en temps réel"
+        icon={BellRing}
+        action={
+          <>
+            <Button variant="secondary" onClick={() => setShowClosed((value) => !value)}>
+              {showClosed ? 'Voir les demandes en cours' : 'Voir l\'historique'}
+            </Button>
+            <Button variant="secondary" icon={RefreshCw} onClick={load}>
+              Actualiser
+            </Button>
+          </>
+        }
+      />
 
       {loading ? (
         <div className="space-y-3">

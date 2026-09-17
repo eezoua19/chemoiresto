@@ -33,6 +33,7 @@ export default function AdminTablesPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [regenerateTarget, setRegenerateTarget] = useState(null);
   const [qrTable, setQrTable] = useState(null);
+  const [statusBusy, setStatusBusy] = useState(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -93,12 +94,15 @@ export default function AdminTablesPage() {
   };
 
   const toggleStatus = async (table) => {
+    setStatusBusy(table.id);
     try {
       const updated = await tableApi.toggleStatus(table.id);
       setTables((current) => current.map((t) => (t.id === updated.id ? updated : t)));
       toast.success(updated.status === 'ACTIVE' ? 'Table activée' : 'Table désactivée');
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setStatusBusy(null);
     }
   };
 
@@ -184,8 +188,12 @@ export default function AdminTablesPage() {
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {tables.map((table) => (
-            <Card key={table.id} className="p-4">
+          {tables.map((table, index) => (
+            <Card
+              key={table.id}
+              className="animate-entree p-4"
+              style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -228,9 +236,14 @@ export default function AdminTablesPage() {
                 <button
                   type="button"
                   onClick={() => toggleStatus(table)}
-                  className="btn-ghost text-xs"
+                  disabled={statusBusy === table.id}
+                  className="btn-ghost text-xs disabled:opacity-50"
                 >
-                  {table.status === 'ACTIVE' ? 'Désactiver' : 'Activer'}
+                  {statusBusy === table.id
+                    ? '...'
+                    : table.status === 'ACTIVE'
+                      ? 'Désactiver'
+                      : 'Activer'}
                 </button>
                 <button
                   type="button"

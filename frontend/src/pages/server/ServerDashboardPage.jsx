@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Inbox, ChefHat, CheckCircle2, ClipboardCheck, RefreshCw } from 'lucide-react';
+import { Inbox, ChefHat, CheckCircle2, ClipboardCheck, RefreshCw, LayoutGrid } from 'lucide-react';
 import { orderApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
+import useNouveautes from '../../hooks/useNouveautes';
 import OrderCard from '../../components/orders/OrderCard';
 import { printOrderTicket } from '../../components/orders/printOrder';
-import { Button, ConfirmDialog, EmptyState, ErrorState, Skeleton, StatCard } from '../../components/ui';
+import { Button, ConfirmDialog, EmptyState, ErrorState, PageHeader, Skeleton, StatCard } from '../../components/ui';
 import { libelleProvenance } from '../../utils/order';
 
 const COLUMNS = [
@@ -42,8 +43,13 @@ export default function ServerDashboardPage() {
     load();
   }, [load]);
 
-  // Toute evolution côté serveur rafraichit le tableau.
-  useSocketEvent('new_order', load);
+  // Le surlignage dit laquelle vient d'arriver, ce qu'aucune alerte ne peut
+  // faire dans un tableau de douze cartes.
+  const { marquer, estNouveau } = useNouveautes();
+  useSocketEvent('new_order', (order) => {
+    marquer(order?.id);
+    load();
+  });
   useSocketEvent('order_updated', load);
   useSocketEvent('order_assigned', load);
 
@@ -104,15 +110,16 @@ export default function ServerDashboardPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-ink-900">Bonjour {user?.firstName}</h1>
-          <p className="text-sm text-ink-500">Commandes en cours aujourd&apos;hui</p>
-        </div>
-        <Button variant="secondary" icon={RefreshCw} onClick={load}>
-          Actualiser
-        </Button>
-      </div>
+      <PageHeader
+        title={`Bonjour ${user?.firstName || ''}`}
+        subtitle="Commandes en cours aujourd'hui"
+        icon={LayoutGrid}
+        action={
+          <Button variant="secondary" icon={RefreshCw} onClick={load}>
+            Actualiser
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Nouvelles" value={board.stats.new} icon={Inbox} tone="sky" />
@@ -143,6 +150,7 @@ export default function ServerDashboardPage() {
                     <OrderCard
                       key={order.id}
                       order={order}
+                      nouveau={estNouveau(order.id)}
                       currency={currency}
                       busy={busy}
                       onAdvance={advance}

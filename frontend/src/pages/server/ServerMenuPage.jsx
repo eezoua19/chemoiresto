@@ -3,7 +3,7 @@ import { Search, RefreshCw, UtensilsCrossed, CheckCircle2, XCircle } from 'lucid
 import { productApi } from '../../services/endpoints';
 import { useToast } from '../../context/ToastContext';
 import useSocketEvent from '../../hooks/useSocketEvent';
-import { Button, EmptyState, ErrorState, Input, NoResults, Skeleton } from '../../components/ui';
+import { Button, EmptyState, ErrorState, Input, NoResults, PageHeader, Skeleton } from '../../components/ui';
 import { formatMoney } from '../../utils/format';
 
 /**
@@ -95,19 +95,20 @@ export default function ServerMenuPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-ink-900">La carte</h1>
-          <p className="text-sm text-ink-500">
-            {ruptures === 0
-              ? 'Tous les plats sont disponibles'
-              : `${ruptures} plat${ruptures > 1 ? 's' : ''} en rupture`}
-          </p>
-        </div>
-        <Button variant="secondary" icon={RefreshCw} onClick={load}>
-          Actualiser
-        </Button>
-      </div>
+      <PageHeader
+        title="La carte"
+        subtitle={
+          ruptures === 0
+            ? 'Tous les plats sont disponibles'
+            : `${ruptures} plat${ruptures > 1 ? 's' : ''} en rupture`
+        }
+        icon={UtensilsCrossed}
+        action={
+          <Button variant="secondary" icon={RefreshCw} onClick={load}>
+            Actualiser
+          </Button>
+        }
+      />
 
       <div className="flex flex-wrap gap-2">
         <div className="relative min-w-[200px] flex-1">

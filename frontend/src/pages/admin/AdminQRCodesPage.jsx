@@ -87,8 +87,12 @@ export default function AdminQRCodesPage() {
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {tables.map((table) => (
-            <Card key={table.id} className="flex flex-col items-center p-5 text-center">
+          {tables.map((table, index) => (
+            <Card
+              key={table.id}
+              className="animate-entree flex flex-col items-center p-5 text-center"
+              style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+            >
               <p className="text-xs font-bold uppercase tracking-widest text-ink-500">
                 {data.restaurant?.name}
               </p>

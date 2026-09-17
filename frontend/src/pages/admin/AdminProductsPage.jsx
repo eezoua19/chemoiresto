@@ -55,6 +55,7 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState([]);
   const [todayMenuIds, setTodayMenuIds] = useState(new Set());
   const [todayBusy, setTodayBusy] = useState(null);
+  const [availabilityBusy, setAvailabilityBusy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
@@ -330,12 +331,15 @@ export default function AdminProductsPage() {
   };
 
   const toggleAvailability = async (product) => {
+    setAvailabilityBusy(product.id);
     try {
       const updated = await productApi.toggleAvailability(product.id);
       setProducts((current) => current.map((p) => (p.id === updated.id ? updated : p)));
       toast.success(updated.isAvailable ? `${updated.name} est disponible` : `${updated.name} est indisponible`);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setAvailabilityBusy(null);
     }
   };
 
@@ -416,8 +420,12 @@ export default function AdminProductsPage() {
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((product) => (
-            <Card key={product.id} className="overflow-hidden">
+          {filtered.map((product, index) => (
+            <Card
+              key={product.id}
+              className="animate-entree overflow-hidden"
+              style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+            >
               <div className="flex gap-3 p-3">
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-ink-100">
                   {product.image ? (
@@ -477,6 +485,7 @@ export default function AdminProductsPage() {
                 <Toggle
                   checked={product.isAvailable}
                   onChange={() => toggleAvailability(product)}
+                  disabled={availabilityBusy === product.id}
                   label={product.isAvailable ? 'Disponible' : 'Indisponible'}
                 />
                 <div className="flex gap-1">

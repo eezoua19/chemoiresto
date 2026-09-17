@@ -148,7 +148,11 @@ export default function AdminCategoriesPage() {
         ) : (
           <ul className="divide-y divide-ink-100">
             {categories.map((category, index) => (
-              <li key={category.id} className="flex items-center gap-3 px-4 py-3">
+              <li
+                key={category.id}
+                className="animate-entree flex items-center gap-3 px-4 py-3"
+                style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+              >
                 <div className="flex flex-col gap-0.5 text-ink-300">
                   <button
                     type="button"

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, ClipboardList } from 'lucide-react';
 import { orderApi } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -7,7 +7,7 @@ import useSocketEvent from '../../hooks/useSocketEvent';
 import useNouveautes from '../../hooks/useNouveautes';
 import OrderCard from '../../components/orders/OrderCard';
 import { printOrderTicket } from '../../components/orders/printOrder';
-import { Button, EmptyState, ErrorState, Input, Select, Skeleton } from '../../components/ui';
+import { Button, EmptyState, ErrorState, Input, PageHeader, Select, Skeleton } from '../../components/ui';
 import { ORDER_STATUS, PERIOD_OPTIONS } from '../../utils/constants';
 
 /** Liste filtrable de toutes les commandes visibles par la serveuse. */
@@ -81,12 +81,15 @@ export default function ServerOrdersPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold text-ink-900">Commandes</h1>
-        <Button variant="secondary" icon={RefreshCw} onClick={load}>
-          Actualiser
-        </Button>
-      </div>
+      <PageHeader
+        title="Commandes"
+        icon={ClipboardList}
+        action={
+          <Button variant="secondary" icon={RefreshCw} onClick={load}>
+            Actualiser
+          </Button>
+        }
+      />
 
       <div className="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="relative">

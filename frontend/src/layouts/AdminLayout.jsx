@@ -184,7 +184,10 @@ export default function AdminLayout() {
             <link.icon size={18} />
             {link.label}
             {link.to === '/admin/ruptures' && ruptureIds.size > 0 && (
-              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white">
+              <span
+                key={ruptureIds.size}
+                className="ml-auto flex h-5 min-w-5 animate-pop items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white"
+              >
                 {ruptureIds.size}
               </span>
             )}

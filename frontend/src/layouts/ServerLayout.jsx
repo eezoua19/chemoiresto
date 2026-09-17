@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutGrid,
@@ -20,6 +20,8 @@ import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import PushSubscribeToggle from '../components/PushSubscribeToggle';
+import { serviceRequestApi } from '../services/endpoints';
+import { SERVICE_REQUEST_STATUS } from '../utils/constants';
 import { initials } from '../utils/format';
 import { applyBrandColor } from '../utils/color';
 
@@ -40,10 +42,22 @@ export default function ServerLayout() {
   const navigate = useNavigate();
   const playSound = useNotificationSound();
   const voice = useVoiceAnnouncer();
+  // Compteur de demandes ouvertes, visible depuis n'importe quel écran (pastille
+  // sur le lien "Demandes") - meme principe que les ruptures cote admin.
+  const [demandeIds, setDemandeIds] = useState(() => new Set());
 
   useEffect(() => {
     applyBrandColor(restaurant?.primaryColor);
   }, [restaurant]);
+
+  // Etat initial de la pastille : les evenements temps reel ne couvrent que
+  // ce qui change APRES l'ouverture de la session.
+  useEffect(() => {
+    serviceRequestApi
+      .list({ open: 'true' })
+      .then((demandes) => setDemandeIds(new Set(demandes.map((d) => d.id))))
+      .catch(() => {});
+  }, []);
 
   // Meme regle que cote admin : la serveuse valide les recompenses en salle,
   // mais l'onglet n'a aucune raison d'exister si le programme est desactive.
@@ -62,6 +76,7 @@ export default function ServerLayout() {
   });
 
   useSocketEvent('service_request', (request) => {
+    setDemandeIds((current) => new Set(current).add(request.id));
     playSound('call');
     voice.announce(annonceDemande(request));
     toast.alerte(
@@ -71,6 +86,17 @@ export default function ServerLayout() {
       'warning',
       voice.stop
     );
+  });
+
+  // Prise en charge, cloture ou annulation : la pastille ne compte que ce qui
+  // reste reellement a traiter.
+  useSocketEvent('service_request_updated', (request) => {
+    setDemandeIds((current) => {
+      const suivant = new Set(current);
+      if (SERVICE_REQUEST_STATUS[request.status]?.next) suivant.add(request.id);
+      else suivant.delete(request.id);
+      return suivant;
+    });
   });
 
   useSocketEvent('order_assigned', (order) => {
@@ -150,6 +176,14 @@ export default function ServerLayout() {
             >
               <link.icon size={16} />
               {link.label}
+              {link.to === '/serveuse/demandes' && demandeIds.size > 0 && (
+                <span
+                  key={demandeIds.size}
+                  className="ml-auto flex h-5 min-w-5 animate-pop items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white"
+                >
+                  {demandeIds.size}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -173,7 +207,17 @@ export default function ServerLayout() {
               }`
             }
           >
-            <link.icon size={20} />
+            <span className="relative">
+              <link.icon size={20} />
+              {link.to === '/serveuse/demandes' && demandeIds.size > 0 && (
+                <span
+                  key={demandeIds.size}
+                  className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 animate-pop items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white"
+                >
+                  {demandeIds.size}
+                </span>
+              )}
+            </span>
             {link.label}
           </NavLink>
         ))}

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, ScanLine, BadgeCheck, ChevronRight } from 'lucide-react';
 import { subscriptionApi } from '../../services/endpoints';
 import { useToast } from '../../context/ToastContext';
-import { Button, EmptyState, Input, NoResults } from '../../components/ui';
+import { Button, EmptyState, Input, NoResults, PageHeader } from '../../components/ui';
 // Chargé seulement quand on ouvre le scanner : jsQR pèse ~50 Ko compressés, et
 // le client qui consulte le menu sur sa data n'a aucune raison de les payer.
 const QrScanner = lazy(() => import('../../components/subscriptions/QrScanner'));
@@ -58,10 +58,7 @@ export default function ServerSubscriptionsPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-bold text-ink-900">Abonnements</h1>
-        <p className="text-sm text-ink-500">Vérifier un ticket et enregistrer un passage</p>
-      </div>
+      <PageHeader title="Abonnements" subtitle="Vérifier un ticket et enregistrer un passage" icon={BadgeCheck} />
 
       {/* Le geste principal : un bouton, la caméra, le verdict. */}
       <Button className="w-full py-4 text-base" icon={ScanLine} onClick={() => setScannerOuvert(true)}>

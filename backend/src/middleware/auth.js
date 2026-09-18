@@ -22,7 +22,7 @@ const authMiddleware = asyncHandler(async (req, _res, next) => {
 
   let payload;
   try {
-    payload = jwt.verify(token, env.jwtSecret);
+    payload = jwt.verify(token, env.jwtSecret, { algorithms: ['HS256'] });
   } catch (error) {
     throw ApiError.unauthorized('Session expirée ou jeton invalide');
   }

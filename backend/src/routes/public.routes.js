@@ -2,7 +2,8 @@ const express = require('express');
 const controller = require('../controllers/public.controller');
 const serviceRequestController = require('../controllers/serviceRequest.controller');
 const validate = require('../middleware/validate');
-const { tokenParam } = require('../validators');
+const { tokenParam, validatePromoCodeSchema } = require('../validators');
+const { promoLimiter } = require('../middleware/rateLimit');
 
 /**
  * Routes publiques accessibles sans compte : c'est le parcours du client
@@ -18,6 +19,12 @@ router.get(
   '/table/:token/service-requests',
   validate({ params: tokenParam }),
   serviceRequestController.listForTable
+);
+router.post(
+  '/promo/validate',
+  promoLimiter,
+  validate({ body: validatePromoCodeSchema }),
+  controller.validatePromo
 );
 
 module.exports = router;

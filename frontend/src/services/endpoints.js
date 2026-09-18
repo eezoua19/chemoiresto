@@ -22,6 +22,7 @@ export const publicApi = {
   getTableServiceRequests: (token) => api.get(`/menu/table/${token}/service-requests`).then(unwrap),
   createOrder: (payload) => api.post('/orders', payload).then(unwrap),
   trackOrder: (trackingToken) => api.get(`/orders/track/${trackingToken}`).then(unwrap),
+  validatePromoCode: (payload) => api.post('/menu/promo/validate', payload).then(unwrap),
   createServiceRequest: (payload) => api.post('/service-requests', payload).then((r) => r.data),
   remindServiceRequest: (payload) =>
     api.post('/service-requests/remind', payload).then((r) => r.data),
@@ -222,6 +223,14 @@ export const loyaltyApi = {
 export const reviewApi = {
   create: (payload) => api.post('/reviews', payload).then(unwrap),
   list: (params) => api.get('/reviews', { params }).then(unwrap),
+};
+
+// ------------------------------ Codes promo (admin) -------------------------
+export const promoCodeApi = {
+  list: () => api.get('/promo-codes').then(unwrap),
+  create: (payload) => api.post('/promo-codes', payload).then(unwrap),
+  update: (id, payload) => api.put(`/promo-codes/${id}`, payload).then(unwrap),
+  remove: (id) => api.delete(`/promo-codes/${id}`).then(unwrap),
 };
 
 // ----------------------------- Notifications push ---------------------------

@@ -6,6 +6,8 @@ const { today, formatDate } = require('../utils/helpers');
 const { getMenuByDate, serializeMenuForClient } = require('../services/menu.service');
 const { serializeOrderForClient, orderInclude } = require('../services/order.service');
 const { findAccountByPhone } = require('../services/loyalty.service');
+const { validateCode } = require('../services/promoCode.service');
+const { toNumber } = require('../utils/helpers');
 
 /**
  * Charge une table à partir de son jeton QR Code et vérifie qu'elle est active.
@@ -188,6 +190,41 @@ const trackOrder = asyncHandler(async (req, res) => {
   return success(res, payload, 'Commande récupérée');
 });
 
+/**
+ * POST /api/menu/promo/validate
+ * Apercu public d'un code promo avant commande. La meme validation est
+ * refaite plus tard, dans la transaction de creation de commande : cet appel
+ * ne fait qu'afficher la remise au client, il ne l'engage pas.
+ */
+const validatePromo = asyncHandler(async (req, res) => {
+  const { token, code, subtotal } = req.body;
+
+  // Le jeton est soit celui d'une table, soit celui de l'affiche a emporter.
+  let restaurant;
+  const table = await prisma.restaurantTable.findUnique({ where: { token }, include: { restaurant: true } });
+  if (table) {
+    if (table.status !== 'ACTIVE') throw ApiError.forbidden('Cette table est actuellement désactivée.');
+    if (!table.restaurant.isActive) throw ApiError.forbidden('Ce restaurant est momentanément fermé');
+    restaurant = table.restaurant;
+  } else {
+    restaurant = await loadRestaurantByTakeawayToken(token);
+  }
+
+  const { promoCode, discountAmount } = await validateCode(prisma, restaurant.id, code, subtotal);
+
+  return success(
+    res,
+    {
+      valid: true,
+      discountAmount,
+      type: promoCode.type,
+      value: toNumber(promoCode.value),
+      code: promoCode.code,
+    },
+    'Code promo valide'
+  );
+});
+
 module.exports = {
   loadTableByToken,
   loadRestaurantByTakeawayToken,
@@ -195,4 +232,5 @@ module.exports = {
   getTakeawayMenu,
   getTableOrders,
   trackOrder,
+  validatePromo,
 };

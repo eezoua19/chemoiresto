@@ -63,7 +63,7 @@ const STATUS_LABEL = {
  * Aucun montant envoye par le frontend n'est utilise.
  */
 const create = asyncHandler(async (req, res) => {
-  const { tableToken, takeawayToken, items, customerName, customerPhone, comment } = req.body;
+  const { tableToken, takeawayToken, items, customerName, customerPhone, comment, promoCode } = req.body;
 
   // Le validateur garantit qu'un seul des deux jetons est present.
   const emporter = Boolean(takeawayToken);
@@ -92,6 +92,7 @@ const create = asyncHandler(async (req, res) => {
     // facultatif cote client dans les deux cas.
     customerPhone,
     comment,
+    promoCode,
   });
 
   const payload = serializeOrder(order);

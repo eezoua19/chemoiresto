@@ -37,6 +37,7 @@ import AdminBackupsPage from './pages/admin/AdminBackupsPage';
 import AdminLoyaltyPage from './pages/admin/AdminLoyaltyPage';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage';
 import AdminRuptureBoardPage from './pages/admin/AdminRuptureBoardPage';
+import AdminPromoCodesPage from './pages/admin/AdminPromoCodesPage';
 
 export default function App() {
   return (
@@ -102,6 +103,7 @@ export default function App() {
         <Route path="historique" element={<AdminHistoryPage />} />
         <Route path="statistiques" element={<AdminStatsPage />} />
         <Route path="abonnements" element={<AdminSubscriptionsPage />} />
+        <Route path="codes-promo" element={<AdminPromoCodesPage />} />
         <Route path="fidelite" element={<AdminLoyaltyPage />} />
         <Route path="avis" element={<AdminReviewsPage />} />
         <Route path="clotures" element={<AdminClosingsPage />} />

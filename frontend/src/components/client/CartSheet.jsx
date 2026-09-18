@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import usePresence from '../../hooks/usePresence';
-import { X, Minus, Plus, Trash2, ShoppingBag, ChevronLeft } from 'lucide-react';
+import { X, Minus, Plus, Trash2, ShoppingBag, ChevronLeft, Tag } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { formatMoney } from '../../utils/format';
+import { publicApi } from '../../services/endpoints';
 import { Button, EmptyState } from '../ui';
 
 /**
@@ -16,6 +17,7 @@ export default function CartSheet({
   onClose,
   currency,
   destination,
+  token,
   takeaway = false,
   loyaltyEnabled = false,
   onConfirm,
@@ -26,6 +28,38 @@ export default function CartSheet({
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [comment, setComment] = useState('');
+
+  // Code promo : verifie aupres du serveur (apercu), reverifie a la commande.
+  // Rien ici ne fait foi cote prix - seul le total renvoye par la commande compte.
+  const [promoInput, setPromoInput] = useState('');
+  const [promo, setPromo] = useState(null); // { code, discountAmount }
+  const [promoError, setPromoError] = useState('');
+  const [promoChecking, setPromoChecking] = useState(false);
+
+  const discountAmount = promo ? Math.min(promo.discountAmount, total) : 0;
+  const totalAfterDiscount = Math.max(0, total - discountAmount);
+
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    setPromoChecking(true);
+    setPromoError('');
+    try {
+      const result = await publicApi.validatePromoCode({ token, code, subtotal: total });
+      setPromo({ code: result.code, discountAmount: result.discountAmount });
+    } catch (error) {
+      setPromo(null);
+      setPromoError(error.message || 'Code promo invalide');
+    } finally {
+      setPromoChecking(false);
+    }
+  };
+
+  const removePromo = () => {
+    setPromo(null);
+    setPromoInput('');
+    setPromoError('');
+  };
 
   // Le panneau reste monte le temps de redescendre hors de l'ecran.
   const { monte, sortant } = usePresence(open);
@@ -40,6 +74,9 @@ export default function CartSheet({
       setCustomerName('');
       setCustomerPhone('');
       setComment('');
+      setPromoInput('');
+      setPromo(null);
+      setPromoError('');
     }
   }, [open]);
 
@@ -59,6 +96,7 @@ export default function CartSheet({
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       comment: comment.trim(),
+      promoCode: promo ? promo.code : undefined,
     });
   };
 
@@ -204,10 +242,64 @@ export default function CartSheet({
                     </li>
                   ))}
                 </ul>
-                <div className="mt-3 flex justify-between border-t border-ink-200 dark:border-ink-700 pt-3 font-bold text-ink-900 dark:text-ink-50">
+                {promo && (
+                  <div className="mt-3 flex justify-between border-t border-ink-200 dark:border-ink-700 pt-3 text-sm text-green-600 dark:text-green-400">
+                    <span>Code {promo.code}</span>
+                    <span>-{formatMoney(discountAmount, currency)}</span>
+                  </div>
+                )}
+                <div
+                  className={`flex justify-between font-bold text-ink-900 dark:text-ink-50 ${
+                    promo ? 'mt-1 pt-0' : 'mt-3 border-t border-ink-200 dark:border-ink-700 pt-3'
+                  }`}
+                >
                   <span>Total</span>
-                  <span>{formatMoney(total, currency)}</span>
+                  <span>{formatMoney(totalAfterDiscount, currency)}</span>
                 </div>
+              </div>
+
+              <div>
+                <label className="label" htmlFor="promo-code">
+                  Code promo (facultatif)
+                </label>
+                {promo ? (
+                  <div className="flex items-center justify-between rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30 px-3 py-2">
+                    <span className="flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-300">
+                      <Tag size={14} /> {promo.code} appliqué
+                    </span>
+                    <button
+                      type="button"
+                      onClick={removePromo}
+                      className="text-xs font-medium text-green-700 dark:text-green-300 underline"
+                    >
+                      Retirer
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      id="promo-code"
+                      className="input flex-1"
+                      maxLength={40}
+                      placeholder="Ex : BIENVENUE10"
+                      value={promoInput}
+                      onChange={(event) => {
+                        setPromoInput(event.target.value.toUpperCase());
+                        setPromoError('');
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleApplyPromo}
+                      loading={promoChecking}
+                      disabled={!promoInput.trim()}
+                    >
+                      Appliquer
+                    </Button>
+                  </div>
+                )}
+                {promoError && <p className="mt-1 text-xs text-red-600">{promoError}</p>}
               </div>
 
               <div>
@@ -276,7 +368,9 @@ export default function CartSheet({
               <span className="text-sm text-ink-500 dark:text-ink-400">
                 {count} article{count > 1 ? 's' : ''}
               </span>
-              <span className="text-lg font-bold text-ink-900 dark:text-ink-50">{formatMoney(total, currency)}</span>
+              <span className="text-lg font-bold text-ink-900 dark:text-ink-50">
+                {formatMoney(step === 'confirm' ? totalAfterDiscount : total, currency)}
+              </span>
             </div>
 
             {step === 'cart' ? (

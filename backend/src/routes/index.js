@@ -21,6 +21,7 @@ const setupRoutes = require('./setup.routes');
 const loyaltyRoutes = require('./loyalty.routes');
 const reviewRoutes = require('./review.routes');
 const pushRoutes = require('./push.routes');
+const promoCodeRoutes = require('./promoCode.routes');
 
 const { journalMiddleware } = require('../middleware/journal');
 
@@ -57,5 +58,6 @@ router.use('/setup', setupRoutes);
 router.use('/loyalty', loyaltyRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/push', pushRoutes);
+router.use('/promo-codes', promoCodeRoutes);
 
 module.exports = router;

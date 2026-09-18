@@ -181,7 +181,18 @@ export default function OrderTrackingPage() {
             </p>
           )}
 
-          <div className="mt-4 flex justify-between border-t border-ink-100 dark:border-ink-700 pt-4 text-lg font-bold text-ink-900 dark:text-ink-50">
+          {order.discountAmount > 0 && (
+            <div className="mt-4 flex justify-between border-t border-ink-100 dark:border-ink-700 pt-4 text-sm text-green-600 dark:text-green-400">
+              <span>Code {order.promoCode?.code || 'promo'}</span>
+              <span>-{formatMoney(order.discountAmount, order.currency)}</span>
+            </div>
+          )}
+
+          <div
+            className={`flex justify-between text-lg font-bold text-ink-900 dark:text-ink-50 ${
+              order.discountAmount > 0 ? 'mt-1 pt-0' : 'mt-4 border-t border-ink-100 dark:border-ink-700 pt-4'
+            }`}
+          >
             <span>Total</span>
             <span>{formatMoney(order.total, order.currency)}</span>
           </div>

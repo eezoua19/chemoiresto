@@ -241,6 +241,23 @@ const DESCRIPTEURS = {
     entity: 'Fidelite',
     label: (req, data) => `Récompense validée pour ${data?.phone || `#${req.params.id}`}`,
   },
+
+  // ------------------------------ Codes promo -----------------------------
+  'POST /promo-codes': {
+    action: 'PROMO_CREE',
+    entity: 'PromoCode',
+    label: (req, data) => `Code promo créé : ${data?.code || 'sans code'}`,
+  },
+  'PUT /promo-codes/:id': {
+    action: 'PROMO_MODIFIE',
+    entity: 'PromoCode',
+    label: (req, data) => `Code promo modifié : ${data?.code || `#${req.params.id}`}`,
+  },
+  'DELETE /promo-codes/:id': {
+    action: 'PROMO_SUPPRIME',
+    entity: 'PromoCode',
+    label: (req) => `Code promo supprimé : #${req.params.id}`,
+  },
 };
 
 /** "DELETE /products/:id" a partir de la requete, une fois le routage fait. */

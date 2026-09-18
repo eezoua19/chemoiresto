@@ -232,7 +232,7 @@ function ClientMenuContent({ token, service }) {
   useSocketEvent('menu_updated', () => load());
 
   // --------------------------- Commande ---------------------------------
-  const handleConfirmOrder = async ({ customerName, customerPhone, comment }) => {
+  const handleConfirmOrder = async ({ customerName, customerPhone, comment, promoCode }) => {
     setSubmitting(true);
     try {
       const order = await publicApi.createOrder({
@@ -240,6 +240,7 @@ function ClientMenuContent({ token, service }) {
         customerName: customerName || undefined,
         customerPhone: customerPhone || undefined,
         comment: comment || undefined,
+        promoCode: promoCode || undefined,
         items: cart.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -726,6 +727,7 @@ function ClientMenuContent({ token, service }) {
         onClose={() => setCartOpen(false)}
         currency={currency}
         destination={emporter ? 'À emporter' : `Table ${table.number}`}
+        token={token}
         takeaway={emporter}
         loyaltyEnabled={restaurant.loyaltyEnabled}
         onConfirm={handleConfirmOrder}

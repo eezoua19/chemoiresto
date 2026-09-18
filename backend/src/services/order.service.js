@@ -2,6 +2,7 @@ const prisma = require('../config/prisma');
 const ApiError = require('../utils/apiError');
 const { randomToken, toNumber, money, dayRange } = require('../utils/helpers');
 const { resolveUnitPrice } = require('./menu.service');
+const promoCodeService = require('./promoCode.service');
 
 // ---------------------------------------------------------------------------
 // Inclusions Prisma réutilisées
@@ -15,6 +16,7 @@ const orderInclude = {
     orderBy: { id: 'asc' },
     include: { options: { orderBy: { id: 'asc' } } },
   },
+  promoCode: { select: { id: true, code: true, type: true, value: true } },
   statusHistory: {
     orderBy: { createdAt: 'asc' },
     include: { user: { select: { id: true, firstName: true, lastName: true } } },
@@ -167,9 +169,23 @@ async function createOrder({
   customerName,
   customerPhone = null,
   comment,
+  promoCode = null,
 }) {
   return prisma.$transaction(async (tx) => {
     const numberFor = await generateOrderNumber(tx, restaurant.id);
+
+    // Le code promo est valide et consomme ICI, dans la transaction : le
+    // montant envoye par le client n'est jamais utilise, seul compte ce que
+    // le serveur recalcule a partir du code + des regles du restaurant.
+    let promoRecord = null;
+    let discountAmount = 0;
+    if (typeof promoCode === 'string' && promoCode.trim()) {
+      const result = await promoCodeService.validateCode(tx, restaurant.id, promoCode, subtotal);
+      promoRecord = result.promoCode;
+      discountAmount = result.discountAmount;
+      await promoCodeService.redeem(tx, promoRecord.id);
+      total = Math.max(0, money(subtotal - discountAmount));
+    }
 
     let customerId = null;
     if ((customerName && customerName.trim()) || (customerPhone && customerPhone.trim())) {
@@ -204,6 +220,8 @@ async function createOrder({
             customerPhone: customerPhone ? customerPhone.trim() : null,
             comment: comment ? comment.trim() : null,
             subtotal,
+            discountAmount,
+            promoCodeId: promoRecord ? promoRecord.id : null,
             total,
             currency: restaurant.currency,
             items: {
@@ -330,6 +348,10 @@ function serializeOrder(order) {
     customerPhone: order.customerPhone,
     comment: order.comment,
     subtotal: toNumber(order.subtotal),
+    discountAmount: toNumber(order.discountAmount) || 0,
+    promoCode: order.promoCode
+      ? { code: order.promoCode.code, type: order.promoCode.type, value: toNumber(order.promoCode.value) }
+      : null,
     total: toNumber(order.total),
     currency: order.currency,
     createdAt: order.createdAt,

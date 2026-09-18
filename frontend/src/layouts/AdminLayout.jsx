@@ -23,6 +23,7 @@ import {
   Gift,
   Star,
   AlertTriangle,
+  Tag,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -50,6 +51,7 @@ const LINKS = [
   { to: '/admin/qrcodes', label: 'QR Codes', icon: QrCode },
   { to: '/admin/serveuses', label: 'Serveuses', icon: Users },
   { to: '/admin/abonnements', label: 'Abonnements', icon: BadgeCheck },
+  { to: '/admin/codes-promo', label: 'Codes promo', icon: Tag },
   // Fidélité : insérée dynamiquement, uniquement si activée (voir Paramètres).
   { to: '/admin/avis', label: 'Avis', icon: Star },
   { to: '/admin/historique', label: 'Historique', icon: History },

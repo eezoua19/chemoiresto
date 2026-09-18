@@ -195,6 +195,7 @@ const createOrderSchema = z
     customerName: optionalText(80),
     customerPhone: optionalText(30),
     comment: optionalText(500),
+    promoCode: optionalText(40),
     items: z
       .array(
         z.object({
@@ -446,6 +447,45 @@ const pushUnsubscribeClientSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Codes promo
+// ---------------------------------------------------------------------------
+
+const promoCodeBase = z.object({
+  code: trimmed(2, 40, 'Code').transform((v) => v.toUpperCase()),
+  type: z.enum(['PERCENT', 'FIXED']),
+  value: z.coerce.number().positive('La valeur doit être positive'),
+  minOrderAmount: z.coerce.number().min(0).optional().nullable(),
+  maxUses: z.coerce.number().int().positive().optional().nullable(),
+  expiresAt: z.coerce.date().optional().nullable(),
+});
+
+const createPromoCodeSchema = promoCodeBase.refine(
+  (body) => body.type !== 'PERCENT' || body.value <= 100,
+  { message: 'Un pourcentage ne peut pas dépasser 100', path: ['value'] }
+);
+
+const updatePromoCodeSchema = z
+  .object({
+    code: trimmed(2, 40, 'Code').transform((v) => v.toUpperCase()).optional(),
+    type: z.enum(['PERCENT', 'FIXED']).optional(),
+    value: z.coerce.number().positive('La valeur doit être positive').optional(),
+    minOrderAmount: z.coerce.number().min(0).optional().nullable(),
+    maxUses: z.coerce.number().int().positive().optional().nullable(),
+    expiresAt: z.coerce.date().optional().nullable(),
+    isActive: booleanish.optional(),
+  })
+  .refine((body) => !(body.type === 'PERCENT' && body.value && body.value > 100), {
+    message: 'Un pourcentage ne peut pas dépasser 100',
+    path: ['value'],
+  });
+
+const validatePromoCodeSchema = z.object({
+  token: jetonClient,
+  code: trimmed(2, 40, 'Code'),
+  subtotal: z.coerce.number().min(0),
+});
+
+// ---------------------------------------------------------------------------
 // Journal des actions
 // ---------------------------------------------------------------------------
 
@@ -554,4 +594,7 @@ module.exports = {
   pushUnsubscribeSchema,
   pushSubscribeClientSchema,
   pushUnsubscribeClientSchema,
+  createPromoCodeSchema,
+  updatePromoCodeSchema,
+  validatePromoCodeSchema,
 };

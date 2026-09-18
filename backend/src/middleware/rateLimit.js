@@ -58,6 +58,15 @@ const pushClientLimiter = rateLimit({
   message,
 });
 
+/** Anti-spam sur l'apercu de code promo cote client (avant commande). */
+const promoLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: env.isProduction ? 20 : 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message,
+});
+
 module.exports = {
   globalLimiter,
   loginLimiter,
@@ -65,4 +74,5 @@ module.exports = {
   serviceRequestLimiter,
   reviewLimiter,
   pushClientLimiter,
+  promoLimiter,
 };

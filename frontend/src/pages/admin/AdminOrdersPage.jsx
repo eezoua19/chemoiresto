@@ -172,17 +172,17 @@ export default function AdminOrdersPage() {
           {COLUMNS.map((column) => {
             const orders = board.columns[column.key] || [];
             return (
-              <section key={column.key} className={`rounded-2xl border-t-4 bg-white p-3 shadow-card ${column.accent}`}>
+              <section key={column.key} className={`rounded-2xl border-t-4 bg-white dark:bg-ink-800 p-3 shadow-card ${column.accent}`}>
                 <header className="mb-3 flex items-center justify-between px-1">
-                  <h2 className="text-sm font-bold uppercase tracking-wide text-ink-700">{column.title}</h2>
-                  <span className="rounded-full bg-ink-100 px-2 py-0.5 text-xs font-bold text-ink-600">
+                  <h2 className="text-sm font-bold uppercase tracking-wide text-ink-700 dark:text-ink-200">{column.title}</h2>
+                  <span className="rounded-full bg-ink-100 dark:bg-ink-800 px-2 py-0.5 text-xs font-bold text-ink-600 dark:text-ink-300">
                     {orders.length}
                   </span>
                 </header>
 
                 <div className="space-y-3">
                   {orders.length === 0 ? (
-                    <p className="rounded-xl bg-ink-50 px-3 py-6 text-center text-xs text-ink-400">
+                    <p className="rounded-xl bg-ink-50 dark:bg-ink-900 px-3 py-6 text-center text-xs text-ink-400 dark:text-ink-500">
                       Aucune commande
                     </p>
                   ) : (
@@ -251,7 +251,7 @@ export default function AdminOrdersPage() {
             </option>
           ))}
         </Select>
-        <p className="mt-2 text-xs text-ink-500">
+        <p className="mt-2 text-xs text-ink-500 dark:text-ink-400">
           La serveuse choisie recevra immédiatement une notification et verra la commande dans son espace.
         </p>
       </Modal>

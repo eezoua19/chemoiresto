@@ -119,15 +119,15 @@ export default function AdminDashboardPage() {
         <button
           type="button"
           onClick={() => setMois((actuel) => decalerMois(actuel, -1))}
-          className="rounded-xl p-2 text-ink-600 transition hover:bg-ink-100"
+          className="rounded-xl p-2 text-ink-600 dark:text-ink-300 transition hover:bg-ink-100 dark:hover:bg-ink-700"
           aria-label="Mois précédent"
         >
           <ChevronLeft size={20} />
         </button>
 
         <div className="text-center">
-          <p className="text-base font-bold text-ink-900">{period?.label ?? mois}</p>
-          <p className="text-xs text-ink-600">
+          <p className="text-base font-bold text-ink-900 dark:text-ink-50">{period?.label ?? mois}</p>
+          <p className="text-xs text-ink-600 dark:text-ink-300">
             {period?.orders ?? 0} commande{(period?.orders ?? 0) > 1 ? 's' : ''} -{' '}
             {formatMoney(period?.revenue ?? 0, currency)}
           </p>
@@ -137,7 +137,7 @@ export default function AdminDashboardPage() {
           type="button"
           onClick={() => moisSuivantPossible && setMois((actuel) => decalerMois(actuel, 1))}
           disabled={!moisSuivantPossible}
-          className="rounded-xl p-2 text-ink-600 transition hover:bg-ink-100 disabled:cursor-not-allowed disabled:opacity-30"
+          className="rounded-xl p-2 text-ink-600 dark:text-ink-300 transition hover:bg-ink-100 dark:hover:bg-ink-700 disabled:cursor-not-allowed disabled:opacity-30"
           aria-label="Mois suivant"
         >
           <ChevronRight size={20} />
@@ -182,7 +182,7 @@ export default function AdminDashboardPage() {
       )}
 
       {today.openServiceRequests > 0 && (
-        <div className="mb-5 flex items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-5 py-4">
+        <div className="mb-5 flex items-center gap-3 rounded-2xl border border-sky-200 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-900/20 px-5 py-4">
           <BellRing size={20} className="text-sky-600" />
           <p className="text-sm font-medium text-sky-900">
             {today.openServiceRequests} demande(s) client en attente de traitement
@@ -288,14 +288,14 @@ export default function AdminDashboardPage() {
                   return (
                     <li key={product.name}>
                       <div className="mb-1 flex items-center justify-between gap-3 text-sm">
-                        <span className="truncate font-medium text-ink-800">
+                        <span className="truncate font-medium text-ink-800 dark:text-ink-100">
                           {index + 1}. {product.name}
                         </span>
-                        <span className="shrink-0 font-semibold text-ink-600">
+                        <span className="shrink-0 font-semibold text-ink-600 dark:text-ink-300">
                           {product.quantity} vendus
                         </span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-ink-100">
+                      <div className="h-2 overflow-hidden rounded-full bg-ink-100 dark:bg-ink-800">
                         <div
                           className="h-full rounded-full bg-brand-500"
                           style={{ width: `${(product.quantity / max) * 100}%` }}
@@ -315,13 +315,13 @@ export default function AdminDashboardPage() {
             {charts.serverPerformance.length === 0 ? (
               <EmptyState title="Pas encore de données" description="Aucune commande attribuée sur la période." />
             ) : (
-              <ul className="divide-y divide-ink-100">
+              <ul className="divide-y divide-ink-100 dark:divide-ink-700">
                 {charts.serverPerformance.map((server) => (
                   <li key={server.id} className="flex items-center justify-between gap-3 py-3">
-                    <span className="font-medium text-ink-800">{server.name}</span>
+                    <span className="font-medium text-ink-800 dark:text-ink-100">{server.name}</span>
                     <span className="text-right text-sm">
-                      <span className="block font-semibold text-ink-900">{server.orders} commandes</span>
-                      <span className="text-xs text-ink-500">{formatMoney(server.revenue, currency)}</span>
+                      <span className="block font-semibold text-ink-900 dark:text-ink-50">{server.orders} commandes</span>
+                      <span className="text-xs text-ink-500 dark:text-ink-400">{formatMoney(server.revenue, currency)}</span>
                     </span>
                   </li>
                 ))}

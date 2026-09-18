@@ -72,36 +72,36 @@ export default function CartSheet({
 
       <div
         className={`relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden
-                    rounded-t-3xl bg-white sm:rounded-3xl ${
+                    rounded-t-3xl bg-white dark:bg-ink-800 sm:rounded-3xl ${
                       sortant
                         ? 'animate-sheet-out sm:animate-slide-down'
                         : 'animate-sheet-in sm:animate-slide-up'
                     }`}
       >
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-ink-100 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-ink-100 dark:border-ink-700 px-5 py-4">
           <div className="flex items-center gap-2">
             {step === 'confirm' && (
               <button
                 type="button"
                 onClick={() => setStep('cart')}
-                className="rounded-lg p-1.5 text-ink-500 hover:bg-ink-100"
+                className="rounded-lg p-1.5 text-ink-500 dark:text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-700"
                 aria-label="Retour"
               >
                 <ChevronLeft size={18} />
               </button>
             )}
             <div>
-              <h2 className="text-lg font-bold text-ink-900">
+              <h2 className="text-lg font-bold text-ink-900 dark:text-ink-50">
                 {step === 'cart' ? 'Votre panier' : 'Confirmer la commande'}
               </h2>
-              <p className="text-xs text-ink-500">{destination}</p>
+              <p className="text-xs text-ink-500 dark:text-ink-400">{destination}</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={close}
-            className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100"
+            className="rounded-lg p-1.5 text-ink-400 dark:text-ink-500 hover:bg-ink-100 dark:hover:bg-ink-700"
             aria-label="Fermer"
           >
             <X size={20} />
@@ -118,15 +118,15 @@ export default function CartSheet({
           ) : step === 'cart' ? (
             <div className="space-y-3">
               {items.map((item) => (
-                <div key={item.signature} className="rounded-2xl border border-ink-100 p-3">
+                <div key={item.signature} className="rounded-2xl border border-ink-100 dark:border-ink-700 p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-ink-900">{item.name}</h3>
+                      <h3 className="font-semibold text-ink-900 dark:text-ink-50">{item.name}</h3>
 
                       {item.options.length > 0 && (
                         <ul className="mt-1 space-y-0.5">
                           {item.options.map((option) => (
-                            <li key={option.id} className="text-xs text-ink-500">
+                            <li key={option.id} className="text-xs text-ink-500 dark:text-ink-400">
                               {option.groupName} : {option.name}
                               {option.priceDelta > 0 && ` (+${formatMoney(option.priceDelta, currency)})`}
                             </li>
@@ -134,9 +134,9 @@ export default function CartSheet({
                         </ul>
                       )}
 
-                      {item.note && <p className="mt-1 text-xs italic text-ink-500">&laquo; {item.note} &raquo;</p>}
+                      {item.note && <p className="mt-1 text-xs italic text-ink-500 dark:text-ink-400">&laquo; {item.note} &raquo;</p>}
 
-                      <p className="mt-1.5 font-bold text-ink-900">
+                      <p className="mt-1.5 font-bold text-ink-900 dark:text-ink-50">
                         {formatMoney((item.unitPrice + item.optionsTotal) * item.quantity, currency)}
                       </p>
                     </div>
@@ -144,7 +144,7 @@ export default function CartSheet({
                     <button
                       type="button"
                       onClick={() => removeItem(item.signature)}
-                      className="rounded-lg p-1.5 text-ink-400 transition hover:bg-red-50 hover:text-red-600"
+                      className="rounded-lg p-1.5 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600"
                       aria-label="Supprimer"
                     >
                       <Trash2 size={16} />
@@ -155,16 +155,16 @@ export default function CartSheet({
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.signature, item.quantity - 1)}
-                      className="rounded-lg border border-ink-200 p-1.5 text-ink-600 transition hover:bg-ink-50"
+                      className="rounded-lg border border-ink-200 dark:border-ink-700 p-1.5 text-ink-600 dark:text-ink-300 transition hover:bg-ink-50 dark:hover:bg-ink-800"
                       aria-label="Diminuer"
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="w-9 text-center text-sm font-bold text-ink-900">{item.quantity}</span>
+                    <span className="w-9 text-center text-sm font-bold text-ink-900 dark:text-ink-50">{item.quantity}</span>
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.signature, item.quantity + 1)}
-                      className="rounded-lg border border-ink-200 p-1.5 text-ink-600 transition hover:bg-ink-50"
+                      className="rounded-lg border border-ink-200 dark:border-ink-700 p-1.5 text-ink-600 dark:text-ink-300 transition hover:bg-ink-50 dark:hover:bg-ink-800"
                       aria-label="Augmenter"
                     >
                       <Plus size={14} />
@@ -183,28 +183,28 @@ export default function CartSheet({
             </div>
           ) : (
             <div className="space-y-5">
-              <div className="rounded-2xl bg-ink-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+              <div className="rounded-2xl bg-ink-50 dark:bg-ink-900 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                   {destination}
                 </p>
                 <ul className="mt-3 space-y-2">
                   {items.map((item) => (
                     <li key={item.signature} className="flex justify-between gap-3 text-sm">
-                      <span className="text-ink-700">
-                        {item.name} <span className="text-ink-400">&times;{item.quantity}</span>
+                      <span className="text-ink-700 dark:text-ink-200">
+                        {item.name} <span className="text-ink-400 dark:text-ink-500">&times;{item.quantity}</span>
                         {item.options.length > 0 && (
-                          <span className="block text-xs text-ink-400">
+                          <span className="block text-xs text-ink-400 dark:text-ink-500">
                             {item.options.map((option) => option.name).join(', ')}
                           </span>
                         )}
                       </span>
-                      <span className="shrink-0 font-semibold text-ink-900">
+                      <span className="shrink-0 font-semibold text-ink-900 dark:text-ink-50">
                         {formatMoney((item.unitPrice + item.optionsTotal) * item.quantity, currency)}
                       </span>
                     </li>
                   ))}
                 </ul>
-                <div className="mt-3 flex justify-between border-t border-ink-200 pt-3 font-bold text-ink-900">
+                <div className="mt-3 flex justify-between border-t border-ink-200 dark:border-ink-700 pt-3 font-bold text-ink-900 dark:text-ink-50">
                   <span>Total</span>
                   <span>{formatMoney(total, currency)}</span>
                 </div>
@@ -223,7 +223,7 @@ export default function CartSheet({
                   onChange={(event) => setCustomerName(event.target.value)}
                 />
                 {takeaway && (
-                  <p className="mt-1 text-xs text-ink-500">
+                  <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
                     C&apos;est ce nom qui sera appele au comptoir quand votre commande sera prête.
                   </p>
                 )}
@@ -243,7 +243,7 @@ export default function CartSheet({
                   value={customerPhone}
                   onChange={(event) => setCustomerPhone(event.target.value)}
                 />
-                <p className="mt-1 text-xs text-ink-500">
+                <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
                   {takeaway
                     ? "Pour vous prévenir si vous n'êtes pas la quand c'est prêt."
                     : loyaltyEnabled
@@ -271,12 +271,12 @@ export default function CartSheet({
         </div>
 
         {items.length > 0 && (
-          <div className="safe-bottom shrink-0 border-t border-ink-100 bg-white px-5 pt-4">
+          <div className="safe-bottom shrink-0 border-t border-ink-100 dark:border-ink-700 bg-white dark:bg-ink-800 px-5 pt-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm text-ink-500">
+              <span className="text-sm text-ink-500 dark:text-ink-400">
                 {count} article{count > 1 ? 's' : ''}
               </span>
-              <span className="text-lg font-bold text-ink-900">{formatMoney(total, currency)}</span>
+              <span className="text-lg font-bold text-ink-900 dark:text-ink-50">{formatMoney(total, currency)}</span>
             </div>
 
             {step === 'cart' ? (
@@ -299,7 +299,7 @@ export default function CartSheet({
                   Confirmer la commande
                 </Button>
                 {nomManquant && (
-                  <p className="mt-2 text-center text-xs text-ink-500">
+                  <p className="mt-2 text-center text-xs text-ink-500 dark:text-ink-400">
                     Indiquez votre nom pour valider une commande à emporter.
                   </p>
                 )}

@@ -56,16 +56,16 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white p-6 shadow-float">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white dark:bg-ink-800 p-6 shadow-float">
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-400">
               {error}
             </div>
           )}
 
           <Field label="Adresse email" required>
             <div className="relative">
-              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
               <Input
                 type="email"
                 autoComplete="email"
@@ -80,7 +80,7 @@ export default function LoginPage() {
 
           <Field label="Mot de passe" required>
             <div className="relative">
-              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
               <Input
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
@@ -93,7 +93,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((value) => !value)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition hover:text-ink-700"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500 transition hover:text-ink-700 dark:hover:text-ink-200"
                 aria-label={showPassword ? 'Masquer' : 'Afficher'}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -106,7 +106,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-5 text-center text-xs text-ink-400">
+        <p className="mt-5 text-center text-xs text-ink-400 dark:text-ink-500">
           Les clients n&apos;ont pas besoin de compte : ils scannent simplement le QR Code de leur table.
         </p>
 

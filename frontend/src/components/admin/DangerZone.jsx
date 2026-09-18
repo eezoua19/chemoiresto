@@ -66,15 +66,15 @@ export default function DangerZone({ restaurantName }) {
 
   return (
     <>
-      <Card className="mt-5 border-red-200">
+      <Card className="mt-5 border-red-200 dark:border-red-900/50">
         <CardHeader
           title="Zone dangereuse"
           subtitle="À n’utiliser qu’avant une vraie ouverture, ou après une période d’essai"
         />
         <div className="flex flex-wrap items-center justify-between gap-3 p-5">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-ink-900">Remise à zéro des données</p>
-            <p className="mt-0.5 text-xs text-ink-500">
+            <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">Remise à zéro des données</p>
+            <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">
               Efface commandes, abonnements, recettes et journal. Garde votre carte, vos tables et
               vos QR Codes. Une sauvegarde est prise automatiquement avant.
             </p>
@@ -108,8 +108,8 @@ export default function DangerZone({ restaurantName }) {
         }
       >
         <div className="space-y-4">
-          <div className="flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-700" />
+          <div className="flex gap-3 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20 p-3">
+            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-700 dark:text-emerald-400" />
             <p className="text-xs text-emerald-900">
               Une sauvegarde complète est prise <strong>avant</strong> la suppression. Si elle
               échoue, rien n’est effacé. Vous la retrouverez dans Sauvegardes, téléchargeable.
@@ -117,8 +117,8 @@ export default function DangerZone({ restaurantName }) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3">
-              <p className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-red-800">
+            <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 p-3">
+              <p className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-red-800 dark:text-red-300">
                 <AlertTriangle size={13} /> Sera effacé
               </p>
               <ul className="space-y-1 text-xs text-red-900/85">
@@ -128,9 +128,9 @@ export default function DangerZone({ restaurantName }) {
               </ul>
             </div>
 
-            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3">
-              <p className="mb-1.5 text-xs font-bold text-ink-700">Sera conservé</p>
-              <ul className="space-y-1 text-xs text-ink-600">
+            <div className="rounded-xl border border-ink-200 dark:border-ink-700 bg-ink-50 dark:bg-ink-900 p-3">
+              <p className="mb-1.5 text-xs font-bold text-ink-700 dark:text-ink-200">Sera conservé</p>
+              <ul className="space-y-1 text-xs text-ink-600 dark:text-ink-300">
                 {GARDE.map((ligne) => (
                   <li key={ligne}>• {ligne}</li>
                 ))}

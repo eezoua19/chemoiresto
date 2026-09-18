@@ -378,7 +378,7 @@ export default function AdminSubscriptionsPage() {
       {/* ---------------------------- recherche --------------------------- */}
       <div className="mb-4 flex flex-wrap gap-2">
         <div className="relative min-w-[220px] flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
           <Input
             className="pl-9"
             placeholder="Nom, téléphone ou numéro d'abonnement"
@@ -427,30 +427,30 @@ export default function AdminSubscriptionsPage() {
               <div key={abonnement.id} className="card flex flex-wrap items-center gap-x-4 gap-y-3 p-4">
                 <div className="min-w-[190px] flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-bold text-ink-900">{abonnement.fullName}</h3>
+                    <h3 className="font-bold text-ink-900 dark:text-ink-50">{abonnement.fullName}</h3>
                     <span className={`badge ${etat.badge}`}>{etat.court}</span>
                   </div>
-                  <p className="font-mono text-xs text-ink-500">{abonnement.number}</p>
+                  <p className="font-mono text-xs text-ink-500 dark:text-ink-400">{abonnement.number}</p>
                 </div>
 
                 <div className="min-w-[150px] text-sm">
-                  <p className="text-ink-700">{abonnement.phone}</p>
-                  <p className="text-xs text-ink-500">{abonnement.planLabel}</p>
+                  <p className="text-ink-700 dark:text-ink-200">{abonnement.phone}</p>
+                  <p className="text-xs text-ink-500 dark:text-ink-400">{abonnement.planLabel}</p>
                 </div>
 
                 <div className="min-w-[170px] text-sm">
-                  <p className="text-ink-700">
+                  <p className="text-ink-700 dark:text-ink-200">
                     {formatShortDate(abonnement.startDate)} &rarr; {formatShortDate(abonnement.endDate)}
                   </p>
                   <p className={`text-xs ${etat.accent}`}>{echeance(abonnement)}</p>
                 </div>
 
                 <div className="min-w-[90px] text-sm">
-                  <p className="text-ink-700">
+                  <p className="text-ink-700 dark:text-ink-200">
                     {abonnement.usageCount} passage{abonnement.usageCount > 1 ? 's' : ''}
                   </p>
                   {abonnement.renewalCount > 0 && (
-                    <p className="text-xs text-ink-500">
+                    <p className="text-xs text-ink-500 dark:text-ink-400">
                       {abonnement.renewalCount} renouvellement{abonnement.renewalCount > 1 ? 's' : ''}
                     </p>
                   )}
@@ -483,7 +483,7 @@ export default function AdminSubscriptionsPage() {
                     <Button
                       variant="ghost"
                       icon={PauseCircle}
-                      className="text-amber-700 hover:bg-amber-50"
+                      className="text-amber-700 dark:text-amber-400 hover:bg-amber-50"
                       onClick={() => changerStatut(abonnement, 'SUSPENDED')}
                     >
                       Suspendre
@@ -493,7 +493,7 @@ export default function AdminSubscriptionsPage() {
                     <Button
                       variant="ghost"
                       icon={PlayCircle}
-                      className="text-emerald-700 hover:bg-emerald-50"
+                      className="text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50"
                       onClick={() => changerStatut(abonnement, 'ACTIVE')}
                     >
                       Réactiver
@@ -512,7 +512,7 @@ export default function AdminSubscriptionsPage() {
                   <Button
                     variant="ghost"
                     icon={Trash2}
-                    className="text-red-700 hover:bg-red-50"
+                    className="text-red-700 dark:text-red-400 hover:bg-red-50"
                     onClick={() => setDeleteTarget(abonnement)}
                   >
                     Supprimer
@@ -534,7 +534,7 @@ export default function AdminSubscriptionsPage() {
           >
             Précédent
           </Button>
-          <span className="px-3 text-sm text-ink-600">
+          <span className="px-3 text-sm text-ink-600 dark:text-ink-300">
             Page {pagination.page} sur {pagination.pages}
           </span>
           <Button
@@ -555,19 +555,19 @@ export default function AdminSubscriptionsPage() {
             subtitle="Chaque passage enregistré au comptoir"
             icon={History}
           />
-          <div className="divide-y divide-ink-100">
+          <div className="divide-y divide-ink-100 dark:divide-ink-700">
             {stats.recent.map((passage) => (
               <div key={passage.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 text-sm">
-                <span className="min-w-[150px] flex-1 font-semibold text-ink-900">
+                <span className="min-w-[150px] flex-1 font-semibold text-ink-900 dark:text-ink-50">
                   {passage.subscription.fullName}
                 </span>
-                <span className="font-mono text-xs text-ink-500">{passage.subscription.number}</span>
-                <span className="text-ink-600">{passage.type}</span>
+                <span className="font-mono text-xs text-ink-500 dark:text-ink-400">{passage.subscription.number}</span>
+                <span className="text-ink-600 dark:text-ink-300">{passage.type}</span>
                 {passage.order && (
-                  <span className="font-mono text-xs text-ink-500">{passage.order.orderNumber}</span>
+                  <span className="font-mono text-xs text-ink-500 dark:text-ink-400">{passage.order.orderNumber}</span>
                 )}
-                <span className="text-xs text-ink-500">{formatDateTime(passage.createdAt)}</span>
-                {passage.user && <span className="text-xs text-ink-400">par {passage.user.fullName}</span>}
+                <span className="text-xs text-ink-500 dark:text-ink-400">{formatDateTime(passage.createdAt)}</span>
+                {passage.user && <span className="text-xs text-ink-400 dark:text-ink-500">par {passage.user.fullName}</span>}
               </div>
             ))}
           </div>
@@ -721,52 +721,52 @@ export default function AdminSubscriptionsPage() {
                 <img
                   src={detail.ticket.qrDataUrl}
                   alt={`QR Code de l'abonnement ${detail.number}`}
-                  className="h-44 w-44 rounded-xl border border-ink-100"
+                  className="h-44 w-44 rounded-xl border border-ink-100 dark:border-ink-700"
                 />
-                <p className="break-all rounded-xl bg-ink-50 px-3 py-2 text-center font-mono text-[11px] text-ink-600">
+                <p className="break-all rounded-xl bg-ink-50 dark:bg-ink-900 px-3 py-2 text-center font-mono text-[11px] text-ink-600 dark:text-ink-300">
                   {detail.ticket.url}
                 </p>
               </div>
             )}
 
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-              <dt className="text-ink-500">Formule</dt>
-              <dd className="text-right font-semibold text-ink-900">{detail.planLabel}</dd>
-              <dt className="text-ink-500">Téléphone</dt>
-              <dd className="text-right font-semibold text-ink-900">{detail.phone}</dd>
-              <dt className="text-ink-500">Période</dt>
-              <dd className="text-right font-semibold text-ink-900">
+              <dt className="text-ink-500 dark:text-ink-400">Formule</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">{detail.planLabel}</dd>
+              <dt className="text-ink-500 dark:text-ink-400">Téléphone</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">{detail.phone}</dd>
+              <dt className="text-ink-500 dark:text-ink-400">Période</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">
                 {formatShortDate(detail.startDate)} &rarr; {formatShortDate(detail.endDate)}
               </dd>
               {detail.amount !== null && (
                 <>
-                  <dt className="text-ink-500">Montant payé</dt>
-                  <dd className="text-right font-semibold text-ink-900">
+                  <dt className="text-ink-500 dark:text-ink-400">Montant payé</dt>
+                  <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">
                     {formatMoney(detail.amount, restaurant?.currency)}
                   </dd>
                 </>
               )}
-              <dt className="text-ink-500">Passages</dt>
-              <dd className="text-right font-semibold text-ink-900">{detail.usageCount ?? 0}</dd>
+              <dt className="text-ink-500 dark:text-ink-400">Passages</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">{detail.usageCount ?? 0}</dd>
             </dl>
 
             {detail.note && (
-              <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">{detail.note}</p>
+              <p className="rounded-xl bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-300">{detail.note}</p>
             )}
 
             {detail.usages && detail.usages.length > 0 && (
               <div>
                 <p className="label">Historique des utilisations</p>
-                <div className="max-h-56 divide-y divide-ink-100 overflow-y-auto rounded-xl border border-ink-100">
+                <div className="max-h-56 divide-y divide-ink-100 dark:divide-ink-700 overflow-y-auto rounded-xl border border-ink-100 dark:border-ink-700">
                   {detail.usages.map((passage) => (
                     <div key={passage.id} className="flex flex-wrap items-baseline gap-x-3 px-3 py-2 text-xs">
-                      <span className="font-semibold text-ink-800">{passage.type}</span>
-                      <span className="text-ink-600">{formatDateTime(passage.createdAt)}</span>
+                      <span className="font-semibold text-ink-800 dark:text-ink-100">{passage.type}</span>
+                      <span className="text-ink-600 dark:text-ink-300">{formatDateTime(passage.createdAt)}</span>
                       {passage.order && (
-                        <span className="font-mono text-ink-500">{passage.order.orderNumber}</span>
+                        <span className="font-mono text-ink-500 dark:text-ink-400">{passage.order.orderNumber}</span>
                       )}
-                      {passage.user && <span className="text-ink-400">par {passage.user.fullName}</span>}
-                      {passage.note && <span className="italic text-ink-500">{passage.note}</span>}
+                      {passage.user && <span className="text-ink-400 dark:text-ink-500">par {passage.user.fullName}</span>}
+                      {passage.note && <span className="italic text-ink-500 dark:text-ink-400">{passage.note}</span>}
                     </div>
                   ))}
                 </div>
@@ -805,12 +805,12 @@ export default function AdminSubscriptionsPage() {
                 ))}
               </Select>
             </Field>
-            <p className="rounded-xl bg-ink-50 px-3 py-2 text-xs text-ink-600">
+            <p className="rounded-xl bg-ink-50 dark:bg-ink-900 px-3 py-2 text-xs text-ink-600 dark:text-ink-300">
               {renewTarget.daysLeft >= 0
                 ? `Il reste ${renewTarget.daysLeft} jour(s) : le nouveau cycle démarre à la suite, aucun jour n'est perdu.`
                 : "L'abonnement est expiré : le nouveau cycle démarre aujourd'hui."}
             </p>
-            <p className="text-xs text-ink-500">
+            <p className="text-xs text-ink-500 dark:text-ink-400">
               Le numéro et le QR Code ne changent pas : le client garde son ticket.
             </p>
           </div>

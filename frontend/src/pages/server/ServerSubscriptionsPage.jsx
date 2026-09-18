@@ -67,7 +67,7 @@ export default function ServerSubscriptionsPage() {
 
       <form onSubmit={chercher} className="flex flex-wrap gap-2">
         <div className="relative min-w-[200px] flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
           <Input
             className="pl-9"
             placeholder="Nom, téléphone ou numéro d'abonnement"
@@ -104,15 +104,15 @@ export default function ServerSubscriptionsPage() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="truncate font-bold text-ink-900">{abonnement.fullName}</h2>
+                    <h2 className="truncate font-bold text-ink-900 dark:text-ink-50">{abonnement.fullName}</h2>
                     <span className={`badge ${etat.badge}`}>{etat.court}</span>
                   </div>
-                  <p className="font-mono text-xs text-ink-500">{abonnement.number}</p>
+                  <p className="font-mono text-xs text-ink-500 dark:text-ink-400">{abonnement.number}</p>
                   <p className={`text-xs ${etat.accent}`}>
                     {echeance(abonnement)} &middot; jusqu&apos;au {formatShortDate(abonnement.endDate)}
                   </p>
                 </div>
-                <ChevronRight size={18} className="shrink-0 text-ink-400" />
+                <ChevronRight size={18} className="shrink-0 text-ink-400 dark:text-ink-500" />
               </Link>
             );
           })}

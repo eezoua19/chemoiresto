@@ -15,18 +15,18 @@ import { Button, Card, CardHeader } from '../ui';
 const APPARENCE = {
   bloquant: {
     icone: XCircle,
-    puce: 'bg-red-100 text-red-700',
-    cadre: 'border-red-200 bg-red-50/60',
+    puce: 'bg-red-100 text-red-700 dark:text-red-400',
+    cadre: 'border-red-200 dark:border-red-900/50 bg-red-50/60',
   },
   attention: {
     icone: AlertTriangle,
-    puce: 'bg-amber-100 text-amber-800',
-    cadre: 'border-amber-200 bg-amber-50/50',
+    puce: 'bg-amber-100 text-amber-800 dark:text-amber-300',
+    cadre: 'border-amber-200 dark:border-amber-900/50 bg-amber-50/50',
   },
   info: {
     icone: Info,
-    puce: 'bg-ink-100 text-ink-600',
-    cadre: 'border-ink-200 bg-white',
+    puce: 'bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300',
+    cadre: 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800',
   },
 };
 
@@ -81,7 +81,7 @@ export default function MiseEnService() {
   // Tout est en ordre : une ligne, et on passe à autre chose.
   if (aCorriger.length === 0) {
     return (
-      <div className="mb-5 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+      <div className="mb-5 flex items-center gap-2.5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/60 px-4 py-3">
         <CheckCircle2 size={18} className="shrink-0 text-emerald-600" />
         <p className="text-sm font-semibold text-emerald-900">
           Tout est prêt pour le service.
@@ -89,7 +89,7 @@ export default function MiseEnService() {
         <button
           type="button"
           onClick={load}
-          className="ml-auto text-xs font-semibold text-emerald-700 hover:underline"
+          className="ml-auto text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline"
         >
           Revérifier
         </button>
@@ -99,7 +99,7 @@ export default function MiseEnService() {
 
   return (
     <Card
-      className={`mb-5 ${summary.blocking > 0 ? 'border-red-200' : 'border-amber-200'}`}
+      className={`mb-5 ${summary.blocking > 0 ? 'border-red-200 dark:border-red-900/50' : 'border-amber-200 dark:border-amber-900/50'}`}
     >
       <CardHeader
         title={
@@ -136,8 +136,8 @@ export default function MiseEnService() {
               </span>
 
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-ink-900">{controle.titre}</p>
-                <p className="mt-0.5 text-xs leading-relaxed text-ink-600">{controle.detail}</p>
+                <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">{controle.titre}</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-ink-600 dark:text-ink-300">{controle.detail}</p>
               </div>
 
               <div className="flex shrink-0 items-center gap-2">

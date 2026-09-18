@@ -34,7 +34,7 @@ export default function RuptureBanner() {
   if (produits.length === 0) return null;
 
   return (
-    <Card className="mb-5 border-amber-200 bg-amber-50/50">
+    <Card className="mb-5 border-amber-200 dark:border-amber-900/50 bg-amber-50/50">
       <CardHeader
         title="Ruptures en cours"
         subtitle={`${produits.length} plat${produits.length > 1 ? 's' : ''} indisponible${produits.length > 1 ? 's' : ''}`}
@@ -44,19 +44,19 @@ export default function RuptureBanner() {
         {produits.slice(0, 6).map((produit) => (
           <span
             key={produit.id}
-            className="rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-semibold text-amber-800"
+            className="rounded-full border border-amber-300 bg-white dark:bg-ink-800 px-3 py-1 text-xs font-semibold text-amber-800 dark:text-amber-300"
           >
             {produit.name}
           </span>
         ))}
         {produits.length > 6 && (
-          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
             +{produits.length - 6}
           </span>
         )}
         <Link
           to="/admin/ruptures"
-          className="ml-auto inline-flex items-center gap-0.5 text-sm font-semibold text-amber-800 hover:underline"
+          className="ml-auto inline-flex items-center gap-0.5 text-sm font-semibold text-amber-800 dark:text-amber-300 hover:underline"
         >
           Voir tout <ChevronRight size={15} />
         </Link>

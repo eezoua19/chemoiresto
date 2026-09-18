@@ -118,12 +118,12 @@ export default function AdminBackupsPage() {
         <>
           {/* ------------------------- L'état du système ------------------------ */}
           <Card
-            className={`mb-5 p-4 ${alerte ? 'border-red-200 bg-red-50/60' : 'border-emerald-200 bg-emerald-50/60'}`}
+            className={`mb-5 p-4 ${alerte ? 'border-red-200 dark:border-red-900/50 bg-red-50/60' : 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/60'}`}
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex gap-3">
                 <span
-                  className={`mt-0.5 rounded-xl p-2 ${alerte ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}
+                  className={`mt-0.5 rounded-xl p-2 ${alerte ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-emerald-100 text-emerald-700 dark:text-emerald-400'}`}
                 >
                   {alerte ? <ShieldAlert size={20} /> : <ShieldCheck size={20} />}
                 </span>
@@ -159,8 +159,8 @@ export default function AdminBackupsPage() {
           </Card>
 
           {/* -------------------------- La mise en garde ------------------------- */}
-          <Card className="mb-5 border-amber-200 bg-amber-50/60 p-4">
-            <p className="text-sm font-bold text-amber-900">Gardez-en une chez vous</p>
+          <Card className="mb-5 border-amber-200 dark:border-amber-900/50 bg-amber-50/60 p-4">
+            <p className="text-sm font-bold text-amber-900 dark:text-amber-300">Gardez-en une chez vous</p>
             <p className="mt-1 text-xs text-amber-900/80">
               Ces sauvegardes vivent sur le même serveur que vos données : elles vous protègent
               d&apos;une suppression malencontreuse, pas d&apos;une panne de l&apos;hébergeur.
@@ -192,14 +192,14 @@ export default function AdminBackupsPage() {
               />
             </Card>
           ) : (
-            <Card className="divide-y divide-ink-100 p-0">
+            <Card className="divide-y divide-ink-100 dark:divide-ink-700 p-0">
               {sauvegardes.map((sauvegarde) => (
                 <div key={sauvegarde.id} className="flex flex-wrap items-center gap-3 p-4">
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-ink-900">
+                    <p className="font-semibold text-ink-900 dark:text-ink-50">
                       {formatDateTime(sauvegarde.createdAt)}
                     </p>
-                    <p className="mt-0.5 text-xs text-ink-500">
+                    <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">
                       {taille(sauvegarde.sizeBytes)}
                       {` - ${origine(sauvegarde.trigger)}`}
                       {sauvegarde.counts &&
@@ -208,7 +208,7 @@ export default function AdminBackupsPage() {
                         } commandes`}
                     </p>
                     {sauvegarde.note && (
-                      <p className="mt-1 text-xs text-amber-700">{sauvegarde.note}</p>
+                      <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">{sauvegarde.note}</p>
                     )}
                   </div>
 

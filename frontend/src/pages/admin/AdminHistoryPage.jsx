@@ -106,7 +106,7 @@ export default function AdminHistoryPage() {
       <Card className="mb-5 p-4">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
             <Input
               className="pl-9"
               placeholder="N. commande, table, client..."
@@ -196,7 +196,7 @@ export default function AdminHistoryPage() {
           <Card className="overflow-x-auto">
             <table className="w-full min-w-[880px] text-sm">
               <thead>
-                <tr className="border-b border-ink-100 text-left text-xs uppercase tracking-wide text-ink-500">
+                <tr className="border-b border-ink-100 dark:border-ink-700 text-left text-xs uppercase tracking-wide text-ink-500 dark:text-ink-400">
                   <th className="px-4 py-3 font-semibold">Commande</th>
                   <th className="px-4 py-3 font-semibold">Origine</th>
                   <th className="px-4 py-3 font-semibold">Client</th>
@@ -206,22 +206,22 @@ export default function AdminHistoryPage() {
                   <th className="px-4 py-3 text-right font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ink-100">
+              <tbody className="divide-y divide-ink-100 dark:divide-ink-700">
                 {orders.map((order) => (
                   <tr key={order.id} className="hover:bg-ink-50/60">
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-ink-900">{order.orderNumber}</p>
-                      <p className="text-xs text-ink-500">{formatDateTime(order.createdAt)}</p>
+                      <p className="font-semibold text-ink-900 dark:text-ink-50">{order.orderNumber}</p>
+                      <p className="text-xs text-ink-500 dark:text-ink-400">{formatDateTime(order.createdAt)}</p>
                     </td>
-                    <td className="px-4 py-3 text-ink-700">{libelleCourt(order)}</td>
-                    <td className="px-4 py-3 text-ink-700">{order.customerName || '-'}</td>
-                    <td className="px-4 py-3 text-ink-700">{order.server?.fullName || '-'}</td>
+                    <td className="px-4 py-3 text-ink-700 dark:text-ink-200">{libelleCourt(order)}</td>
+                    <td className="px-4 py-3 text-ink-700 dark:text-ink-200">{order.customerName || '-'}</td>
+                    <td className="px-4 py-3 text-ink-700 dark:text-ink-200">{order.server?.fullName || '-'}</td>
                     <td className="px-4 py-3">
                       <span className={`badge ${ORDER_STATUS[order.status].badge}`}>
                         {ORDER_STATUS[order.status].label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-semibold text-ink-900">
+                    <td className="px-4 py-3 font-semibold text-ink-900 dark:text-ink-50">
                       {formatMoney(order.total, currency)}
                     </td>
                     <td className="px-4 py-3">
@@ -229,7 +229,7 @@ export default function AdminHistoryPage() {
                         <button
                           type="button"
                           onClick={() => setDetail(order)}
-                          className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
+                          className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700"
                           aria-label="Voir le détail"
                         >
                           <Eye size={16} />
@@ -237,7 +237,7 @@ export default function AdminHistoryPage() {
                         <button
                           type="button"
                           onClick={() => print(order)}
-                          className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
+                          className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700"
                           aria-label="Imprimer"
                         >
                           <Printer size={16} />
@@ -260,7 +260,7 @@ export default function AdminHistoryPage() {
               >
                 Précédent
               </Button>
-              <span className="px-3 text-sm text-ink-600">
+              <span className="px-3 text-sm text-ink-600 dark:text-ink-300">
                 Page {pagination.page} sur {pagination.totalPages}
               </span>
               <Button
@@ -291,26 +291,26 @@ export default function AdminHistoryPage() {
       >
         {detail && (
           <div className="space-y-5">
-            <ul className="divide-y divide-ink-100">
+            <ul className="divide-y divide-ink-100 dark:divide-ink-700">
               {detail.items.map((item) => (
                 <li key={item.id} className="flex justify-between gap-3 py-2.5">
                   <div>
-                    <p className="text-sm font-medium text-ink-900">
-                      {item.productName} <span className="text-ink-400">&times;{item.quantity}</span>
+                    <p className="text-sm font-medium text-ink-900 dark:text-ink-50">
+                      {item.productName} <span className="text-ink-400 dark:text-ink-500">&times;{item.quantity}</span>
                     </p>
                     {item.options.length > 0 && (
-                      <p className="text-xs text-ink-500">
+                      <p className="text-xs text-ink-500 dark:text-ink-400">
                         {item.options
                           .map((option) => `${option.optionName} : ${option.valueName}`)
                           .join(' - ')}
                       </p>
                     )}
-                    {item.note && <p className="text-xs italic text-ink-500">&laquo; {item.note} &raquo;</p>}
-                    <p className="text-xs text-ink-400">
+                    {item.note && <p className="text-xs italic text-ink-500 dark:text-ink-400">&laquo; {item.note} &raquo;</p>}
+                    <p className="text-xs text-ink-400 dark:text-ink-500">
                       Prix unitaire au moment de la commande : {formatMoney(item.unitPrice, currency)}
                     </p>
                   </div>
-                  <span className="shrink-0 text-sm font-semibold text-ink-900">
+                  <span className="shrink-0 text-sm font-semibold text-ink-900 dark:text-ink-50">
                     {formatMoney(item.lineTotal, currency)}
                   </span>
                 </li>
@@ -318,25 +318,25 @@ export default function AdminHistoryPage() {
             </ul>
 
             {detail.comment && (
-              <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <p className="rounded-xl bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
                 Commentaire : {detail.comment}
               </p>
             )}
 
-            <div className="flex justify-between border-t border-ink-100 pt-4 text-lg font-bold text-ink-900">
+            <div className="flex justify-between border-t border-ink-100 dark:border-ink-700 pt-4 text-lg font-bold text-ink-900 dark:text-ink-50">
               <span>Total</span>
               <span>{formatMoney(detail.total, currency)}</span>
             </div>
 
             <div>
-              <h3 className="mb-2 font-semibold text-ink-900">Historique des statuts</h3>
+              <h3 className="mb-2 font-semibold text-ink-900 dark:text-ink-50">Historique des statuts</h3>
               <ul className="space-y-2">
                 {detail.statusHistory.map((entry) => (
                   <li key={entry.id} className="flex items-center gap-3 text-sm">
                     <span className={`h-2 w-2 shrink-0 rounded-full ${ORDER_STATUS[entry.status].dot}`} />
-                    <span className="font-medium text-ink-800">{ORDER_STATUS[entry.status].label}</span>
-                    <span className="text-xs text-ink-500">{formatDateTime(entry.createdAt)}</span>
-                    {entry.user && <span className="text-xs text-ink-400">par {entry.user.fullName}</span>}
+                    <span className="font-medium text-ink-800 dark:text-ink-100">{ORDER_STATUS[entry.status].label}</span>
+                    <span className="text-xs text-ink-500 dark:text-ink-400">{formatDateTime(entry.createdAt)}</span>
+                    {entry.user && <span className="text-xs text-ink-400 dark:text-ink-500">par {entry.user.fullName}</span>}
                   </li>
                 ))}
               </ul>

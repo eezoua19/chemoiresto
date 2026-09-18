@@ -93,7 +93,7 @@ export default function ServerOrdersPage() {
 
       <div className="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
           <Input
             className="pl-9"
             placeholder="N. commande, table, client..."

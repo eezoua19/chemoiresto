@@ -158,7 +158,7 @@ export default function AdminLoyaltyPage() {
 
       <div className="mb-4 flex flex-wrap gap-2">
         <div className="relative min-w-[220px] flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
           <Input
             className="pl-9"
             placeholder="Rechercher par téléphone ou nom"
@@ -191,12 +191,12 @@ export default function AdminLoyaltyPage() {
           {accounts.map((account) => (
             <div key={account.id} className="card flex flex-wrap items-center gap-x-4 gap-y-3 p-4">
               <div className="min-w-[170px] flex-1">
-                <h3 className="font-bold text-ink-900">{account.name || 'Client'}</h3>
-                <p className="font-mono text-xs text-ink-500">{account.phone}</p>
+                <h3 className="font-bold text-ink-900 dark:text-ink-50">{account.name || 'Client'}</h3>
+                <p className="font-mono text-xs text-ink-500 dark:text-ink-400">{account.phone}</p>
               </div>
 
               <div className="min-w-[120px] text-sm">
-                <p className="flex items-center gap-1 text-ink-700">
+                <p className="flex items-center gap-1 text-ink-700 dark:text-ink-200">
                   <Sparkles size={14} className="text-brand" /> {account.points} point{account.points > 1 ? 's' : ''}
                 </p>
                 {account.rewardsAvailable > 0 && (
@@ -207,7 +207,7 @@ export default function AdminLoyaltyPage() {
                 )}
               </div>
 
-              <div className="min-w-[120px] text-xs text-ink-500">
+              <div className="min-w-[120px] text-xs text-ink-500 dark:text-ink-400">
                 Depuis le {formatDateTime(account.createdAt).split(' ')[0]}
               </div>
 
@@ -246,7 +246,7 @@ export default function AdminLoyaltyPage() {
           >
             Précédent
           </Button>
-          <span className="px-3 text-sm text-ink-600">
+          <span className="px-3 text-sm text-ink-600 dark:text-ink-300">
             Page {pagination.page} sur {pagination.pages}
           </span>
           <Button
@@ -263,24 +263,24 @@ export default function AdminLoyaltyPage() {
       <Modal open={Boolean(detail)} onClose={() => setDetail(null)} title={detail?.name || detail?.phone} size="lg">
         {detail && (
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-3 rounded-xl bg-ink-50 p-3 text-center">
+            <div className="grid grid-cols-3 gap-3 rounded-xl bg-ink-50 dark:bg-ink-900 p-3 text-center">
               <div>
-                <p className="text-xl font-bold text-ink-900">{detail.points}</p>
-                <p className="text-xs text-ink-500">Points</p>
+                <p className="text-xl font-bold text-ink-900 dark:text-ink-50">{detail.points}</p>
+                <p className="text-xs text-ink-500 dark:text-ink-400">Points</p>
               </div>
               <div>
                 <p className="text-xl font-bold text-emerald-600">{detail.rewardsAvailable}</p>
-                <p className="text-xs text-ink-500">Disponibles</p>
+                <p className="text-xs text-ink-500 dark:text-ink-400">Disponibles</p>
               </div>
               <div>
-                <p className="text-xl font-bold text-ink-400">{detail.rewardsRedeemed}</p>
-                <p className="text-xs text-ink-500">Utilisées</p>
+                <p className="text-xl font-bold text-ink-400 dark:text-ink-500">{detail.rewardsRedeemed}</p>
+                <p className="text-xs text-ink-500 dark:text-ink-400">Utilisées</p>
               </div>
             </div>
 
             <ul className="max-h-72 space-y-2 overflow-y-auto">
               {detail.transactions.map((tx) => (
-                <li key={tx.id} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 px-3 py-2 text-sm">
+                <li key={tx.id} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 dark:border-ink-700 px-3 py-2 text-sm">
                   <div className="flex items-center gap-2">
                     {tx.points >= 0 ? (
                       <PlusCircle size={14} className="text-emerald-500" />
@@ -288,17 +288,17 @@ export default function AdminLoyaltyPage() {
                       <MinusCircle size={14} className="text-red-500" />
                     )}
                     <div>
-                      <p className="text-ink-900">{TX_LABEL[tx.type] || tx.type}</p>
-                      {tx.note && <p className="text-xs text-ink-500">{tx.note}</p>}
-                      {tx.user && <p className="text-xs text-ink-400">par {tx.user.fullName}</p>}
+                      <p className="text-ink-900 dark:text-ink-50">{TX_LABEL[tx.type] || tx.type}</p>
+                      {tx.note && <p className="text-xs text-ink-500 dark:text-ink-400">{tx.note}</p>}
+                      {tx.user && <p className="text-xs text-ink-400 dark:text-ink-500">par {tx.user.fullName}</p>}
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`font-semibold ${tx.points > 0 ? 'text-emerald-600' : tx.points < 0 ? 'text-red-600' : 'text-ink-400'}`}>
+                    <p className={`font-semibold ${tx.points > 0 ? 'text-emerald-600' : tx.points < 0 ? 'text-red-600' : 'text-ink-400 dark:text-ink-500'}`}>
                       {tx.points > 0 ? '+' : ''}
                       {tx.points}
                     </p>
-                    <p className="text-xs text-ink-400">{formatDateTime(tx.createdAt)}</p>
+                    <p className="text-xs text-ink-400 dark:text-ink-500">{formatDateTime(tx.createdAt)}</p>
                   </div>
                 </li>
               ))}

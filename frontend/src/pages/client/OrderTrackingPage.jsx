@@ -69,7 +69,7 @@ export default function OrderTrackingPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-ink-50 px-6">
+      <div className="flex min-h-screen items-center justify-center bg-ink-50 dark:bg-ink-900 px-6">
         <div className="w-full max-w-sm">
           {error.status === 404 ? (
             <EmptyState
@@ -88,7 +88,7 @@ export default function OrderTrackingPage() {
   const config = ORDER_STATUS[order.status];
 
   return (
-    <div className="min-h-screen bg-ink-50 pb-10">
+    <div className="min-h-screen bg-ink-50 dark:bg-ink-900 pb-10">
       <header
         className="motif-cuisine px-5 pb-8 pt-6 text-white"
         style={{ background: 'linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 100%)' }}
@@ -141,34 +141,34 @@ export default function OrderTrackingPage() {
           </div>
 
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold text-ink-900">Suivi</h2>
+            <h2 className="font-semibold text-ink-900 dark:text-ink-50">Suivi</h2>
             <span className={`badge ${config.badge}`}>{config.clientLabel}</span>
           </div>
           <OrderJourneyTracker order={order} />
           {order.server && (
-            <p className="mt-4 rounded-xl bg-ink-50 px-4 py-2.5 text-sm text-ink-600">
-              Votre serveuse : <span className="font-semibold text-ink-900">{order.server.firstName}</span>
+            <p className="mt-4 rounded-xl bg-ink-50 dark:bg-ink-900 px-4 py-2.5 text-sm text-ink-600 dark:text-ink-300">
+              Votre serveuse : <span className="font-semibold text-ink-900 dark:text-ink-50">{order.server.firstName}</span>
             </p>
           )}
         </section>
 
         <section className="card animate-entree p-5" style={{ animationDelay: '90ms' }}>
-          <h2 className="mb-3 font-semibold text-ink-900">Détail</h2>
+          <h2 className="mb-3 font-semibold text-ink-900 dark:text-ink-50">Détail</h2>
           <ul className="space-y-3">
             {order.items.map((item) => (
               <li key={item.id} className="flex justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-ink-900">
-                    {item.productName} <span className="text-ink-400">&times;{item.quantity}</span>
+                  <p className="text-sm font-medium text-ink-900 dark:text-ink-50">
+                    {item.productName} <span className="text-ink-400 dark:text-ink-500">&times;{item.quantity}</span>
                   </p>
                   {item.options.length > 0 && (
-                    <p className="text-xs text-ink-500">
+                    <p className="text-xs text-ink-500 dark:text-ink-400">
                       {item.options.map((option) => option.valueName).join(', ')}
                     </p>
                   )}
-                  {item.note && <p className="text-xs italic text-ink-500">&laquo; {item.note} &raquo;</p>}
+                  {item.note && <p className="text-xs italic text-ink-500 dark:text-ink-400">&laquo; {item.note} &raquo;</p>}
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-ink-900">
+                <span className="shrink-0 text-sm font-semibold text-ink-900 dark:text-ink-50">
                   {formatMoney(item.lineTotal, order.currency)}
                 </span>
               </li>
@@ -176,12 +176,12 @@ export default function OrderTrackingPage() {
           </ul>
 
           {order.comment && (
-            <p className="mt-4 rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+            <p className="mt-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 px-4 py-2.5 text-sm text-amber-800 dark:text-amber-300">
               Commentaire : {order.comment}
             </p>
           )}
 
-          <div className="mt-4 flex justify-between border-t border-ink-100 pt-4 text-lg font-bold text-ink-900">
+          <div className="mt-4 flex justify-between border-t border-ink-100 dark:border-ink-700 pt-4 text-lg font-bold text-ink-900 dark:text-ink-50">
             <span>Total</span>
             <span>{formatMoney(order.total, order.currency)}</span>
           </div>

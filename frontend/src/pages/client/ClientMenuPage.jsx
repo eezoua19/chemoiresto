@@ -14,9 +14,12 @@ import {
   PartyPopper,
   ChevronRight,
   History,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { CartProvider, useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
+import { useTheme } from '../../context/ThemeContext';
 import { publicApi } from '../../services/endpoints';
 import { imageUrl } from '../../services/api';
 import { getSocket } from '../../services/socket';
@@ -73,6 +76,7 @@ export default function ClientMenuPage({ service = 'DINE_IN' }) {
 function ClientMenuContent({ token, service }) {
   const emporter = service === 'TAKEAWAY';
   const toast = useToast();
+  const { isDark, toggleTheme } = useTheme();
   const cart = useCart();
 
   const [state, setState] = useState({ loading: true, error: null, data: null });
@@ -317,7 +321,7 @@ function ClientMenuContent({ token, service }) {
   if (state.error) {
     const status = state.error.status;
     return (
-      <div className="flex min-h-screen items-center justify-center bg-ink-50 px-6">
+      <div className="flex min-h-screen items-center justify-center bg-ink-50 dark:bg-ink-900 px-6">
         <div className="w-full max-w-sm">
           {status === 404 ? (
             <EmptyState
@@ -364,7 +368,7 @@ function ClientMenuContent({ token, service }) {
   const rappelBill = etatDuRappel(openBill, maintenant);
 
   return (
-    <div className="min-h-screen bg-ink-50 pb-28">
+    <div className="min-h-screen bg-ink-50 dark:bg-ink-900 pb-28">
       {/* ------------------------- En-tete ------------------------- */}
       {/* Le motif de couverts donne une texture de maison : sans lui,
           l'en-tete est un aplat de couleur qui pourrait etre n'importe quoi. */}
@@ -390,6 +394,15 @@ function ClientMenuContent({ token, service }) {
               <h1 className="truncate text-xl font-bold">{restaurant.name}</h1>
               <p className="text-sm text-white/80">{restaurant.welcomeMessage || 'Bienvenue !'}</p>
             </div>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white transition hover:bg-white/25"
+              title={isDark ? 'Mode clair' : 'Mode sombre'}
+              aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+            >
+              {isDark ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
             <Link
               to="/mes-commandes"
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white transition hover:bg-white/25"
@@ -467,10 +480,10 @@ function ClientMenuContent({ token, service }) {
               <div key={order.id} className="card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                       Commande en cours
                     </p>
-                    <p className="font-bold text-ink-900">{order.orderNumber}</p>
+                    <p className="font-bold text-ink-900 dark:text-ink-50">{order.orderNumber}</p>
                   </div>
                   <span className={`badge ${ORDER_STATUS[order.status].badge}`}>
                     {ORDER_STATUS[order.status].clientLabel}
@@ -488,7 +501,7 @@ function ClientMenuContent({ token, service }) {
                 )}
 
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-ink-900">
+                  <span className="text-sm font-semibold text-ink-900 dark:text-ink-50">
                     {formatMoney(order.total, currency)}
                   </span>
                   <Link
@@ -506,7 +519,7 @@ function ClientMenuContent({ token, service }) {
 
         {/* ------------------ Rappel du retrait au comptoir ------------------ */}
         {emporter && (
-          <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3">
+          <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50 dark:bg-brand-900/30 px-4 py-3">
             <p className="flex items-center gap-2 text-sm font-semibold text-brand-800">
               <ShoppingBag size={16} /> Commande à emporter
             </p>
@@ -526,7 +539,7 @@ function ClientMenuContent({ token, service }) {
               onClick={() => sendServiceRequest('CALL_SERVER')}
               disabled={requestPending === 'CALL_SERVER'}
               className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition
-                ${openCall ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-ink-200 bg-white text-ink-700 hover:border-amber-300 hover:bg-amber-50'}`}
+                ${openCall ? 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' : 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 text-ink-700 dark:text-ink-200 hover:border-amber-300 hover:bg-amber-50'}`}
             >
               <Bell size={20} />
               {openCall ? 'Serveuse appelée' : 'Appeler une serveuse'}
@@ -537,7 +550,7 @@ function ClientMenuContent({ token, service }) {
               onClick={() => sendServiceRequest('BILL')}
               disabled={requestPending === 'BILL'}
               className={`flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-4 text-sm font-semibold transition
-                ${openBill ? 'border-sky-300 bg-sky-50 text-sky-700' : 'border-ink-200 bg-white text-ink-700 hover:border-sky-300 hover:bg-sky-50'}`}
+                ${openBill ? 'border-sky-300 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400' : 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 text-ink-700 dark:text-ink-200 hover:border-sky-300 hover:bg-sky-50'}`}
             >
               <Receipt size={20} />
               {openBill ? 'Addition demandée' : "Demander l'addition"}
@@ -580,7 +593,7 @@ function ClientMenuContent({ token, service }) {
           <>
             {dishesOfDay.length > 0 && activeCategory === 'all' && (
               <section className="mt-6">
-                <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-ink-500">
+                <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                   <Star size={14} className="fill-amber-400 text-amber-400" />
                   Les plats du jour
                 </h2>
@@ -601,13 +614,13 @@ function ClientMenuContent({ token, service }) {
             {/* La barre descend quand l'en-tete compact apparait, pour ne
                 pas passer dessous. */}
             <div
-              className="sticky z-20 -mx-4 mt-6 bg-ink-50/95 px-4 py-3 backdrop-blur transition-[top] duration-300"
+              className="sticky z-20 -mx-4 mt-6 bg-ink-50/95 dark:bg-ink-900/95 px-4 py-3 backdrop-blur transition-[top] duration-300"
               style={{ top: compact ? 56 : 0 }}
             >
               <div className="overflow-x-auto pb-1">
                 <div
                   ref={ongletsRef}
-                  className="relative inline-flex gap-1 rounded-full border border-ink-200 bg-white p-1"
+                  className="relative inline-flex gap-1 rounded-full border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 p-1"
                 >
                   {/* Un seul fond, qui se deplace. Rien ne s'allume ni ne
                       s'eteint : c'est ce glissement qui rend la barre vivante. */}
@@ -634,7 +647,7 @@ function ClientMenuContent({ token, service }) {
                         data-actif={isActive}
                         onClick={() => setActiveCategory(category.id === 'all' ? 'all' : category.id)}
                         className={`relative z-10 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                          isActive ? 'text-white' : 'text-ink-600'
+                          isActive ? 'text-white' : 'text-ink-600 dark:text-ink-300'
                         }`}
                       >
                         {category.name}
@@ -685,7 +698,7 @@ function ClientMenuContent({ token, service }) {
                     telephone, un chiffre qui change sans bouger passe inapercu. */}
                 <span
                   key={cart.count}
-                  className="absolute -right-2 -top-2 flex h-5 min-w-[20px] animate-pop items-center justify-center rounded-full bg-white px-1 text-[11px] font-bold text-ink-900"
+                  className="absolute -right-2 -top-2 flex h-5 min-w-[20px] animate-pop items-center justify-center rounded-full bg-white dark:bg-ink-800 px-1 text-[11px] font-bold text-ink-900 dark:text-ink-50"
                 >
                   {cart.count}
                 </span>
@@ -740,17 +753,17 @@ function ClientMenuContent({ token, service }) {
       >
         {confirmation && (
           <div className="text-center">
-            <span className="mx-auto mb-3 inline-flex animate-pop rounded-2xl bg-emerald-50 p-3 text-emerald-600">
+            <span className="mx-auto mb-3 inline-flex animate-pop rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 p-3 text-emerald-600">
               <PartyPopper size={28} />
             </span>
-            <p className="text-sm text-ink-600">
+            <p className="text-sm text-ink-600 dark:text-ink-300">
               {emporter
                 ? 'Votre commande est partie en cuisine. Gardez ce code, il vous sera demande au comptoir.'
                 : 'Votre commande a bien été transmise à la serveuse.'}
             </p>
 
             {emporter && confirmation.pickupCode && (
-              <div className="mt-4 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3">
+              <div className="mt-4 rounded-2xl border border-brand-200 bg-brand-50 dark:bg-brand-900/30 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
                   Votre code de retrait
                 </p>
@@ -760,8 +773,8 @@ function ClientMenuContent({ token, service }) {
               </div>
             )}
 
-            <p className="mt-4 text-lg font-bold text-ink-900">{confirmation.orderNumber}</p>
-            <p className="text-sm text-ink-500">
+            <p className="mt-4 text-lg font-bold text-ink-900 dark:text-ink-50">{confirmation.orderNumber}</p>
+            <p className="text-sm text-ink-500 dark:text-ink-400">
               {emporter ? 'À emporter' : `Table ${table.number}`}
             </p>
             <p className="mt-2 text-xl font-extrabold" style={{ color: 'var(--brand)' }}>
@@ -788,7 +801,7 @@ function RappelBouton({ etat, libelle, attente, occupe, onRappel }) {
 
   if (etat.epuise) {
     return (
-      <p className="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-center text-xs text-ink-500">
+      <p className="rounded-2xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 px-4 py-3 text-center text-xs text-ink-500 dark:text-ink-400">
         Le personnel a été relancé {etat.nombre} fois. Si personne ne vient, adressez-vous au
         comptoir.
       </p>
@@ -797,7 +810,7 @@ function RappelBouton({ etat, libelle, attente, occupe, onRappel }) {
 
   if (!etat.possible) {
     return (
-      <p className="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-center text-xs text-ink-500">
+      <p className="rounded-2xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 px-4 py-3 text-center text-xs text-ink-500 dark:text-ink-400">
         {attente}. Vous pourrez relancer dans {etat.secondes}&nbsp;s.
       </p>
     );
@@ -808,12 +821,12 @@ function RappelBouton({ etat, libelle, attente, occupe, onRappel }) {
       type="button"
       onClick={onRappel}
       disabled={occupe}
-      className="flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-400 bg-amber-100 px-4 py-3 text-sm font-bold text-amber-800 transition hover:bg-amber-200 disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-400 bg-amber-100 px-4 py-3 text-sm font-bold text-amber-800 dark:text-amber-300 transition hover:bg-amber-200 disabled:opacity-60"
     >
       <BellRing size={18} />
       {libelle}
       {etat.nombre > 0 && (
-        <span className="text-xs font-semibold text-amber-700">
+        <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
           (déjà relancé {etat.nombre} fois)
         </span>
       )}

@@ -91,7 +91,7 @@ export default function SubscriptionCheckPage() {
 
   if (state.loading) {
     return (
-      <div className="mx-auto min-h-screen max-w-lg space-y-4 bg-ink-50 px-4 py-8">
+      <div className="mx-auto min-h-screen max-w-lg space-y-4 bg-ink-50 dark:bg-ink-900 px-4 py-8">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-40 rounded-2xl" />
         <Skeleton className="h-56 rounded-2xl" />
@@ -101,7 +101,7 @@ export default function SubscriptionCheckPage() {
 
   if (state.error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-ink-50 dark:bg-ink-900 px-4">
         <div className="w-full max-w-sm">
           <ErrorState
             message={state.error.message}
@@ -118,12 +118,12 @@ export default function SubscriptionCheckPage() {
   const introuvable = !abonnement.found;
 
   return (
-    <div className="min-h-screen bg-ink-50">
+    <div className="min-h-screen bg-ink-50 dark:bg-ink-900">
       <div className="mx-auto max-w-lg px-4 py-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
             to={retour}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 hover:text-ink-900"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 dark:text-ink-300 hover:text-ink-900 dark:hover:text-ink-50"
           >
             <ArrowLeft size={16} /> Retour aux abonnements
           </Link>
@@ -150,7 +150,7 @@ export default function SubscriptionCheckPage() {
 
         {introuvable ? (
           <div className="card mt-4 p-5 text-center">
-            <p className="text-sm text-ink-600">
+            <p className="text-sm text-ink-600 dark:text-ink-300">
               Ce QR Code ne correspond à aucun abonnement de ce restaurant. Vérifiez le ticket, ou
               cherchez l&apos;abonné par son nom ou son téléphone.
             </p>
@@ -162,24 +162,24 @@ export default function SubscriptionCheckPage() {
           <>
             {/* ------------------------ La fiche ------------------------ */}
             <div className="card mt-4 p-5">
-              <h1 className="text-xl font-bold text-ink-900">{abonnement.fullName}</h1>
-              <p className="font-mono text-sm text-ink-500">{abonnement.number}</p>
+              <h1 className="text-xl font-bold text-ink-900 dark:text-ink-50">{abonnement.fullName}</h1>
+              <p className="font-mono text-sm text-ink-500 dark:text-ink-400">{abonnement.number}</p>
 
               <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <dt className="text-ink-500">Formule</dt>
-                <dd className="text-right font-semibold text-ink-900">{abonnement.planLabel}</dd>
-                <dt className="text-ink-500">Téléphone</dt>
-                <dd className="text-right font-semibold text-ink-900">
+                <dt className="text-ink-500 dark:text-ink-400">Formule</dt>
+                <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">{abonnement.planLabel}</dd>
+                <dt className="text-ink-500 dark:text-ink-400">Téléphone</dt>
+                <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">
                   <a href={`tel:${abonnement.phone}`} className="text-brand-700 hover:underline">
                     {abonnement.phone}
                   </a>
                 </dd>
-                <dt className="text-ink-500">Valable jusqu&apos;au</dt>
-                <dd className="text-right font-semibold text-ink-900">
+                <dt className="text-ink-500 dark:text-ink-400">Valable jusqu&apos;au</dt>
+                <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">
                   {formatShortDate(abonnement.endDate)}
                 </dd>
-                <dt className="text-ink-500">Passages</dt>
-                <dd className="text-right font-semibold text-ink-900">{abonnement.usageCount ?? 0}</dd>
+                <dt className="text-ink-500 dark:text-ink-400">Passages</dt>
+                <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">{abonnement.usageCount ?? 0}</dd>
               </dl>
             </div>
 
@@ -188,7 +188,7 @@ export default function SubscriptionCheckPage() {
               {abonnement.isUsable ? (
                 <>
                   {justeEnregistre && (
-                    <p className="mb-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">
+                    <p className="mb-3 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
                       <CheckCircle2 size={16} /> Passage enregistré
                     </p>
                   )}
@@ -214,16 +214,16 @@ export default function SubscriptionCheckPage() {
                   >
                     {justeEnregistre ? 'Enregistrer un autre passage' : 'Enregistrer le passage'}
                   </Button>
-                  <p className="mt-2 text-center text-xs text-ink-500">
+                  <p className="mt-2 text-center text-xs text-ink-500 dark:text-ink-400">
                     Le scan seul ne compte pas : c&apos;est ce bouton qui enregistre.
                   </p>
                 </>
               ) : (
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-ink-800">
+                  <p className="text-sm font-semibold text-ink-800 dark:text-ink-100">
                     Aucun passage ne peut être enregistré.
                   </p>
-                  <p className="mt-1 text-sm text-ink-600">
+                  <p className="mt-1 text-sm text-ink-600 dark:text-ink-300">
                     {abonnement.state === 'EXPIRE' &&
                       "L'abonnement est arrivé à expiration. L'administration peut le renouveler."}
                     {abonnement.state === 'SUSPENDU' &&
@@ -242,19 +242,19 @@ export default function SubscriptionCheckPage() {
             {/* ------------------------ Historique ------------------------ */}
             {abonnement.usages && abonnement.usages.length > 0 && (
               <div className="card mt-4">
-                <div className="flex items-center gap-2 border-b border-ink-100 px-5 py-3">
-                  <History size={16} className="text-ink-500" />
-                  <h2 className="text-sm font-bold text-ink-900">Derniers passages</h2>
+                <div className="flex items-center gap-2 border-b border-ink-100 dark:border-ink-700 px-5 py-3">
+                  <History size={16} className="text-ink-500 dark:text-ink-400" />
+                  <h2 className="text-sm font-bold text-ink-900 dark:text-ink-50">Derniers passages</h2>
                 </div>
-                <div className="max-h-72 divide-y divide-ink-100 overflow-y-auto">
+                <div className="max-h-72 divide-y divide-ink-100 dark:divide-ink-700 overflow-y-auto">
                   {abonnement.usages.map((passage) => (
                     <div key={passage.id} className="flex flex-wrap items-baseline gap-x-3 px-5 py-2.5 text-xs">
-                      <span className="font-semibold text-ink-800">{passage.type}</span>
-                      <span className="text-ink-600">{formatDateTime(passage.createdAt)}</span>
+                      <span className="font-semibold text-ink-800 dark:text-ink-100">{passage.type}</span>
+                      <span className="text-ink-600 dark:text-ink-300">{formatDateTime(passage.createdAt)}</span>
                       {passage.order && (
-                        <span className="font-mono text-ink-500">{passage.order.orderNumber}</span>
+                        <span className="font-mono text-ink-500 dark:text-ink-400">{passage.order.orderNumber}</span>
                       )}
-                      {passage.user && <span className="text-ink-400">par {passage.user.fullName}</span>}
+                      {passage.user && <span className="text-ink-400 dark:text-ink-500">par {passage.user.fullName}</span>}
                     </div>
                   ))}
                 </div>

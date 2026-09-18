@@ -73,7 +73,7 @@ export default function PushSubscribeToggle() {
       type="button"
       onClick={subscribed ? desactiver : activer}
       disabled={busy}
-      className="rounded-xl p-2.5 text-ink-500 transition hover:bg-ink-100 disabled:opacity-50"
+      className="rounded-xl p-2.5 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700 disabled:opacity-50"
       title={subscribed ? 'Désactiver les notifications push' : 'Activer les notifications push'}
       aria-label={subscribed ? 'Désactiver les notifications push' : 'Activer les notifications push'}
     >

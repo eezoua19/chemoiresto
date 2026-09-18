@@ -23,10 +23,10 @@ export default function ProductCard({ item, currency, onSelect, index = 0 }) {
       onClick={() => !disabled && onSelect(item)}
       disabled={disabled}
       style={{ animationDelay: `${retard}ms` }}
-      className={`group flex w-full animate-entree gap-3 rounded-2xl border border-ink-100 bg-white p-3 text-left transition
+      className={`group flex w-full animate-entree gap-3 rounded-2xl border border-ink-100 dark:border-ink-700 bg-white dark:bg-ink-800 p-3 text-left transition
                   ${disabled ? 'opacity-60' : 'active:scale-[0.99] hover:border-brand-200 hover:shadow-card'}`}
     >
-      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-ink-100">
+      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-ink-100 dark:bg-ink-800">
         {image ? (
           // Le leger zoom a l'appui donne la sensation que la photo repond au
           // doigt. Uniquement une transformation : rien a recalculer.
@@ -55,23 +55,23 @@ export default function ProductCard({ item, currency, onSelect, index = 0 }) {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <h3 className="font-semibold leading-tight text-ink-900">{item.name}</h3>
+        <h3 className="font-semibold leading-tight text-ink-900 dark:text-ink-50">{item.name}</h3>
         {item.description && (
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-500">{item.description}</p>
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-500 dark:text-ink-400">{item.description}</p>
         )}
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-2">
           <div>
-            <p className="font-bold text-ink-900">{formatMoney(item.price, currency)}</p>
+            <p className="font-bold text-ink-900 dark:text-ink-50">{formatMoney(item.price, currency)}</p>
             {item.hasSpecialPrice && item.basePrice !== item.price && (
-              <p className="text-xs text-ink-400 line-through">
+              <p className="text-xs text-ink-400 dark:text-ink-500 line-through">
                 {formatMoney(item.basePrice, currency)}
               </p>
             )}
           </div>
 
           {disabled ? (
-            <span className="badge bg-red-50 text-red-600">Indisponible</span>
+            <span className="badge bg-red-50 dark:bg-red-900/20 text-red-600">Indisponible</span>
           ) : (
             <span
               className="flex h-8 w-8 items-center justify-center rounded-full text-white"

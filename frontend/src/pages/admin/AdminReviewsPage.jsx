@@ -110,9 +110,9 @@ export default function AdminReviewsPage() {
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <Etoiles note={review.rating} />
-                  {review.comment && <p className="mt-2 text-sm text-ink-700">&laquo; {review.comment} &raquo;</p>}
+                  {review.comment && <p className="mt-2 text-sm text-ink-700 dark:text-ink-200">&laquo; {review.comment} &raquo;</p>}
                 </div>
-                <div className="text-right text-xs text-ink-500">
+                <div className="text-right text-xs text-ink-500 dark:text-ink-400">
                   <p>{formatDateTime(review.createdAt)}</p>
                   {review.order && (
                     <p>
@@ -137,7 +137,7 @@ export default function AdminReviewsPage() {
           >
             Précédent
           </Button>
-          <span className="px-3 text-sm text-ink-600">
+          <span className="px-3 text-sm text-ink-600 dark:text-ink-300">
             Page {pagination.page} sur {pagination.pages}
           </span>
           <Button

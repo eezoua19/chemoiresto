@@ -134,13 +134,13 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
 
       <div
         className={`relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden
-                    rounded-t-3xl bg-white sm:rounded-3xl ${
+                    rounded-t-3xl bg-white dark:bg-ink-800 sm:rounded-3xl ${
                       sortant
                         ? 'animate-sheet-out sm:animate-slide-down'
                         : 'animate-sheet-in sm:animate-slide-up'
                     }`}
       >
-        <div className="relative h-44 shrink-0 bg-ink-100 sm:h-52">
+        <div className="relative h-44 shrink-0 bg-ink-100 dark:bg-ink-800 sm:h-52">
           {image ? (
             <img ref={visuelRef} src={image} alt={item.name} className="h-full w-full object-cover" />
           ) : (
@@ -151,7 +151,7 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-ink-700 shadow backdrop-blur"
+            className="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-ink-700 dark:text-ink-200 shadow backdrop-blur"
             aria-label="Fermer"
           >
             <X size={18} />
@@ -164,8 +164,8 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          <h2 className="text-xl font-bold text-ink-900">{item.name}</h2>
-          {item.description && <p className="mt-1.5 text-sm text-ink-500">{item.description}</p>}
+          <h2 className="text-xl font-bold text-ink-900 dark:text-ink-50">{item.name}</h2>
+          {item.description && <p className="mt-1.5 text-sm text-ink-500 dark:text-ink-400">{item.description}</p>}
           <p className="mt-2 text-lg font-bold" style={{ color: 'var(--brand)' }}>
             {formatMoney(item.price, currency)}
           </p>
@@ -173,8 +173,8 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
           {(item.options || []).map((group) => (
             <div key={group.id} className="mt-6">
               <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-semibold text-ink-900">{group.name}</h3>
-                <span className="text-xs font-medium text-ink-500">
+                <h3 className="font-semibold text-ink-900 dark:text-ink-50">{group.name}</h3>
+                <span className="text-xs font-medium text-ink-500 dark:text-ink-400">
                   {group.isRequired ? 'Obligatoire' : 'Facultatif'}
                   {group.type === 'MULTIPLE' ? ' - choix multiple' : ''}
                 </span>
@@ -189,26 +189,26 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
                       type="button"
                       onClick={() => toggle(group, value.id)}
                       className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition
-                                  ${isSelected ? 'border-brand-400 bg-brand-50' : 'border-ink-200 bg-white hover:bg-ink-50'}`}
+                                  ${isSelected ? 'border-brand-400 bg-brand-50 dark:bg-brand-900/30' : 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 hover:bg-ink-50 dark:hover:bg-ink-800'}`}
                     >
                       <span className="flex items-center gap-3">
                         <span
                           className={`flex h-5 w-5 shrink-0 items-center justify-center border-2 transition
                             ${group.type === 'SINGLE' ? 'rounded-full' : 'rounded-md'}
-                            ${isSelected ? 'border-brand-500 bg-brand-500' : 'border-ink-300'}`}
+                            ${isSelected ? 'border-brand-500 bg-brand-500' : 'border-ink-300 dark:border-ink-600'}`}
                         >
                           {isSelected && (
                             <span
-                              className={`bg-white ${
+                              className={`bg-white dark:bg-ink-800 ${
                                 group.type === 'SINGLE' ? 'h-1.5 w-1.5 rounded-full' : 'h-2 w-2 rounded-sm'
                               }`}
                             />
                           )}
                         </span>
-                        <span className="text-sm font-medium text-ink-800">{value.name}</span>
+                        <span className="text-sm font-medium text-ink-800 dark:text-ink-100">{value.name}</span>
                       </span>
                       {value.priceDelta > 0 && (
-                        <span className="text-sm font-semibold text-ink-600">
+                        <span className="text-sm font-semibold text-ink-600 dark:text-ink-300">
                           +{formatMoney(value.priceDelta, currency)}
                         </span>
                       )}
@@ -234,28 +234,28 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
           </div>
 
           {error && (
-            <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
+            <p className="mt-4 rounded-xl bg-red-50 dark:bg-red-900/20 px-4 py-2.5 text-sm font-medium text-red-700 dark:text-red-400">
               {error}
             </p>
           )}
         </div>
 
-        <div className="safe-bottom flex shrink-0 items-center gap-3 border-t border-ink-100 bg-white px-5 pt-4">
-          <div className="flex items-center gap-1 rounded-xl border border-ink-200 p-1">
+        <div className="safe-bottom flex shrink-0 items-center gap-3 border-t border-ink-100 dark:border-ink-700 bg-white dark:bg-ink-800 px-5 pt-4">
+          <div className="flex items-center gap-1 rounded-xl border border-ink-200 dark:border-ink-700 p-1">
             <button
               type="button"
               onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-              className="rounded-lg p-2 text-ink-600 transition hover:bg-ink-100 disabled:opacity-40"
+              className="rounded-lg p-2 text-ink-600 dark:text-ink-300 transition hover:bg-ink-100 dark:hover:bg-ink-700 disabled:opacity-40"
               disabled={quantity <= 1}
               aria-label="Diminuer"
             >
               <Minus size={16} />
             </button>
-            <span className="w-8 text-center font-bold text-ink-900">{quantity}</span>
+            <span className="w-8 text-center font-bold text-ink-900 dark:text-ink-50">{quantity}</span>
             <button
               type="button"
               onClick={() => setQuantity((value) => Math.min(50, value + 1))}
-              className="rounded-lg p-2 text-ink-600 transition hover:bg-ink-100"
+              className="rounded-lg p-2 text-ink-600 dark:text-ink-300 transition hover:bg-ink-100 dark:hover:bg-ink-700"
               aria-label="Augmenter"
             >
               <Plus size={16} />

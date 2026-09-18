@@ -45,19 +45,19 @@ export default function TempsAnnonce({ order, onChange }) {
   const annonce = order.estimatedMinutes;
 
   return (
-    <div className="border-t border-ink-100 px-4 py-2.5">
+    <div className="border-t border-ink-100 dark:border-ink-700 px-4 py-2.5">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500 dark:text-ink-400">
           <Timer size={13} />
           {annonce ? 'Annoncé au client' : 'Annoncer au client'}
         </span>
 
         {annonce ? (
           <>
-            <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800">
+            <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300">
               <Check size={12} /> {annonce} min
               {order.estimatedReadyAt && (
-                <span className="font-medium text-emerald-700">
+                <span className="font-medium text-emerald-700 dark:text-emerald-400">
                   · vers {formatTime(order.estimatedReadyAt)}
                 </span>
               )}
@@ -72,7 +72,7 @@ export default function TempsAnnonce({ order, onChange }) {
                   type="button"
                   onClick={() => annoncer(minutes)}
                   disabled={busy !== null}
-                  className="rounded-lg border border-ink-200 px-2 py-1 text-xs font-semibold text-ink-600 transition hover:border-brand-300 hover:text-brand-700 disabled:opacity-50"
+                  className="rounded-lg border border-ink-200 dark:border-ink-700 px-2 py-1 text-xs font-semibold text-ink-600 dark:text-ink-300 transition hover:border-brand-300 hover:text-brand-700 disabled:opacity-50"
                 >
                   {minutes}
                 </button>
@@ -81,7 +81,7 @@ export default function TempsAnnonce({ order, onChange }) {
                 type="button"
                 onClick={() => annoncer(0)}
                 disabled={busy !== null}
-                className="rounded-lg px-2 py-1 text-xs font-semibold text-ink-400 transition hover:text-red-600 disabled:opacity-50"
+                className="rounded-lg px-2 py-1 text-xs font-semibold text-ink-400 dark:text-ink-500 transition hover:text-red-600 disabled:opacity-50"
               >
                 Retirer
               </button>
@@ -95,7 +95,7 @@ export default function TempsAnnonce({ order, onChange }) {
                 type="button"
                 onClick={() => annoncer(minutes)}
                 disabled={busy !== null}
-                className="rounded-lg border border-ink-200 bg-white px-2.5 py-1 text-xs font-semibold text-ink-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-50"
+                className="rounded-lg border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 px-2.5 py-1 text-xs font-semibold text-ink-700 dark:text-ink-200 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-50"
               >
                 {busy === minutes ? '...' : `${minutes} min`}
               </button>

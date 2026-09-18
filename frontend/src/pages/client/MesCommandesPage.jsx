@@ -52,7 +52,7 @@ export default function MesCommandesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-ink-50 pb-10">
+    <div className="min-h-screen bg-ink-50 dark:bg-ink-900 pb-10">
       <header
         className="px-5 pb-6 pt-6 text-white"
         style={{ background: 'linear-gradient(160deg, var(--brand) 0%, var(--brand-dark) 100%)' }}
@@ -77,7 +77,7 @@ export default function MesCommandesPage() {
         {etat.chargement && (
           <div className="card animate-entree space-y-3 p-5">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-ink-100" />
+              <div key={i} className="h-16 animate-pulse rounded-xl bg-ink-100 dark:bg-ink-800" />
             ))}
           </div>
         )}
@@ -103,11 +103,11 @@ export default function MesCommandesPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-semibold uppercase tracking-wide text-ink-500">
+                  <p className="truncate text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                     {commande.restaurantName}
                   </p>
-                  <p className="font-bold text-ink-900">{commande.orderNumber}</p>
-                  <p className="mt-0.5 text-xs text-ink-400">
+                  <p className="font-bold text-ink-900 dark:text-ink-50">{commande.orderNumber}</p>
+                  <p className="mt-0.5 text-xs text-ink-400 dark:text-ink-500">
                     {commande.tableLabel || 'À emporter'} · {formatDateTime(commande.createdAt)}
                   </p>
                 </div>
@@ -115,7 +115,7 @@ export default function MesCommandesPage() {
               </div>
 
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-sm font-semibold text-ink-900">
+                <span className="text-sm font-semibold text-ink-900 dark:text-ink-50">
                   {formatMoney(commande.total, commande.currency)}
                 </span>
                 <span

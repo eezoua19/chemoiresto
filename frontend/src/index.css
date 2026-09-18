@@ -33,7 +33,7 @@
   }
 
   body {
-    @apply bg-ink-50 text-ink-900 antialiased;
+    @apply bg-ink-50 text-ink-900 antialiased transition-colors dark:bg-ink-900 dark:text-ink-50;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   }
 
@@ -67,10 +67,11 @@
     background-color: var(--brand-dark);
   }
   .btn-secondary {
-    @apply btn border border-ink-200 bg-white text-ink-700 hover:bg-ink-50;
+    @apply btn border border-ink-200 bg-white text-ink-700 hover:bg-ink-50
+           dark:border-ink-700 dark:bg-ink-800 dark:text-ink-200 dark:hover:bg-ink-700;
   }
   .btn-ghost {
-    @apply btn text-ink-600 hover:bg-ink-100;
+    @apply btn text-ink-600 hover:bg-ink-100 dark:text-ink-300 dark:hover:bg-ink-800;
   }
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700;
@@ -80,17 +81,19 @@
   }
 
   .card {
-    @apply rounded-2xl border border-ink-100 bg-white shadow-card;
+    @apply rounded-2xl border border-ink-100 bg-white shadow-card dark:border-ink-700 dark:bg-ink-800;
   }
 
   .input {
     @apply w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900
            outline-none transition placeholder:text-ink-400
-           focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:bg-ink-50;
+           focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:bg-ink-50
+           dark:border-ink-700 dark:bg-ink-800 dark:text-ink-50 dark:placeholder:text-ink-500
+           dark:focus:ring-brand-900/40 dark:disabled:bg-ink-900;
   }
 
   .label {
-    @apply mb-1.5 block text-sm font-medium text-ink-700;
+    @apply mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-200;
   }
 
   .badge {
@@ -162,15 +165,17 @@
   }
 
   .skeleton {
-    @apply animate-pulse rounded-lg bg-ink-100;
+    @apply animate-pulse rounded-lg bg-ink-100 dark:bg-ink-700;
   }
 
   .sidebar-link {
     @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-600
-           transition hover:bg-ink-100 hover:text-ink-900;
+           transition hover:bg-ink-100 hover:text-ink-900
+           dark:text-ink-300 dark:hover:bg-ink-800 dark:hover:text-ink-50;
   }
   .sidebar-link-active {
-    @apply bg-brand-50 font-semibold text-brand-700 hover:bg-brand-50 hover:text-brand-700;
+    @apply bg-brand-50 font-semibold text-brand-700 hover:bg-brand-50 hover:text-brand-700
+           dark:bg-brand-900/30 dark:text-brand-400 dark:hover:bg-brand-900/30 dark:hover:text-brand-400;
   }
 
   /* Masque les elements non imprimables */

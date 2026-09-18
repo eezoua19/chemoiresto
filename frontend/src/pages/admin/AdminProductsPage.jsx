@@ -387,7 +387,7 @@ export default function AdminProductsPage() {
 
       <div className="card mb-5 grid gap-3 p-4 sm:grid-cols-2">
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
           <Input
             className="pl-9"
             placeholder="Rechercher un produit..."
@@ -427,7 +427,7 @@ export default function AdminProductsPage() {
               style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
             >
               <div className="flex gap-3 p-3">
-                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-ink-100">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-ink-100 dark:bg-ink-800">
                   {product.image ? (
                     <img
                       src={imageUrl(product.image)}
@@ -443,15 +443,15 @@ export default function AdminProductsPage() {
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="truncate font-semibold text-ink-900">{product.name}</h3>
-                    {!product.isActive && <span className="badge bg-ink-100 text-ink-500">Archive</span>}
+                    <h3 className="truncate font-semibold text-ink-900 dark:text-ink-50">{product.name}</h3>
+                    {!product.isActive && <span className="badge bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400">Archive</span>}
                   </div>
-                  <p className="text-xs text-ink-500">{product.category?.name || 'Sans catégorie'}</p>
-                  <p className="mt-1 font-bold text-ink-900">
+                  <p className="text-xs text-ink-500 dark:text-ink-400">{product.category?.name || 'Sans catégorie'}</p>
+                  <p className="mt-1 font-bold text-ink-900 dark:text-ink-50">
                     {formatMoney(product.basePrice, currency)}
                   </p>
                   {product.options.length > 0 && (
-                    <p className="mt-0.5 text-xs text-ink-400">
+                    <p className="mt-0.5 text-xs text-ink-400 dark:text-ink-500">
                       {product.options.length} groupe(s) d&apos;options
                     </p>
                   )}
@@ -466,8 +466,8 @@ export default function AdminProductsPage() {
                 className={`flex w-full items-center justify-center gap-2 border-t px-3 py-2 text-xs font-semibold transition disabled:opacity-50
                   ${
                     todayMenuIds.has(product.id)
-                      ? 'border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                      : 'border-ink-100 bg-white text-ink-500 hover:bg-ink-50'
+                      ? 'border-emerald-100 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100'
+                      : 'border-ink-100 dark:border-ink-700 bg-white dark:bg-ink-800 text-ink-500 dark:text-ink-400 hover:bg-ink-50 dark:hover:bg-ink-800'
                   }`}
               >
                 {todayMenuIds.has(product.id) ? (
@@ -481,7 +481,7 @@ export default function AdminProductsPage() {
                 )}
               </button>
 
-              <div className="flex items-center justify-between gap-2 border-t border-ink-100 px-3 py-2.5">
+              <div className="flex items-center justify-between gap-2 border-t border-ink-100 dark:border-ink-700 px-3 py-2.5">
                 <Toggle
                   checked={product.isAvailable}
                   onChange={() => toggleAvailability(product)}
@@ -492,7 +492,7 @@ export default function AdminProductsPage() {
                   <button
                     type="button"
                     onClick={() => openEdit(product)}
-                    className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-800"
+                    className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700 hover:text-ink-800"
                     aria-label="Modifier"
                   >
                     <Pencil size={16} />
@@ -500,7 +500,7 @@ export default function AdminProductsPage() {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(product)}
-                    className="rounded-lg p-2 text-ink-400 transition hover:bg-red-50 hover:text-red-600"
+                    className="rounded-lg p-2 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600"
                     aria-label="Supprimer"
                   >
                     <Trash2 size={16} />
@@ -654,7 +654,7 @@ export default function AdminProductsPage() {
             </Field>
           </div>
 
-          <div className="space-y-4 rounded-xl bg-ink-50 p-4">
+          <div className="space-y-4 rounded-xl bg-ink-50 dark:bg-ink-900 p-4">
             <div className="flex flex-wrap gap-6">
               <Toggle
                 checked={form.isAvailable}
@@ -668,13 +668,13 @@ export default function AdminProductsPage() {
               />
             </div>
 
-            <div className="border-t border-ink-200 pt-4">
+            <div className="border-t border-ink-200 dark:border-ink-700 pt-4">
               <Toggle
                 checked={addToTodayMenu}
                 onChange={setAddToTodayMenu}
                 label="Mettre au menu du jour"
               />
-              <p className="mt-2 text-xs text-ink-500">
+              <p className="mt-2 text-xs text-ink-500 dark:text-ink-400">
                 Un plat n&apos;est visible et commandable par les clients que s&apos;il figure au
                 menu du jour. Laissez cette option activée pour le proposer dès maintenant.
               </p>
@@ -685,8 +685,8 @@ export default function AdminProductsPage() {
           <div>
             <div className="mb-3 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-ink-900">Options et supplements</h3>
-                <p className="text-xs text-ink-500">
+                <h3 className="font-semibold text-ink-900 dark:text-ink-50">Options et supplements</h3>
+                <p className="text-xs text-ink-500 dark:text-ink-400">
                   Ex : &laquo; Accompagnement &raquo; (choix unique) ou &laquo; Suppléments &raquo; (choix multiple)
                 </p>
               </div>
@@ -696,13 +696,13 @@ export default function AdminProductsPage() {
             </div>
 
             {form.options.length === 0 ? (
-              <p className="rounded-xl bg-ink-50 px-4 py-6 text-center text-sm text-ink-500">
+              <p className="rounded-xl bg-ink-50 dark:bg-ink-900 px-4 py-6 text-center text-sm text-ink-500 dark:text-ink-400">
                 Aucune option. Le produit sera commande tel quel.
               </p>
             ) : (
               <div className="space-y-4">
                 {form.options.map((group, groupIndex) => (
-                  <div key={groupIndex} className="rounded-xl border border-ink-200 p-4">
+                  <div key={groupIndex} className="rounded-xl border border-ink-200 dark:border-ink-700 p-4">
                     <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end">
                       <Field label="Nom du groupe">
                         <Input
@@ -737,7 +737,7 @@ export default function AdminProductsPage() {
                       <button
                         type="button"
                         onClick={() => removeOptionGroup(groupIndex)}
-                        className="mb-1 rounded-lg p-2 text-ink-400 transition hover:bg-red-50 hover:text-red-600"
+                        className="mb-1 rounded-lg p-2 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600"
                         aria-label="Supprimer le groupe"
                       >
                         <Trash2 size={16} />
@@ -771,7 +771,7 @@ export default function AdminProductsPage() {
                           <button
                             type="button"
                             onClick={() => removeOptionValue(groupIndex, valueIndex)}
-                            className="rounded-lg p-2 text-ink-400 transition hover:bg-red-50 hover:text-red-600"
+                            className="rounded-lg p-2 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600"
                             aria-label="Supprimer"
                           >
                             <X size={16} />

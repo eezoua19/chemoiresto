@@ -83,7 +83,7 @@ export default function AdminJournalPage() {
       <Card className="mb-5 p-4">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <div className="relative xl:col-span-2">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
             <Input
               className="pl-9"
               placeholder="Rechercher un plat, un nom..."
@@ -131,7 +131,7 @@ export default function AdminJournalPage() {
             </Button>
           )}
           {pagination && (
-            <span className="ml-auto text-sm text-ink-500">
+            <span className="ml-auto text-sm text-ink-500 dark:text-ink-400">
               {pagination.total} action{pagination.total > 1 ? 's' : ''} enregistrée
               {pagination.total > 1 ? 's' : ''}
             </span>
@@ -160,7 +160,7 @@ export default function AdminJournalPage() {
           />
         </Card>
       ) : (
-        <Card className="divide-y divide-ink-100 p-0">
+        <Card className="divide-y divide-ink-100 dark:divide-ink-700 p-0">
           {entrees.map((entree, index) => {
             const ton = tonDeLAction(entree.action);
             return (
@@ -172,19 +172,19 @@ export default function AdminJournalPage() {
                 <span className={`mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full ${ton.point}`} />
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-ink-900">{entree.label}</p>
+                  <p className="font-semibold text-ink-900 dark:text-ink-50">{entree.label}</p>
 
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-500">
+                  <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-500 dark:text-ink-400">
                     <span className={`badge ${ton.badge}`}>
                       {LIBELLES_ACTION[entree.action] || entree.action}
                     </span>
                     <span>
-                      par <span className="font-semibold text-ink-700">{entree.author.fullName}</span>
+                      par <span className="font-semibold text-ink-700 dark:text-ink-200">{entree.author.fullName}</span>
                       {entree.author.role === 'ADMIN' ? ' (administration)' : ''}
                     </span>
                     {!entree.author.stillExists && (
                       <span
-                        className="inline-flex items-center gap-1 text-ink-400"
+                        className="inline-flex items-center gap-1 text-ink-400 dark:text-ink-500"
                         title="Ce compte a été supprimé depuis"
                       >
                         <UserX size={12} /> compte supprimé
@@ -193,20 +193,20 @@ export default function AdminJournalPage() {
                   </p>
 
                   {entree.details?.ancienPrix !== undefined && (
-                    <p className="mt-1 text-xs text-ink-600">
+                    <p className="mt-1 text-xs text-ink-600 dark:text-ink-300">
                       Ancien prix {entree.details.ancienPrix} FCFA, nouveau{' '}
                       {entree.details.nouveauPrix} FCFA
                     </p>
                   )}
                   {entree.details?.passages > 0 && (
-                    <p className="mt-1 text-xs text-ink-600">
+                    <p className="mt-1 text-xs text-ink-600 dark:text-ink-300">
                       {entree.details.passages} passage{entree.details.passages > 1 ? 's' : ''}{' '}
                       effacé{entree.details.passages > 1 ? 's' : ''} avec l&apos;abonnement
                     </p>
                   )}
                 </div>
 
-                <time className="shrink-0 text-xs text-ink-400" dateTime={entree.createdAt}>
+                <time className="shrink-0 text-xs text-ink-400 dark:text-ink-500" dateTime={entree.createdAt}>
                   {formatDateTime(entree.createdAt)}
                 </time>
               </div>
@@ -223,7 +223,7 @@ export default function AdminJournalPage() {
               >
                 Précédent
               </Button>
-              <span className="px-3 text-sm text-ink-600">
+              <span className="px-3 text-sm text-ink-600 dark:text-ink-300">
                 Page {pagination.page} sur {pagination.pages}
               </span>
               <Button

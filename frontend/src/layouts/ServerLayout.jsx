@@ -20,6 +20,7 @@ import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import PushSubscribeToggle from '../components/PushSubscribeToggle';
+import ThemeToggle from '../components/ThemeToggle';
 import { serviceRequestApi } from '../services/endpoints';
 import { SERVICE_REQUEST_STATUS } from '../utils/constants';
 import { initials } from '../utils/format';
@@ -132,30 +133,31 @@ export default function ServerLayout() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-ink-50">
-      <header className="sticky top-0 z-30 border-b border-ink-100 bg-white/95 backdrop-blur">
+    <div className="flex min-h-screen flex-col bg-ink-50 dark:bg-ink-900">
+      <header className="sticky top-0 z-30 border-b border-ink-100 dark:border-ink-700 bg-white/95 dark:bg-ink-800/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <span className="rounded-xl bg-brand-500 p-2 text-white">
             <ChefHat size={18} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-bold text-ink-900">
+            <p className="truncate text-sm font-bold text-ink-900 dark:text-ink-50">
               Bonjour {user?.firstName} <span className="font-normal">&#128075;</span>
             </p>
-            <p className="truncate text-xs text-ink-500">{restaurant?.name}</p>
+            <p className="truncate text-xs text-ink-500 dark:text-ink-400">{restaurant?.name}</p>
           </div>
 
+          <ThemeToggle />
           <PushSubscribeToggle />
           <NotificationBell />
 
-          <span className="hidden h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700 sm:flex">
+          <span className="hidden h-9 w-9 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-sm font-bold text-brand-700 sm:flex">
             {initials(user?.fullName)}
           </span>
 
           <button
             type="button"
             onClick={handleLogout}
-            className="rounded-xl p-2.5 text-ink-500 transition hover:bg-red-50 hover:text-red-600"
+            className="rounded-xl p-2.5 text-ink-500 dark:text-ink-400 transition hover:bg-red-50 hover:text-red-600"
             aria-label="Déconnexion"
           >
             <LogOut size={18} />
@@ -170,7 +172,7 @@ export default function ServerLayout() {
               to={link.to}
               className={({ isActive }) =>
                 `flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                  isActive ? 'bg-brand-50 text-brand-700' : 'text-ink-600 hover:bg-ink-100'
+                  isActive ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700' : 'text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-700'
                 }`
               }
             >
@@ -196,14 +198,14 @@ export default function ServerLayout() {
       <Footer className="pb-24 sm:pb-5" />
 
       {/* Navigation basse sur telephone */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-ink-100 bg-white/95 backdrop-blur sm:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-ink-100 dark:border-ink-700 bg-white/95 dark:bg-ink-800/95 backdrop-blur sm:hidden">
         {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             className={({ isActive }) =>
               `flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition ${
-                isActive ? 'text-brand-600' : 'text-ink-500'
+                isActive ? 'text-brand-600' : 'text-ink-500 dark:text-ink-400'
               }`
             }
           >

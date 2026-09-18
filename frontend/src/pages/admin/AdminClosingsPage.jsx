@@ -189,8 +189,8 @@ export default function AdminClosingsPage() {
 
       {/* ------------------------- Export comptable ------------------------- */}
       <Card className="mb-5 p-4">
-        <p className="text-sm font-bold text-ink-900">Export comptable</p>
-        <p className="mb-3 text-xs text-ink-500">
+        <p className="text-sm font-bold text-ink-900 dark:text-ink-50">Export comptable</p>
+        <p className="mb-3 text-xs text-ink-500 dark:text-ink-400">
           Un récapitulatif PDF de la période, prêt à envoyer au comptable.
         </p>
         <div className="flex flex-wrap items-end gap-3">
@@ -236,17 +236,17 @@ export default function AdminClosingsPage() {
           />
         </Card>
       ) : (
-        <Card className="divide-y divide-ink-100 p-0">
+        <Card className="divide-y divide-ink-100 dark:divide-ink-700 p-0">
           {journees.map((journee) => (
             <button
               key={journee.date}
               type="button"
               onClick={() => ouvrir(journee.date)}
-              className="flex w-full flex-wrap items-center gap-3 p-4 text-left transition hover:bg-ink-50"
+              className="flex w-full flex-wrap items-center gap-3 p-4 text-left transition hover:bg-ink-50 dark:hover:bg-ink-800"
             >
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-ink-900">{formatLongDate(journee.date)}</p>
-                <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-500">
+                <p className="font-semibold text-ink-900 dark:text-ink-50">{formatLongDate(journee.date)}</p>
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-500 dark:text-ink-400">
                   <span className="inline-flex items-center gap-1">
                     <ShoppingBag size={12} /> {journee.ordersCount} commande
                     {journee.ordersCount > 1 ? 's' : ''}
@@ -264,7 +264,7 @@ export default function AdminClosingsPage() {
                 </p>
               </div>
 
-              <p className="text-right text-lg font-bold text-ink-900">
+              <p className="text-right text-lg font-bold text-ink-900 dark:text-ink-50">
                 {formatMoney(journee.revenue, devise)}
               </p>
             </button>
@@ -280,7 +280,7 @@ export default function AdminClosingsPage() {
               >
                 Précédent
               </Button>
-              <span className="px-3 text-sm text-ink-600">
+              <span className="px-3 text-sm text-ink-600 dark:text-ink-300">
                 Page {pagination.page} sur {pagination.pages}
               </span>
               <Button
@@ -304,7 +304,7 @@ export default function AdminClosingsPage() {
               setPage(1);
               setAvecVides((valeur) => !valeur);
             }}
-            className="text-xs font-semibold text-ink-500 underline-offset-2 hover:text-ink-800 hover:underline"
+            className="text-xs font-semibold text-ink-500 dark:text-ink-400 underline-offset-2 hover:text-ink-800 hover:underline"
           >
             {avecVides
               ? 'Masquer les journées sans service'
@@ -339,7 +339,7 @@ export default function AdminClosingsPage() {
         {detail && (
           <div className="space-y-4">
             {!detail.closed && (
-              <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              <p className="rounded-xl bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-300">
                 Journée non encore arrêtée : ces chiffres peuvent encore bouger.
               </p>
             )}
@@ -360,23 +360,23 @@ export default function AdminClosingsPage() {
               <StatCard label="Annulées" value={detail.cancelledCount} tone="ink" />
             </div>
 
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl bg-ink-50 p-4 text-sm">
-              <dt className="text-ink-500">En salle</dt>
-              <dd className="text-right font-semibold text-ink-900">
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl bg-ink-50 dark:bg-ink-900 p-4 text-sm">
+              <dt className="text-ink-500 dark:text-ink-400">En salle</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">
                 {formatMoney(detail.dineInRevenue, devise)}
               </dd>
-              <dt className="text-ink-500">À emporter</dt>
-              <dd className="text-right font-semibold text-ink-900">
+              <dt className="text-ink-500 dark:text-ink-400">À emporter</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">
                 {formatMoney(detail.takeawayRevenue, devise)}
               </dd>
-              <dt className="text-ink-500">Passages d&apos;abonnés</dt>
-              <dd className="text-right font-semibold text-ink-900">{detail.subscriptionUsages}</dd>
-              <dt className="text-ink-500">Appels et additions</dt>
-              <dd className="text-right font-semibold text-ink-900">{detail.serviceRequests}</dd>
+              <dt className="text-ink-500 dark:text-ink-400">Passages d&apos;abonnés</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">{detail.subscriptionUsages}</dd>
+              <dt className="text-ink-500 dark:text-ink-400">Appels et additions</dt>
+              <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">{detail.serviceRequests}</dd>
               {detail.peakHour !== null && (
                 <>
-                  <dt className="text-ink-500">Heure de pointe</dt>
-                  <dd className="text-right font-semibold text-ink-900">
+                  <dt className="text-ink-500 dark:text-ink-400">Heure de pointe</dt>
+                  <dd className="text-right font-semibold text-ink-900 dark:text-ink-50">
                     {heure(detail.peakHour)}
                   </dd>
                 </>
@@ -385,13 +385,13 @@ export default function AdminClosingsPage() {
 
             {detail.topProducts?.length > 0 && (
               <div>
-                <h3 className="mb-2 text-sm font-bold text-ink-900">Les plats les plus vendus</h3>
-                <ul className="divide-y divide-ink-100 rounded-xl border border-ink-100">
+                <h3 className="mb-2 text-sm font-bold text-ink-900 dark:text-ink-50">Les plats les plus vendus</h3>
+                <ul className="divide-y divide-ink-100 dark:divide-ink-700 rounded-xl border border-ink-100 dark:border-ink-700">
                   {detail.topProducts.map((plat) => (
                     <li key={plat.name} className="flex items-center gap-3 px-3 py-2 text-sm">
-                      <span className="min-w-0 flex-1 truncate text-ink-800">{plat.name}</span>
-                      <span className="text-ink-500">x{plat.quantity}</span>
-                      <span className="font-semibold text-ink-900">
+                      <span className="min-w-0 flex-1 truncate text-ink-800 dark:text-ink-100">{plat.name}</span>
+                      <span className="text-ink-500 dark:text-ink-400">x{plat.quantity}</span>
+                      <span className="font-semibold text-ink-900 dark:text-ink-50">
                         {formatMoney(plat.revenue, devise)}
                       </span>
                     </li>
@@ -402,15 +402,15 @@ export default function AdminClosingsPage() {
 
             {detail.servers?.length > 0 && (
               <div>
-                <h3 className="mb-2 text-sm font-bold text-ink-900">Le service</h3>
-                <ul className="divide-y divide-ink-100 rounded-xl border border-ink-100">
+                <h3 className="mb-2 text-sm font-bold text-ink-900 dark:text-ink-50">Le service</h3>
+                <ul className="divide-y divide-ink-100 dark:divide-ink-700 rounded-xl border border-ink-100 dark:border-ink-700">
                   {detail.servers.map((personne) => (
                     <li key={personne.id} className="flex items-center gap-3 px-3 py-2 text-sm">
-                      <span className="min-w-0 flex-1 truncate text-ink-800">{personne.name}</span>
-                      <span className="text-ink-500">
+                      <span className="min-w-0 flex-1 truncate text-ink-800 dark:text-ink-100">{personne.name}</span>
+                      <span className="text-ink-500 dark:text-ink-400">
                         {personne.orders} commande{personne.orders > 1 ? 's' : ''}
                       </span>
-                      <span className="font-semibold text-ink-900">
+                      <span className="font-semibold text-ink-900 dark:text-ink-50">
                         {formatMoney(personne.revenue, devise)}
                       </span>
                     </li>

@@ -40,10 +40,10 @@ export const LIBELLES_ACTION = {
   REMISE_A_ZERO: 'Remise à zéro',
 };
 
-const ROUGE = { point: 'bg-red-500', badge: 'bg-red-100 text-red-800' };
-const AMBRE = { point: 'bg-amber-500', badge: 'bg-amber-100 text-amber-900' };
-const VERT = { point: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800' };
-const NEUTRE = { point: 'bg-ink-300', badge: 'bg-ink-100 text-ink-700' };
+const ROUGE = { point: 'bg-red-500', badge: 'bg-red-100 text-red-800 dark:text-red-300' };
+const AMBRE = { point: 'bg-amber-500', badge: 'bg-amber-100 text-amber-900 dark:text-amber-300' };
+const VERT = { point: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800 dark:text-emerald-300' };
+const NEUTRE = { point: 'bg-ink-300', badge: 'bg-ink-100 dark:bg-ink-800 text-ink-700 dark:text-ink-200' };
 
 /**
  * Couleur de la ligne, par gravité et non par rubrique.

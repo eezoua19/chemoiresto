@@ -10,7 +10,7 @@
  */
 export default function ChargementGourmand({ message = 'On dresse la table...' }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-ink-50 px-8">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-ink-50 dark:bg-ink-900 px-8">
       <svg viewBox="0 0 120 120" fill="none" className="h-36 w-36" style={{ color: 'var(--brand)' }}>
         {/* L'assiette, tracee du bord vers le centre */}
         <circle
@@ -72,7 +72,7 @@ export default function ChargementGourmand({ message = 'On dresse la table...' }
         </g>
       </svg>
 
-      <p className="text-center text-sm font-medium text-ink-500">{message}</p>
+      <p className="text-center text-sm font-medium text-ink-500 dark:text-ink-400">{message}</p>
     </div>
   );
 }

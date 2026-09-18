@@ -146,7 +146,7 @@ export default function AdminCategoriesPage() {
             action={<Button onClick={openCreate}>Créer une catégorie</Button>}
           />
         ) : (
-          <ul className="divide-y divide-ink-100">
+          <ul className="divide-y divide-ink-100 dark:divide-ink-700">
             {categories.map((category, index) => (
               <li
                 key={category.id}
@@ -158,7 +158,7 @@ export default function AdminCategoriesPage() {
                     type="button"
                     onClick={() => move(index, -1)}
                     disabled={index === 0}
-                    className="rounded p-0.5 transition hover:bg-ink-100 hover:text-ink-600 disabled:opacity-30"
+                    className="rounded p-0.5 transition hover:bg-ink-100 dark:hover:bg-ink-700 hover:text-ink-600 disabled:opacity-30"
                     aria-label="Monter"
                   >
                     <ArrowUp size={14} />
@@ -167,7 +167,7 @@ export default function AdminCategoriesPage() {
                     type="button"
                     onClick={() => move(index, 1)}
                     disabled={index === categories.length - 1}
-                    className="rounded p-0.5 transition hover:bg-ink-100 hover:text-ink-600 disabled:opacity-30"
+                    className="rounded p-0.5 transition hover:bg-ink-100 dark:hover:bg-ink-700 hover:text-ink-600 disabled:opacity-30"
                     aria-label="Descendre"
                   >
                     <ArrowDown size={14} />
@@ -176,12 +176,12 @@ export default function AdminCategoriesPage() {
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold text-ink-900">{category.name}</h3>
+                    <h3 className="font-semibold text-ink-900 dark:text-ink-50">{category.name}</h3>
                     {!category.isActive && (
-                      <span className="badge bg-ink-100 text-ink-500">Désactivée</span>
+                      <span className="badge bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400">Désactivée</span>
                     )}
                   </div>
-                  <p className="text-xs text-ink-500">
+                  <p className="text-xs text-ink-500 dark:text-ink-400">
                     {category.productCount} produit(s)
                     {category.icon && ` - icône : ${category.icon}`}
                   </p>
@@ -191,7 +191,7 @@ export default function AdminCategoriesPage() {
                   <button
                     type="button"
                     onClick={() => openEdit(category)}
-                    className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-800"
+                    className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700 hover:text-ink-800"
                     aria-label="Modifier"
                   >
                     <Pencil size={16} />
@@ -199,7 +199,7 @@ export default function AdminCategoriesPage() {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(category)}
-                    className="rounded-lg p-2 text-ink-400 transition hover:bg-red-50 hover:text-red-600"
+                    className="rounded-lg p-2 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600"
                     aria-label="Supprimer"
                   >
                     <Trash2 size={16} />

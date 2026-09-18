@@ -112,7 +112,7 @@ export default function ServerMenuPage() {
 
       <div className="flex flex-wrap gap-2">
         <div className="relative min-w-[200px] flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
           <Input
             className="pl-9"
             placeholder="Chercher un plat"
@@ -158,7 +158,7 @@ export default function ServerMenuPage() {
         <div className="space-y-6">
           {groupes.map((groupe) => (
             <section key={groupe.nom}>
-              <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-500">
+              <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 {groupe.nom}
               </h2>
               <div className="space-y-2">
@@ -166,18 +166,18 @@ export default function ServerMenuPage() {
                   <div
                     key={product.id}
                     className={`card flex items-center gap-3 p-3 ${
-                      product.isAvailable ? '' : 'border-red-200 bg-red-50/60'
+                      product.isAvailable ? '' : 'border-red-200 dark:border-red-900/50 bg-red-50/60'
                     }`}
                   >
                     <div className="min-w-0 flex-1">
                       <p
                         className={`truncate font-semibold ${
-                          product.isAvailable ? 'text-ink-900' : 'text-ink-500 line-through'
+                          product.isAvailable ? 'text-ink-900 dark:text-ink-50' : 'text-ink-500 dark:text-ink-400 line-through'
                         }`}
                       >
                         {product.name}
                       </p>
-                      <p className="text-xs text-ink-500">{formatMoney(product.basePrice)}</p>
+                      <p className="text-xs text-ink-500 dark:text-ink-400">{formatMoney(product.basePrice)}</p>
                     </div>
 
                     {/* Un bouton plein, pas une petite bascule : il se touche

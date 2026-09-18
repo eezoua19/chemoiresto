@@ -197,28 +197,28 @@ export default function AdminTablesPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-ink-900">Table {table.number}</h3>
+                    <h3 className="text-lg font-bold text-ink-900 dark:text-ink-50">Table {table.number}</h3>
                     <span
                       className={`badge ${
                         table.status === 'ACTIVE'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-ink-100 text-ink-500'
+                          ? 'bg-emerald-100 text-emerald-700 dark:text-emerald-400'
+                          : 'bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400'
                       }`}
                     >
                       {table.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  <p className="text-xs text-ink-500">
+                  <p className="text-xs text-ink-500 dark:text-ink-400">
                     {table.label || 'Sans libellé'} - {table.capacity} places
                   </p>
-                  <p className="mt-0.5 text-xs text-ink-400">{table.orderCount} commande(s)</p>
+                  <p className="mt-0.5 text-xs text-ink-400 dark:text-ink-500">{table.orderCount} commande(s)</p>
                 </div>
 
                 {table.qrCode && (
                   <button
                     type="button"
                     onClick={() => setQrTable(table)}
-                    className="shrink-0 rounded-lg border border-ink-200 p-1 transition hover:border-brand-300"
+                    className="shrink-0 rounded-lg border border-ink-200 dark:border-ink-700 p-1 transition hover:border-brand-300"
                     aria-label="Voir le QR Code"
                   >
                     <img src={table.qrCode.dataUrl} alt="" className="h-14 w-14" />
@@ -248,7 +248,7 @@ export default function AdminTablesPage() {
                 <button
                   type="button"
                   onClick={() => openEdit(table)}
-                  className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
+                  className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700"
                   aria-label="Modifier"
                 >
                   <Pencil size={15} />
@@ -256,7 +256,7 @@ export default function AdminTablesPage() {
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(table)}
-                  className="rounded-lg p-2 text-ink-400 transition hover:bg-red-50 hover:text-red-600"
+                  className="rounded-lg p-2 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600"
                   aria-label="Supprimer"
                 >
                   <Trash2 size={15} />
@@ -327,7 +327,7 @@ export default function AdminTablesPage() {
           </div>
 
           {!editing && (
-            <p className="rounded-xl bg-sky-50 px-4 py-3 text-xs text-sky-800">
+            <p className="rounded-xl bg-sky-50 dark:bg-sky-900/20 px-4 py-3 text-xs text-sky-800 dark:text-sky-300">
               Le QR Code de la table est généré automatiquement à la creation.
             </p>
           )}
@@ -345,7 +345,7 @@ export default function AdminTablesPage() {
             <>
               <Button
                 variant="ghost"
-                className="text-amber-700 hover:bg-amber-50"
+                className="text-amber-700 dark:text-amber-400 hover:bg-amber-50"
                 icon={RefreshCw}
                 onClick={() => {
                   setRegenerateTarget(qrTable);
@@ -374,10 +374,10 @@ export default function AdminTablesPage() {
                 className="mx-auto h-56 w-56"
               />
             ) : (
-              <p className="text-sm text-ink-500">Aucun QR Code généré</p>
+              <p className="text-sm text-ink-500 dark:text-ink-400">Aucun QR Code généré</p>
             )}
 
-            <p className="mt-3 text-sm text-ink-600">Scannez pour consulter le menu</p>
+            <p className="mt-3 text-sm text-ink-600 dark:text-ink-300">Scannez pour consulter le menu</p>
 
             <a
               href={qrTable.menuUrl}

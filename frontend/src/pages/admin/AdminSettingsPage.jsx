@@ -221,7 +221,7 @@ export default function AdminSettingsPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-ink-100 text-xs text-ink-400">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-ink-100 dark:bg-ink-800 text-xs text-ink-400 dark:text-ink-500">
                     Aucun
                   </div>
                 )}
@@ -232,7 +232,7 @@ export default function AdminSettingsPage() {
                   <input type="file" accept="image/*" className="hidden" onChange={pickLogo} />
                 </label>
               </div>
-              <p className="mt-3 text-xs text-ink-500">
+              <p className="mt-3 text-xs text-ink-500 dark:text-ink-400">
                 Format carré recommandé. JPG, PNG ou WEBP, 5 Mo maximum.
               </p>
             </div>
@@ -246,7 +246,7 @@ export default function AdminSettingsPage() {
                   type="color"
                   value={form.primaryColor}
                   onChange={(event) => setForm({ ...form, primaryColor: event.target.value })}
-                  className="h-11 w-16 cursor-pointer rounded-lg border border-ink-200"
+                  className="h-11 w-16 cursor-pointer rounded-lg border border-ink-200 dark:border-ink-700"
                 />
                 <Input
                   value={form.primaryColor}
@@ -392,24 +392,24 @@ function TakeawayCard({ initial, restaurantName }) {
           label={takeaway.enabled ? 'Ouvertes' : 'Fermées'}
         />
 
-        <p className="mt-2 text-sm text-ink-500">
+        <p className="mt-2 text-sm text-ink-500 dark:text-ink-400">
           {takeaway.enabled
             ? 'Les clients peuvent commander à emporter. Chaque commande reçoit un code de retrait.'
             : 'Le QR Code du comptoir affiche un message de fermeture. Les tables ne sont pas concernées.'}
         </p>
 
         {takeaway.enabled && takeaway.url && (
-          <div className="mt-5 space-y-4 border-t border-ink-100 pt-5">
+          <div className="mt-5 space-y-4 border-t border-ink-100 dark:border-ink-700 pt-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <img
                 src={takeaway.qrDataUrl}
                 alt="QR Code des commandes à emporter"
-                className="h-32 w-32 shrink-0 rounded-xl border border-ink-100"
+                className="h-32 w-32 shrink-0 rounded-xl border border-ink-100 dark:border-ink-700"
               />
 
               <div className="min-w-0 flex-1">
                 <p className="label">Adresse de l&apos;affiche</p>
-                <p className="break-all rounded-xl bg-ink-50 px-3 py-2 font-mono text-xs text-ink-700">
+                <p className="break-all rounded-xl bg-ink-50 dark:bg-ink-900 px-3 py-2 font-mono text-xs text-ink-700 dark:text-ink-200">
                   {takeaway.url}
                 </p>
 
@@ -428,8 +428,8 @@ function TakeawayCard({ initial, restaurantName }) {
               </div>
             </div>
 
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-              <p className="text-xs text-amber-900">
+            <div className="rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 p-3">
+              <p className="text-xs text-amber-900 dark:text-amber-300">
                 Ce lien ne change pas quand vous fermez puis rouvrez : votre affiche reste valable.
                 Ne le régénérez que s&apos;il a été diffusé par erreur - l&apos;ancienne affiche
                 cessera alors de fonctionner.
@@ -452,7 +452,7 @@ function TakeawayCard({ initial, restaurantName }) {
                 <button
                   type="button"
                   onClick={() => setConfirmReset(true)}
-                  className="mt-2 text-xs font-semibold text-amber-900 underline"
+                  className="mt-2 text-xs font-semibold text-amber-900 dark:text-amber-300 underline"
                 >
                   Générer un nouveau lien
                 </button>

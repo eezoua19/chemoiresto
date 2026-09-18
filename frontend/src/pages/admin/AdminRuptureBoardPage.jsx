@@ -104,17 +104,17 @@ export default function AdminRuptureBoardPage() {
           {produits.map((produit) => (
             <div
               key={produit.id}
-              className="card flex flex-wrap items-center gap-x-4 gap-y-3 border-amber-200 bg-amber-50/40 p-4"
+              className="card flex flex-wrap items-center gap-x-4 gap-y-3 border-amber-200 dark:border-amber-900/50 bg-amber-50/40 p-4"
             >
               <div className="min-w-[170px] flex-1">
-                <h3 className="font-bold text-ink-900">{produit.name}</h3>
-                <p className="text-xs text-ink-500">
+                <h3 className="font-bold text-ink-900 dark:text-ink-50">{produit.name}</h3>
+                <p className="text-xs text-ink-500 dark:text-ink-400">
                   {produit.category?.name || 'Sans catégorie'}
                   {produit.basePrice !== undefined ? ` · ${formatMoney(produit.basePrice, currency)}` : ''}
                 </p>
               </div>
 
-              <div className="min-w-[110px] text-xs font-medium text-amber-700">
+              <div className="min-w-[110px] text-xs font-medium text-amber-700 dark:text-amber-400">
                 Rupture {timeAgo(produit.updatedAt)}
               </div>
 

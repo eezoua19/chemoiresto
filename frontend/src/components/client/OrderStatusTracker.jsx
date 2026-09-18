@@ -9,7 +9,7 @@ import { formatTime } from '../../utils/format';
 export default function OrderStatusTracker({ order, compact = false }) {
   if (order.status === 'CANCELLED') {
     return (
-      <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+      <div className="rounded-xl bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-400">
         Cette commande a été annulée. Adressez-vous à une serveuse.
       </div>
     );
@@ -27,7 +27,7 @@ export default function OrderStatusTracker({ order, compact = false }) {
           <span
             key={status}
             className={`h-1.5 flex-1 rounded-full transition-all ${
-              index <= currentIndex ? 'bg-emerald-500' : 'bg-ink-200'
+              index <= currentIndex ? 'bg-emerald-500' : 'bg-ink-200 dark:bg-ink-700'
             }`}
           />
         ))}
@@ -48,22 +48,22 @@ export default function OrderStatusTracker({ order, compact = false }) {
             <div className="flex flex-col items-center">
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition
-                  ${done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-ink-200 bg-white'}
+                  ${done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800'}
                   ${isCurrent ? 'animate-pulse-ring' : ''}`}
               >
                 {done ? <Check size={14} strokeWidth={3} /> : <span className="h-2 w-2 rounded-full bg-ink-300" />}
               </span>
               {!isLast && (
-                <span className={`h-8 w-0.5 ${index < currentIndex ? 'bg-emerald-500' : 'bg-ink-200'}`} />
+                <span className={`h-8 w-0.5 ${index < currentIndex ? 'bg-emerald-500' : 'bg-ink-200 dark:bg-ink-700'}`} />
               )}
             </div>
 
             <div className={`pb-4 ${isLast ? 'pb-0' : ''}`}>
-              <p className={`text-sm font-semibold ${done ? 'text-ink-900' : 'text-ink-400'}`}>
+              <p className={`text-sm font-semibold ${done ? 'text-ink-900 dark:text-ink-50' : 'text-ink-400 dark:text-ink-500'}`}>
                 {config.clientLabel}
               </p>
               {timeByStatus[status] && (
-                <p className="text-xs text-ink-400">{formatTime(timeByStatus[status])}</p>
+                <p className="text-xs text-ink-400 dark:text-ink-500">{formatTime(timeByStatus[status])}</p>
               )}
             </div>
           </li>

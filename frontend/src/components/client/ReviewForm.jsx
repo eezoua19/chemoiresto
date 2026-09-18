@@ -16,13 +16,13 @@ export default function ReviewForm({ trackingToken, review, onSubmitted }) {
 
   if (review) {
     return (
-      <div className="rounded-2xl bg-ink-50 p-4 text-center">
+      <div className="rounded-2xl bg-ink-50 dark:bg-ink-900 p-4 text-center">
         <div className="flex justify-center gap-1 text-amber-400">
           {[1, 2, 3, 4, 5].map((n) => (
             <Star key={n} size={18} fill={n <= review.rating ? 'currentColor' : 'none'} />
           ))}
         </div>
-        <p className="mt-1 text-sm font-medium text-ink-900">Merci pour votre avis !</p>
+        <p className="mt-1 text-sm font-medium text-ink-900 dark:text-ink-50">Merci pour votre avis !</p>
       </div>
     );
   }
@@ -42,8 +42,8 @@ export default function ReviewForm({ trackingToken, review, onSubmitted }) {
   };
 
   return (
-    <div className="rounded-2xl bg-ink-50 p-4">
-      <p className="text-sm font-semibold text-ink-900">Votre avis compte</p>
+    <div className="rounded-2xl bg-ink-50 dark:bg-ink-900 p-4">
+      <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">Votre avis compte</p>
       <div className="mt-2 flex justify-center gap-1.5 py-1">
         {[1, 2, 3, 4, 5].map((n) => (
           <button

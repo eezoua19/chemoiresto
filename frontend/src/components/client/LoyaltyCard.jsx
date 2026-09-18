@@ -20,10 +20,10 @@ export default function LoyaltyCard({ loyalty }) {
             <Gift size={18} />
           </div>
           <div>
-            <p className="text-sm font-bold text-ink-900">
+            <p className="text-sm font-bold text-ink-900 dark:text-ink-50">
               {rewardLabel || 'Récompense'} disponible{rewardsAvailable > 1 ? ` ×${rewardsAvailable}` : ''} !
             </p>
-            <p className="text-xs text-ink-500">Montrez cet écran au personnel pour en profiter.</p>
+            <p className="text-xs text-ink-500 dark:text-ink-400">Montrez cet écran au personnel pour en profiter.</p>
           </div>
         </div>
       ) : (
@@ -32,17 +32,17 @@ export default function LoyaltyCard({ loyalty }) {
             <Sparkles size={18} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-ink-900">Programme fidélité</p>
-            <p className="text-xs text-ink-500">
+            <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">Programme fidélité</p>
+            <p className="text-xs text-ink-500 dark:text-ink-400">
               Encore {restantes} commande{restantes > 1 ? 's' : ''} pour {rewardLabel || 'une récompense'}
             </p>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-ink-100">
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-ink-100 dark:bg-ink-800">
               <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${progres}%` }} />
             </div>
           </div>
         </div>
       )}
-      <p className="mt-2 text-right text-[11px] text-ink-400">{points} point{points > 1 ? 's' : ''} au total</p>
+      <p className="mt-2 text-right text-[11px] text-ink-400 dark:text-ink-500">{points} point{points > 1 ? 's' : ''} au total</p>
     </div>
   );
 }

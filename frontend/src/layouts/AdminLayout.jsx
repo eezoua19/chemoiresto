@@ -34,6 +34,7 @@ import { libelleProvenance } from '../utils/order';
 import { Footer } from '../components/ui';
 import NotificationBell from '../components/NotificationBell';
 import PushSubscribeToggle from '../components/PushSubscribeToggle';
+import ThemeToggle from '../components/ThemeToggle';
 import { productApi } from '../services/endpoints';
 import { initials } from '../utils/format';
 import { applyBrandColor } from '../utils/color';
@@ -169,10 +170,10 @@ export default function AdminLayout() {
           <ChefHat size={20} />
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-ink-900">
+          <p className="truncate text-sm font-bold text-ink-900 dark:text-ink-50">
             {restaurant?.name || 'Restaurant'}
           </p>
-          <p className="text-xs text-ink-500">Administration</p>
+          <p className="text-xs text-ink-500 dark:text-ink-400">Administration</p>
         </div>
       </div>
 
@@ -197,14 +198,14 @@ export default function AdminLayout() {
         ))}
       </nav>
 
-      <div className="border-t border-ink-100 p-3">
+      <div className="border-t border-ink-100 dark:border-ink-700 p-3">
         <div className="mb-2 flex items-center gap-3 rounded-xl px-3 py-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-sm font-bold text-brand-700">
             {initials(user?.fullName)}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-ink-900">{user?.fullName}</p>
-            <p className="truncate text-xs text-ink-500">Administrateur</p>
+            <p className="truncate text-sm font-semibold text-ink-900 dark:text-ink-50">{user?.fullName}</p>
+            <p className="truncate text-xs text-ink-500 dark:text-ink-400">Administrateur</p>
           </div>
         </div>
         <button type="button" onClick={handleLogout} className="sidebar-link w-full text-red-600 hover:bg-red-50">
@@ -216,9 +217,9 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-ink-50">
+    <div className="min-h-screen bg-ink-50 dark:bg-ink-900">
       {/* Barre laterale fixe sur grand écran */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-ink-100 bg-white lg:block">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-ink-100 dark:border-ink-700 bg-white dark:bg-ink-800 lg:block">
         {sidebar}
       </aside>
 
@@ -226,24 +227,25 @@ export default function AdminLayout() {
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-ink-900/50" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-72 animate-slide-up bg-white shadow-float">
+          <aside className="absolute inset-y-0 left-0 w-72 animate-slide-up bg-white dark:bg-ink-800 shadow-float">
             {sidebar}
           </aside>
         </div>
       )}
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-ink-100 bg-white/90 px-4 py-3 backdrop-blur">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-ink-100 dark:border-ink-700 bg-white/90 dark:bg-ink-800/90 px-4 py-3 backdrop-blur">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="rounded-xl p-2 text-ink-600 transition hover:bg-ink-100 lg:hidden"
+            className="rounded-xl p-2 text-ink-600 dark:text-ink-300 transition hover:bg-ink-100 dark:hover:bg-ink-700 lg:hidden"
             aria-label="Ouvrir le menu"
           >
             {sidebarOpen ? <X size={20} /> : <MenuIcon size={20} />}
           </button>
 
           <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle />
             <PushSubscribeToggle />
             <NotificationBell />
           </div>

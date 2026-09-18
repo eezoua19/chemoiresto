@@ -93,7 +93,7 @@ export default function ServerRequestsPage() {
               <div key={request.id} className="card flex items-start gap-4 p-4">
                 <span
                   className={`rounded-xl p-3 ${
-                    request.type === 'BILL' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-600'
+                    request.type === 'BILL' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600'
                   }`}
                 >
                   <Icon size={20} />
@@ -101,20 +101,20 @@ export default function ServerRequestsPage() {
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-bold text-ink-900">Table {request.table?.number}</h3>
+                    <h3 className="font-bold text-ink-900 dark:text-ink-50">Table {request.table?.number}</h3>
                     <span className={`badge ${config.badge}`}>{config.label}</span>
                   </div>
-                  <p className="text-sm text-ink-600">{LABELS[request.type]}</p>
+                  <p className="text-sm text-ink-600 dark:text-ink-300">{LABELS[request.type]}</p>
                   {request.reminderCount > 0 && (
-                    <p className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2 py-1 text-xs font-bold text-red-700">
+                    <p className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-bold text-red-700 dark:text-red-400">
                       <BellRing size={13} />
                       {request.reminderCount === 1
                         ? 'La table a relancé une fois'
                         : `La table a relancé ${request.reminderCount} fois`}
                     </p>
                   )}
-                  {request.message && <p className="text-xs italic text-ink-500">{request.message}</p>}
-                  <p className="mt-1 text-xs text-ink-400">
+                  {request.message && <p className="text-xs italic text-ink-500 dark:text-ink-400">{request.message}</p>}
+                  <p className="mt-1 text-xs text-ink-400 dark:text-ink-500">
                     {timeAgo(request.createdAt)}
                     {request.handledBy && ` - traitée par ${request.handledBy.fullName}`}
                   </p>

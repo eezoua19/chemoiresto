@@ -250,21 +250,21 @@ export default function AdminMenuEditorPage() {
       <div className="mb-5">
         <Link
           to="/admin/menus"
-          className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-800"
+          className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 dark:text-ink-400 hover:text-ink-800"
         >
           <ArrowLeft size={16} /> Calendrier des menus
         </Link>
 
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <span className="rounded-xl bg-white p-2.5 text-brand-600 shadow-card">
+            <span className="rounded-xl bg-white dark:bg-ink-800 p-2.5 text-brand-600 shadow-card">
               <CalendarDays size={22} />
             </span>
             <div>
-              <h1 className="text-xl font-bold capitalize text-ink-900 sm:text-2xl">
+              <h1 className="text-xl font-bold capitalize text-ink-900 dark:text-ink-50 sm:text-2xl">
                 {formatLongDate(date)}
               </h1>
-              <p className="mt-0.5 text-sm text-ink-500">
+              <p className="mt-0.5 text-sm text-ink-500 dark:text-ink-400">
                 {menu ? `${items.length} produit(s) au menu` : 'Aucun menu pour cette date'}
                 {isPast && ' - date passée'}
               </p>
@@ -317,13 +317,13 @@ export default function AdminMenuEditorPage() {
               />
             </Field>
 
-            <div className="rounded-xl bg-ink-50 p-4">
+            <div className="rounded-xl bg-ink-50 dark:bg-ink-900 p-4">
               <Toggle
                 checked={isPublished}
                 onChange={setIsPublished}
                 label="Menu publié (visible par les clients)"
               />
-              <p className="mt-2 text-xs text-ink-500">
+              <p className="mt-2 text-xs text-ink-500 dark:text-ink-400">
                 Un menu non publié reste modifiable sans être visible par les clients qui scannent le
                 QR Code.
               </p>
@@ -341,7 +341,7 @@ export default function AdminMenuEditorPage() {
             title="Produits du menu"
             subtitle="Prix vide = prix de base du produit"
             action={
-              <span className="badge bg-ink-100 text-ink-600">{items.length} produit(s)</span>
+              <span className="badge bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300">{items.length} produit(s)</span>
             }
           />
 
@@ -352,7 +352,7 @@ export default function AdminMenuEditorPage() {
               action={<Button onClick={() => setPickerOpen(true)}>Ajouter des produits</Button>}
             />
           ) : (
-            <ul className="divide-y divide-ink-100">
+            <ul className="divide-y divide-ink-100 dark:divide-ink-700">
               {items.map((item, index) => (
                 <li key={item.productId} className="p-4">
                   <div className="flex items-start gap-3">
@@ -361,7 +361,7 @@ export default function AdminMenuEditorPage() {
                         type="button"
                         onClick={() => move(index, -1)}
                         disabled={index === 0}
-                        className="rounded p-0.5 transition hover:bg-ink-100 hover:text-ink-600 disabled:opacity-30"
+                        className="rounded p-0.5 transition hover:bg-ink-100 dark:hover:bg-ink-700 hover:text-ink-600 disabled:opacity-30"
                         aria-label="Monter"
                       >
                         <ArrowUp size={14} />
@@ -370,7 +370,7 @@ export default function AdminMenuEditorPage() {
                         type="button"
                         onClick={() => move(index, 1)}
                         disabled={index === items.length - 1}
-                        className="rounded p-0.5 transition hover:bg-ink-100 hover:text-ink-600 disabled:opacity-30"
+                        className="rounded p-0.5 transition hover:bg-ink-100 dark:hover:bg-ink-700 hover:text-ink-600 disabled:opacity-30"
                         aria-label="Descendre"
                       >
                         <ArrowDown size={14} />
@@ -379,18 +379,18 @@ export default function AdminMenuEditorPage() {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <h3 className="font-semibold text-ink-900">{item.name}</h3>
+                        <h3 className="font-semibold text-ink-900 dark:text-ink-50">{item.name}</h3>
                         <button
                           type="button"
                           onClick={() => toggleProduct({ id: item.productId })}
-                          className="rounded-lg p-1.5 text-ink-400 transition hover:bg-red-50 hover:text-red-600"
+                          className="rounded-lg p-1.5 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600"
                           aria-label="Retirer du menu"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
 
-                      <p className="text-xs text-ink-500">
+                      <p className="text-xs text-ink-500 dark:text-ink-400">
                         Prix de base : {formatMoney(item.basePrice, currency)}
                       </p>
 
@@ -434,8 +434,8 @@ export default function AdminMenuEditorPage() {
                           }
                           className={`badge transition ${
                             item.isDishOfDay
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-ink-100 text-ink-500 hover:bg-amber-50'
+                              ? 'bg-amber-100 text-amber-800 dark:text-amber-300'
+                              : 'bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400 hover:bg-amber-50'
                           }`}
                         >
                           <Star size={12} className={item.isDishOfDay ? 'fill-amber-700' : ''} />
@@ -460,7 +460,7 @@ export default function AdminMenuEditorPage() {
         footer={<Button onClick={() => setPickerOpen(false)}>Terminer</Button>}
       >
         <div className="relative mb-4">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
           <Input
             className="pl-9"
             placeholder="Rechercher un produit..."
@@ -484,24 +484,24 @@ export default function AdminMenuEditorPage() {
                   type="button"
                   onClick={() => toggleProduct(product)}
                   className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition
-                    ${checked ? 'border-brand-400 bg-brand-50' : 'border-ink-200 hover:bg-ink-50'}`}
+                    ${checked ? 'border-brand-400 bg-brand-50 dark:bg-brand-900/30' : 'border-ink-200 dark:border-ink-700 hover:bg-ink-50 dark:hover:bg-ink-800'}`}
                 >
                   <span className="flex items-center gap-3">
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition
-                        ${checked ? 'border-brand-500 bg-brand-500' : 'border-ink-300'}`}
+                        ${checked ? 'border-brand-500 bg-brand-500' : 'border-ink-300 dark:border-ink-600'}`}
                     >
-                      {checked && <span className="h-2 w-2 rounded-sm bg-white" />}
+                      {checked && <span className="h-2 w-2 rounded-sm bg-white dark:bg-ink-800" />}
                     </span>
                     <span>
-                      <span className="block text-sm font-medium text-ink-900">{product.name}</span>
-                      <span className="block text-xs text-ink-500">
+                      <span className="block text-sm font-medium text-ink-900 dark:text-ink-50">{product.name}</span>
+                      <span className="block text-xs text-ink-500 dark:text-ink-400">
                         {product.category?.name || 'Sans catégorie'}
                         {!product.isAvailable && ' - indisponible'}
                       </span>
                     </span>
                   </span>
-                  <span className="shrink-0 text-sm font-semibold text-ink-700">
+                  <span className="shrink-0 text-sm font-semibold text-ink-700 dark:text-ink-200">
                     {formatMoney(product.basePrice, currency)}
                   </span>
                 </button>
@@ -536,7 +536,7 @@ export default function AdminMenuEditorPage() {
             onChange={(event) => setDuplicateDate(event.target.value)}
           />
         </Field>
-        <p className="mt-3 text-sm text-ink-500">
+        <p className="mt-3 text-sm text-ink-500 dark:text-ink-400">
           Le menu source reste inchangé. Vous pourrez ensuite modifier la copie librement.
         </p>
       </Modal>

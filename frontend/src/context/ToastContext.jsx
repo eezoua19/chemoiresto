@@ -11,10 +11,10 @@ const ICONS = {
 };
 
 const STYLES = {
-  success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  error: 'border-red-200 bg-red-50 text-red-800',
-  info: 'border-sky-200 bg-sky-50 text-sky-800',
-  warning: 'border-amber-200 bg-amber-50 text-amber-800',
+  success: 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300',
+  error: 'border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300',
+  info: 'border-sky-200 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-900/20 text-sky-800 dark:text-sky-300',
+  warning: 'border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300',
 };
 
 /** Duree de l'animation de sortie, alignee sur `animate-slide-down`. */

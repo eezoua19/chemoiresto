@@ -22,7 +22,7 @@ const ETAPES = [
 export default function OrderJourneyTracker({ order }) {
   if (order.status === 'CANCELLED') {
     return (
-      <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+      <div className="rounded-xl bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-400">
         Cette commande a été annulée. Adressez-vous à une serveuse.
       </div>
     );
@@ -37,7 +37,7 @@ export default function OrderJourneyTracker({ order }) {
     <div>
       <div className="relative mx-2 pt-6 pb-1">
         {/* Le rail : parcouru en degrade, a venir en gris. */}
-        <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-ink-100" />
+        <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-ink-100 dark:bg-ink-800" />
         <div
           className="absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-brand-400 to-brand-600 transition-[width] duration-700 ease-out"
           style={{ width: `${pourcentage}%` }}
@@ -49,7 +49,7 @@ export default function OrderJourneyTracker({ order }) {
             <span
               key={item.status}
               className={`z-10 h-3 w-3 rounded-full border-2 transition-colors duration-500 ${
-                index <= currentIndex ? 'border-brand-600 bg-brand-600' : 'border-ink-200 bg-white'
+                index <= currentIndex ? 'border-brand-600 bg-brand-600' : 'border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800'
               }`}
             />
           ))}
@@ -61,7 +61,7 @@ export default function OrderJourneyTracker({ order }) {
           className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 animate-pop transition-[left] duration-700"
           style={{ left: `${pourcentage}%`, transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
         >
-          <div className="relative flex h-11 w-11 animate-flotte items-center justify-center rounded-full bg-white text-brand-600 shadow-float ring-4 ring-brand-100">
+          <div className="relative flex h-11 w-11 animate-flotte items-center justify-center rounded-full bg-white dark:bg-ink-800 text-brand-600 shadow-float ring-4 ring-brand-100">
             <Icone size={20} strokeWidth={2.2} />
             {order.status === 'PREPARING' && (
               <span
@@ -81,7 +81,7 @@ export default function OrderJourneyTracker({ order }) {
               index === currentIndex
                 ? 'font-bold text-brand-600'
                 : index < currentIndex
-                  ? 'text-ink-500'
+                  ? 'text-ink-500 dark:text-ink-400'
                   : 'text-ink-300'
             }`}
           >
@@ -90,7 +90,7 @@ export default function OrderJourneyTracker({ order }) {
         ))}
       </div>
 
-      <p key={`recit-${currentIndex}`} className="mt-3 animate-fade-in text-center text-sm text-ink-600">
+      <p key={`recit-${currentIndex}`} className="mt-3 animate-fade-in text-center text-sm text-ink-600 dark:text-ink-300">
         {etape.recit}
       </p>
     </div>

@@ -93,10 +93,10 @@ export default function AdminQRCodesPage() {
               className="animate-entree flex flex-col items-center p-5 text-center"
               style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
             >
-              <p className="text-xs font-bold uppercase tracking-widest text-ink-500">
+              <p className="text-xs font-bold uppercase tracking-widest text-ink-500 dark:text-ink-400">
                 {data.restaurant?.name}
               </p>
-              <h3 className="mt-1 text-xl font-extrabold text-ink-900">TABLE {table.number}</h3>
+              <h3 className="mt-1 text-xl font-extrabold text-ink-900 dark:text-ink-50">TABLE {table.number}</h3>
 
               <img
                 src={table.dataUrl}
@@ -104,10 +104,10 @@ export default function AdminQRCodesPage() {
                 className="my-4 h-36 w-36"
               />
 
-              <p className="text-xs text-ink-500">Scannez pour consulter le menu</p>
+              <p className="text-xs text-ink-500 dark:text-ink-400">Scannez pour consulter le menu</p>
 
               {table.status !== 'ACTIVE' && (
-                <span className="badge mt-2 bg-ink-100 text-ink-500">Table désactivée</span>
+                <span className="badge mt-2 bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400">Table désactivée</span>
               )}
 
               <div className="mt-4 flex w-full flex-wrap justify-center gap-1.5">
@@ -153,13 +153,13 @@ export default function AdminQRCodesPage() {
         }
       >
         {preview && (
-          <div className="rounded-2xl border-2 border-dashed border-ink-300 p-6 text-center">
-            <p className="text-sm font-bold uppercase tracking-widest text-ink-700">
+          <div className="rounded-2xl border-2 border-dashed border-ink-300 dark:border-ink-600 p-6 text-center">
+            <p className="text-sm font-bold uppercase tracking-widest text-ink-700 dark:text-ink-200">
               {data.restaurant?.name}
             </p>
-            <h3 className="my-3 text-3xl font-extrabold text-ink-900">TABLE {preview.number}</h3>
+            <h3 className="my-3 text-3xl font-extrabold text-ink-900 dark:text-ink-50">TABLE {preview.number}</h3>
             <img src={preview.dataUrl} alt="" className="mx-auto h-52 w-52" />
-            <p className="mt-3 text-sm text-ink-600">Scannez pour consulter le menu</p>
+            <p className="mt-3 text-sm text-ink-600 dark:text-ink-300">Scannez pour consulter le menu</p>
           </div>
         )}
       </Modal>

@@ -212,7 +212,7 @@ export default function QrScanner({ open, onClose, onDetect }) {
             <button
               type="button"
               onClick={basculerTorche}
-              className={`rounded-xl p-2.5 transition ${torche ? 'bg-white text-ink-900' : 'text-white hover:bg-white/10'}`}
+              className={`rounded-xl p-2.5 transition ${torche ? 'bg-white dark:bg-ink-800 text-ink-900 dark:text-ink-50' : 'text-white hover:bg-white/10'}`}
               aria-label={torche ? 'Éteindre la lampe' : 'Allumer la lampe'}
             >
               <Flashlight size={20} />
@@ -277,7 +277,7 @@ export default function QrScanner({ open, onClose, onDetect }) {
 
         <form onSubmit={validerSaisie} className="flex gap-2">
           <div className="relative flex-1">
-            <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500" />
             <Input
               className="pl-9"
               placeholder="Ou collez l'adresse du ticket"

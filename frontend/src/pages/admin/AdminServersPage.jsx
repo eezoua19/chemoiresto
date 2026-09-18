@@ -180,7 +180,7 @@ export default function AdminServersPage() {
         <Card className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-sm">
             <thead>
-              <tr className="border-b border-ink-100 text-left text-xs uppercase tracking-wide text-ink-500">
+              <tr className="border-b border-ink-100 dark:border-ink-700 text-left text-xs uppercase tracking-wide text-ink-500 dark:text-ink-400">
                 <th className="px-4 py-3 font-semibold">Personne</th>
                 <th className="px-4 py-3 font-semibold">Contact</th>
                 <th className="px-4 py-3 font-semibold">Rôle</th>
@@ -189,28 +189,28 @@ export default function AdminServersPage() {
                 <th className="px-4 py-3 text-right font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ink-100">
+            <tbody className="divide-y divide-ink-100 dark:divide-ink-700">
               {users.map((user) => (
                 <tr key={user.id} className="hover:bg-ink-50/60">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-xs font-bold text-brand-700">
                         {initials(user.fullName)}
                       </span>
                       <div>
-                        <p className="font-semibold text-ink-900">{user.fullName}</p>
-                        <p className="text-xs text-ink-500">{user.orderCount} commande(s)</p>
+                        <p className="font-semibold text-ink-900 dark:text-ink-50">{user.fullName}</p>
+                        <p className="text-xs text-ink-500 dark:text-ink-400">{user.orderCount} commande(s)</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-ink-700">{user.email}</p>
-                    <p className="text-xs text-ink-500">{user.phone || '-'}</p>
+                    <p className="text-ink-700 dark:text-ink-200">{user.email}</p>
+                    <p className="text-xs text-ink-500 dark:text-ink-400">{user.phone || '-'}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span
                       className={`badge ${
-                        user.role === 'ADMIN' ? 'bg-indigo-100 text-indigo-700' : 'bg-sky-100 text-sky-700'
+                        user.role === 'ADMIN' ? 'bg-indigo-100 text-indigo-700 dark:text-indigo-400' : 'bg-sky-100 text-sky-700 dark:text-sky-400'
                       }`}
                     >
                       {user.role === 'ADMIN' ? 'Administrateur' : 'Serveuse'}
@@ -220,14 +220,14 @@ export default function AdminServersPage() {
                     <span
                       className={`badge ${
                         user.status === 'ACTIVE'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-ink-100 text-ink-500'
+                          ? 'bg-emerald-100 text-emerald-700 dark:text-emerald-400'
+                          : 'bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-400'
                       }`}
                     >
                       {user.status === 'ACTIVE' ? 'Actif' : 'Désactivé'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-ink-500">
+                  <td className="px-4 py-3 text-xs text-ink-500 dark:text-ink-400">
                     {user.lastLoginAt ? formatDateTime(user.lastLoginAt) : 'Jamais'}
                   </td>
                   <td className="px-4 py-3">
@@ -235,7 +235,7 @@ export default function AdminServersPage() {
                       <button
                         type="button"
                         onClick={() => showActivity(user)}
-                        className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
+                        className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700"
                         aria-label="Activité"
                       >
                         <Activity size={16} />
@@ -243,7 +243,7 @@ export default function AdminServersPage() {
                       <button
                         type="button"
                         onClick={() => setPasswordTarget(user)}
-                        className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
+                        className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700"
                         aria-label="Réinitialiser le mot de passe"
                       >
                         <KeyRound size={16} />
@@ -251,7 +251,7 @@ export default function AdminServersPage() {
                       <button
                         type="button"
                         onClick={() => openEdit(user)}
-                        className="rounded-lg p-2 text-ink-500 transition hover:bg-ink-100"
+                        className="rounded-lg p-2 text-ink-500 dark:text-ink-400 transition hover:bg-ink-100 dark:hover:bg-ink-700"
                         aria-label="Modifier"
                       >
                         <Pencil size={16} />
@@ -260,7 +260,7 @@ export default function AdminServersPage() {
                         type="button"
                         onClick={() => setDeleteTarget(user)}
                         disabled={user.id === currentUser?.id}
-                        className="rounded-lg p-2 text-ink-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-30"
+                        className="rounded-lg p-2 text-ink-400 dark:text-ink-500 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-30"
                         aria-label="Supprimer"
                       >
                         <Trash2 size={16} />
@@ -402,7 +402,7 @@ export default function AdminServersPage() {
             placeholder="Nouveau mot de passe"
           />
         </Field>
-        <p className="mt-3 text-xs text-ink-500">
+        <p className="mt-3 text-xs text-ink-500 dark:text-ink-400">
           Communiquez ce mot de passe à la personne concernée. Il remplace immédiatement l&apos;ancien.
         </p>
       </Modal>
@@ -416,40 +416,40 @@ export default function AdminServersPage() {
         {activity && (
           <div className="space-y-5">
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl bg-ink-50 p-3 text-center">
-                <p className="text-xs text-ink-500">Aujourd&apos;hui</p>
-                <p className="text-lg font-bold text-ink-900">{activity.stats.ordersToday}</p>
+              <div className="rounded-xl bg-ink-50 dark:bg-ink-900 p-3 text-center">
+                <p className="text-xs text-ink-500 dark:text-ink-400">Aujourd&apos;hui</p>
+                <p className="text-lg font-bold text-ink-900 dark:text-ink-50">{activity.stats.ordersToday}</p>
               </div>
-              <div className="rounded-xl bg-ink-50 p-3 text-center">
-                <p className="text-xs text-ink-500">Ce mois</p>
-                <p className="text-lg font-bold text-ink-900">{activity.stats.ordersThisMonth}</p>
+              <div className="rounded-xl bg-ink-50 dark:bg-ink-900 p-3 text-center">
+                <p className="text-xs text-ink-500 dark:text-ink-400">Ce mois</p>
+                <p className="text-lg font-bold text-ink-900 dark:text-ink-50">{activity.stats.ordersThisMonth}</p>
               </div>
-              <div className="rounded-xl bg-ink-50 p-3 text-center">
-                <p className="text-xs text-ink-500">CA du mois</p>
-                <p className="text-lg font-bold text-ink-900">
+              <div className="rounded-xl bg-ink-50 dark:bg-ink-900 p-3 text-center">
+                <p className="text-xs text-ink-500 dark:text-ink-400">CA du mois</p>
+                <p className="text-lg font-bold text-ink-900 dark:text-ink-50">
                   {formatMoney(activity.stats.revenueThisMonth, currency)}
                 </p>
               </div>
             </div>
 
             <div>
-              <h3 className="mb-2 font-semibold text-ink-900">Dernières commandes</h3>
+              <h3 className="mb-2 font-semibold text-ink-900 dark:text-ink-50">Dernières commandes</h3>
               {activity.recentOrders.length === 0 ? (
-                <p className="rounded-xl bg-ink-50 px-4 py-6 text-center text-sm text-ink-500">
+                <p className="rounded-xl bg-ink-50 dark:bg-ink-900 px-4 py-6 text-center text-sm text-ink-500 dark:text-ink-400">
                   Aucune commande traitée
                 </p>
               ) : (
-                <ul className="divide-y divide-ink-100">
+                <ul className="divide-y divide-ink-100 dark:divide-ink-700">
                   {activity.recentOrders.map((order) => (
                     <li key={order.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                       <div>
-                        <p className="font-medium text-ink-900">{order.orderNumber}</p>
-                        <p className="text-xs text-ink-500">
+                        <p className="font-medium text-ink-900 dark:text-ink-50">{order.orderNumber}</p>
+                        <p className="text-xs text-ink-500 dark:text-ink-400">
                           {order.tableNumber ? `Table ${order.tableNumber}` : 'À emporter'} -{' '}
                           {formatDateTime(order.createdAt)}
                         </p>
                       </div>
-                      <span className="font-semibold text-ink-700">
+                      <span className="font-semibold text-ink-700 dark:text-ink-200">
                         {formatMoney(order.total, currency)}
                       </span>
                     </li>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Timer } from 'lucide-react';
 import { formatTime } from '../../utils/format';
+import useNotificationSound from '../../hooks/useNotificationSound';
 
 /**
  * Le temps d'attente annoncé, vu par le client.
@@ -22,6 +23,8 @@ export default function TempsDAttente({ order, compact = false }) {
   const prevu = order?.estimatedReadyAt ? new Date(order.estimatedReadyAt).getTime() : null;
   const pertinent =
     prevu && !['READY', 'SERVED', 'CANCELLED'].includes(order.status);
+  const minutes = prevu ? Math.round((prevu - maintenant) / 60000) : null;
+  const depasse = pertinent && minutes <= 0;
 
   useEffect(() => {
     if (!pertinent) return undefined;
@@ -31,10 +34,20 @@ export default function TempsDAttente({ order, compact = false }) {
     return () => clearInterval(minuteur);
   }, [pertinent]);
 
-  if (!pertinent) return null;
+  // Un signal au moment precis ou le delai annonce s'ecoule - pas a chaque
+  // tick des quinze secondes qui suivent, sinon la seconde alerte ressemble
+  // a la premiere et perd tout son sens.
+  // Initialise avec la valeur du tout premier rendu : rouvrir la page d'une
+  // commande deja en depassement ne doit pas sonner comme si l'instant
+  // venait d'arriver.
+  const playSound = useNotificationSound();
+  const depasseAvant = useRef(depasse);
+  useEffect(() => {
+    if (depasse && !depasseAvant.current) playSound();
+    depasseAvant.current = depasse;
+  }, [depasse, playSound]);
 
-  const minutes = Math.round((prevu - maintenant) / 60000);
-  const depasse = minutes <= 0;
+  if (!pertinent) return null;
 
   if (compact) {
     return (

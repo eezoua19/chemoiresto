@@ -19,8 +19,12 @@ export default function useNotificationSound() {
       const context = contextRef.current;
       if (context.state === 'suspended') context.resume();
 
-      // Deux notes : plus aigues pour une nouvelle commande.
-      const notes = variant === 'order' ? [880, 1174] : [660, 880];
+      // Trois timbres distincts : aigu et montant pour une nouvelle commande,
+      // medium pour un appel, deux notes identiques (un "bip-bip" plat, pas une
+      // phrase melodique) pour une rupture - volontairement moins agreable,
+      // c'est une alerte de gestion, pas une bonne nouvelle.
+      const notes =
+        variant === 'order' ? [880, 1174] : variant === 'rupture' ? [494, 494] : [660, 880];
 
       notes.forEach((frequency, index) => {
         const oscillator = context.createOscillator();

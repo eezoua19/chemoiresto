@@ -137,9 +137,10 @@ export default function AdminLayout() {
     );
   });
 
-  // Une rupture declaree en salle : pas aussi urgent qu'un appel client, donc
-  // un simple toast (sans son ni voix) suffit - mais l'admin doit le savoir
-  // meme s'il n'a pas la page Produits ouverte.
+  // Une rupture declaree en salle : moins urgent qu'un appel client (pas de
+  // voix), mais l'admin doit le savoir meme sans avoir la page Produits
+  // ouverte - un signal sonore distinct des deux autres, pour ne pas le
+  // confondre avec une nouvelle commande ou un appel.
   useSocketEvent('product_availability', (changement) => {
     setRuptureIds((current) => {
       const suivant = new Set(current);
@@ -151,6 +152,7 @@ export default function AdminLayout() {
     if (changement.isAvailable) {
       toast.success(`${changement.name} est de nouveau disponible`);
     } else {
+      playSound('rupture');
       toast.warning(`${changement.name} : rupture déclarée en salle`);
     }
   });

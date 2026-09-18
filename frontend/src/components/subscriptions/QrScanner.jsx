@@ -5,6 +5,7 @@ import { X, CameraOff, Flashlight, Loader2, KeyRound } from 'lucide-react';
 import jsQR from 'jsqr';
 import { Button, Input } from '../ui';
 import { jetonDuCode } from '../../utils/subscription';
+import useNotificationSound from '../../hooks/useNotificationSound';
 
 /**
  * Scanner de tickets d'abonnement, intégré à l'application.
@@ -53,14 +54,19 @@ export default function QrScanner({ open, onClose, onDetect }) {
   const onDetectRef = useRef(onDetect);
   onDetectRef.current = onDetect;
 
+  const playSound = useNotificationSound();
+
   const trouve = useCallback(
     (jeton) => {
       if (detecteRef.current) return;
       detecteRef.current = true;
+      // Le meme retour, camera ou saisie manuelle : ce qui compte, c'est
+      // qu'un ticket valide vient d'etre trouve, pas comment.
+      playSound();
       arreter();
       onDetectRef.current(jeton);
     },
-    [arreter]
+    [arreter, playSound]
   );
 
   // ------------------------------ la caméra ------------------------------

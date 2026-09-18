@@ -35,7 +35,7 @@ export default function OrderCard({
               <h3 className="flex items-center gap-1.5 font-bold text-ink-900 dark:text-ink-50">
                 <ShoppingBag size={15} className="text-brand-600" />
                 Emporter
-                <span className="rounded-lg bg-brand-100 dark:bg-brand-900/40 px-2 py-0.5 tracking-widest text-brand-800">
+                <span className="rounded-lg bg-brand-100 dark:bg-brand-900/40 px-2 py-0.5 tracking-widest text-brand-800 dark:text-brand-300">
                   {order.pickupCode}
                 </span>
               </h3>

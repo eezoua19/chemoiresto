@@ -11,14 +11,14 @@ export const ETATS = {
     label: 'ABONNEMENT VALIDE',
     court: 'Valide',
     badge: 'bg-emerald-100 text-emerald-800 dark:text-emerald-300',
-    bloc: 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900',
+    bloc: 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-300',
     accent: 'text-emerald-700 dark:text-emerald-400',
   },
   EXPIRE: {
     label: 'ABONNEMENT EXPIRÉ',
     court: 'Expiré',
     badge: 'bg-red-100 text-red-800 dark:text-red-300',
-    bloc: 'border-red-300 bg-red-50 dark:bg-red-900/20 text-red-900',
+    bloc: 'border-red-300 bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-300',
     accent: 'text-red-700 dark:text-red-400',
   },
   SUSPENDU: {
@@ -39,7 +39,7 @@ export const ETATS = {
     label: 'ABONNEMENT PAS ENCORE COMMENCÉ',
     court: 'À venir',
     badge: 'bg-sky-100 text-sky-800 dark:text-sky-300',
-    bloc: 'border-sky-300 bg-sky-50 dark:bg-sky-900/20 text-sky-900',
+    bloc: 'border-sky-300 bg-sky-50 dark:bg-sky-900/20 text-sky-900 dark:text-sky-300',
     accent: 'text-sky-700 dark:text-sky-400',
   },
   INTROUVABLE: {

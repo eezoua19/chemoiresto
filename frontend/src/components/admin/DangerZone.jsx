@@ -110,7 +110,7 @@ export default function DangerZone({ restaurantName }) {
         <div className="space-y-4">
           <div className="flex gap-3 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20 p-3">
             <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-700 dark:text-emerald-400" />
-            <p className="text-xs text-emerald-900">
+            <p className="text-xs text-emerald-900 dark:text-emerald-300">
               Une sauvegarde complète est prise <strong>avant</strong> la suppression. Si elle
               échoue, rien n’est effacé. Vous la retrouverez dans Sauvegardes, téléchargeable.
             </p>

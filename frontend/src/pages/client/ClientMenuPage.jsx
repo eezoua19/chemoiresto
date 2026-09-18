@@ -520,10 +520,10 @@ function ClientMenuContent({ token, service }) {
         {/* ------------------ Rappel du retrait au comptoir ------------------ */}
         {emporter && (
           <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50 dark:bg-brand-900/30 px-4 py-3">
-            <p className="flex items-center gap-2 text-sm font-semibold text-brand-800">
+            <p className="flex items-center gap-2 text-sm font-semibold text-brand-800 dark:text-brand-300">
               <ShoppingBag size={16} /> Commande à emporter
             </p>
-            <p className="mt-1 text-xs text-brand-900/70">
+            <p className="mt-1 text-xs text-brand-900/70 dark:text-brand-300/80">
               Vous recevrez un code de retrait. Présentez-le au comptoir pour récupérer votre
               commande et regler.
             </p>
@@ -764,10 +764,10 @@ function ClientMenuContent({ token, service }) {
 
             {emporter && confirmation.pickupCode && (
               <div className="mt-4 rounded-2xl border border-brand-200 bg-brand-50 dark:bg-brand-900/30 px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-300">
                   Votre code de retrait
                 </p>
-                <p className="text-4xl font-extrabold tracking-widest text-brand-800">
+                <p className="text-4xl font-extrabold tracking-widest text-brand-800 dark:text-brand-200">
                   {confirmation.pickupCode}
                 </p>
               </div>

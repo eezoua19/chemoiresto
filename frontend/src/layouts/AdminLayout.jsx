@@ -200,7 +200,7 @@ export default function AdminLayout() {
 
       <div className="border-t border-ink-100 dark:border-ink-700 p-3">
         <div className="mb-2 flex items-center gap-3 rounded-xl px-3 py-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-sm font-bold text-brand-700">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-sm font-bold text-brand-700 dark:text-brand-300">
             {initials(user?.fullName)}
           </span>
           <div className="min-w-0">

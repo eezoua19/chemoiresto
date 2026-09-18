@@ -150,7 +150,7 @@ export default function ServerLayout() {
           <PushSubscribeToggle />
           <NotificationBell />
 
-          <span className="hidden h-9 w-9 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-sm font-bold text-brand-700 sm:flex">
+          <span className="hidden h-9 w-9 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-sm font-bold text-brand-700 dark:text-brand-300 sm:flex">
             {initials(user?.fullName)}
           </span>
 
@@ -172,7 +172,7 @@ export default function ServerLayout() {
               to={link.to}
               className={({ isActive }) =>
                 `flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                  isActive ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700' : 'text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-700'
+                  isActive ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-700'
                 }`
               }
             >

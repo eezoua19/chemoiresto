@@ -184,7 +184,7 @@ export default function AdminDashboardPage() {
       {today.openServiceRequests > 0 && (
         <div className="mb-5 flex items-center gap-3 rounded-2xl border border-sky-200 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-900/20 px-5 py-4">
           <BellRing size={20} className="text-sky-600" />
-          <p className="text-sm font-medium text-sky-900">
+          <p className="text-sm font-medium text-sky-900 dark:text-sky-300">
             {today.openServiceRequests} demande(s) client en attente de traitement
           </p>
         </div>

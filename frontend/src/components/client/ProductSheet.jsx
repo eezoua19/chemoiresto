@@ -6,6 +6,7 @@ import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
 import PlatSansPhoto from './PlatSansPhoto';
 import { volerVersLePanier, secouerLePanier, DUREE_DU_VOL } from './volAuPanier';
+import useNotificationSound from '../../hooks/useNotificationSound';
 
 /**
  * La barre du panier est posee par la page du menu. On la retrouve par son
@@ -34,6 +35,7 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
   const [note, setNote] = useState('');
   const [error, setError] = useState(null);
   const { monte, sortant } = usePresence(open);
+  const playSound = useNotificationSound();
 
   // En fermant, le parent efface le plat selectionne. Sans cette memoire, le
   // panneau se viderait d'un coup au lieu de redescendre.
@@ -112,6 +114,7 @@ export default function ProductSheet({ item: plat, currency, open, onClose, onAd
     // a plus rien a faire voler.
     const cible = document.getElementById(BARRE_PANIER) || cibleDeSecours();
     volerVersLePanier(visuelRef.current, cible);
+    playSound('tac');
     // Le panier tressaute a l'arrivee, pas au depart.
     setTimeout(() => secouerLePanier(document.getElementById(BARRE_PANIER)), DUREE_DU_VOL - 120);
 

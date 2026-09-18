@@ -19,6 +19,25 @@ export default function useNotificationSound() {
       const context = contextRef.current;
       if (context.state === 'suspended') context.resume();
 
+      // "tac" a son propre enveloppe, plus courte et plus discrete que les
+      // autres : c'est le seul son qui peut se repeter tres vite (un ajout au
+      // panier apres l'autre), une phrase de deux notes deviendrait fatigante.
+      if (variant === 'tac') {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = 'triangle';
+        oscillator.frequency.value = 1200;
+        const start = context.currentTime;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.12, start + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.07);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(start);
+        oscillator.stop(start + 0.08);
+        return;
+      }
+
       // Trois timbres distincts : aigu et montant pour une nouvelle commande,
       // medium pour un appel, deux notes identiques (un "bip-bip" plat, pas une
       // phrase melodique) pour une rupture - volontairement moins agreable,

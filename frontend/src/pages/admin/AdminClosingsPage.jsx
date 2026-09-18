@@ -143,8 +143,8 @@ export default function AdminClosingsPage() {
         <Card className="mb-5 border-brand-200 bg-brand-50/60 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-bold text-brand-900">Aujourd&apos;hui, en cours</p>
-              <p className="text-xs text-brand-900/70">
+              <p className="text-sm font-bold text-brand-900 dark:text-brand-300">Aujourd&apos;hui, en cours</p>
+              <p className="text-xs text-brand-900/70 dark:text-brand-300/80">
                 Ces chiffres bougent encore. Ils seront arrêtés cette nuit à 3 h.
               </p>
             </div>

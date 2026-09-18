@@ -129,7 +129,7 @@ export default function AdminBackupsPage() {
                 </span>
                 <div>
                   <p
-                    className={`text-sm font-bold ${alerte ? 'text-red-900' : 'text-emerald-900'}`}
+                    className={`text-sm font-bold ${alerte ? 'text-red-900 dark:text-red-300' : 'text-emerald-900 dark:text-emerald-300'}`}
                   >
                     {derniere
                       ? alerte
@@ -137,7 +137,7 @@ export default function AdminBackupsPage() {
                         : 'Vos données sont sauvegardées'
                       : 'Aucune sauvegarde pour l’instant'}
                   </p>
-                  <p className={`text-xs ${alerte ? 'text-red-900/80' : 'text-emerald-900/80'}`}>
+                  <p className={`text-xs ${alerte ? 'text-red-900/80 dark:text-red-300/80' : 'text-emerald-900/80 dark:text-emerald-300/80'}`}>
                     {derniere
                       ? `Dernière : ${formatDateTime(derniere.createdAt)} (${taille(
                           derniere.sizeBytes
@@ -161,7 +161,7 @@ export default function AdminBackupsPage() {
           {/* -------------------------- La mise en garde ------------------------- */}
           <Card className="mb-5 border-amber-200 dark:border-amber-900/50 bg-amber-50/60 p-4">
             <p className="text-sm font-bold text-amber-900 dark:text-amber-300">Gardez-en une chez vous</p>
-            <p className="mt-1 text-xs text-amber-900/80">
+            <p className="mt-1 text-xs text-amber-900/80 dark:text-amber-300/80">
               Ces sauvegardes vivent sur le même serveur que vos données : elles vous protègent
               d&apos;une suppression malencontreuse, pas d&apos;une panne de l&apos;hébergeur.
               Téléchargez-en une de temps en temps et rangez-la dans un dossier synchronisé

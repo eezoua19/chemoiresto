@@ -67,19 +67,19 @@ export default function TempsDAttente({ order, compact = false }) {
       <div className="min-w-0">
         {depasse ? (
           <>
-            <p className="font-bold leading-tight text-brand-900">
+            <p className="font-bold leading-tight text-brand-900 dark:text-brand-300">
               Votre plat arrive d&apos;un instant à l&apos;autre
             </p>
-            <p className="text-xs text-brand-900/70">
+            <p className="text-xs text-brand-900/70 dark:text-brand-300/80">
               Annoncé pour {formatTime(order.estimatedReadyAt)}
             </p>
           </>
         ) : (
           <>
-            <p className="font-bold leading-tight text-brand-900">
+            <p className="font-bold leading-tight text-brand-900 dark:text-brand-300">
               Prêt dans environ {minutes} minute{minutes > 1 ? 's' : ''}
             </p>
-            <p className="text-xs text-brand-900/70">
+            <p className="text-xs text-brand-900/70 dark:text-brand-300/80">
               Vers {formatTime(order.estimatedReadyAt)} — annoncé par la serveuse
             </p>
           </>

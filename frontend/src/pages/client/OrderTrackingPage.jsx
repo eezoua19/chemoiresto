@@ -5,6 +5,7 @@ import { publicApi } from '../../services/endpoints';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import useSocketRoom from '../../hooks/useSocketRoom';
 import useClientPushSubscription from '../../hooks/useClientPushSubscription';
+import useNotificationSound from '../../hooks/useNotificationSound';
 import OrderJourneyTracker from '../../components/client/OrderJourneyTracker';
 import Confettis from '../../components/client/Confettis';
 import TempsDAttente from '../../components/client/TempsDAttente';
@@ -45,17 +46,20 @@ export default function OrderTrackingPage() {
   // pas l'etat - rouvrir la page une heure plus tard ne doit pas relancer la
   // gerbe comme si l'evenement venait d'arriver.
   const [fete, setFete] = useState(false);
+  const playSound = useNotificationSound();
   useSocketEvent('order_status', (updated) => {
     if (updated.trackingToken !== trackingToken) return;
     const devientPrete = updated.status === 'READY' && order?.status !== 'READY';
     setOrder(updated);
     if (devientPrete) {
       setFete(true);
-      // Une vibration courte : dans un maquis bruyant, l'ecran ne suffit pas.
+      // Le client ne regarde pas l'ecran en continu : le son et la vibration
+      // rattrapent ce que l'animation seule manquerait.
+      playSound();
       try {
         navigator.vibrate?.([25, 60, 35]);
       } catch {
-        // Vibration refusee ou indisponible : l'ecran fait le travail.
+        // Vibration refusee ou indisponible : le son et l'ecran font le travail.
       }
       setTimeout(() => setFete(false), 2200);
     }

@@ -67,7 +67,7 @@ export function printOrderTicket(order, restaurant) {
   <div class="center big">COMMANDE ${escapeHtml(order.orderNumber)}</div>
   ${
     order.type === 'TAKEAWAY'
-      ? `<div class="center bold">À EMPORTER</div>
+      ? `<div class="center bold">${order.eatInLater ? 'SUR PLACE' : 'À EMPORTER'}</div>
   <div class="center big">CODE ${escapeHtml(order.pickupCode || '-')}</div>
   ${order.customerPhone ? `<div class="center">${escapeHtml(order.customerPhone)}</div>` : ''}`
       : `<div class="center bold">TABLE ${escapeHtml(order.table?.number || '-')}</div>`

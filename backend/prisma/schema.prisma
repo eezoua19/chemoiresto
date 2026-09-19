@@ -369,6 +369,11 @@ model Order {
   status        OrderStatus @default(NEW)
   customerName  String?
   customerPhone String?
+  // A emporter, le client peut prevenir qu'il compte manger sur place a son
+  // arrivee plutot que reellement emporter le plat : pas de nouveau statut ni
+  // de table a assigner a l'avance, juste un signal clair pour la cuisine et
+  // la serveuse au moment de servir.
+  eatInLater    Boolean     @default(false)
   comment       String?     @db.Text
   subtotal      Decimal     @db.Decimal(12, 2)
   // Remise calculee et figee au moment de la commande : le code promo peut

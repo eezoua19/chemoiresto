@@ -170,6 +170,7 @@ async function createOrder({
   customerPhone = null,
   comment,
   promoCode = null,
+  eatInLater = false,
 }) {
   return prisma.$transaction(async (tx) => {
     const numberFor = await generateOrderNumber(tx, restaurant.id);
@@ -218,6 +219,9 @@ async function createOrder({
             status: 'NEW',
             customerName: customerName ? customerName.trim() : null,
             customerPhone: customerPhone ? customerPhone.trim() : null,
+            // Facultatif et sans effet a table : seule une commande a emporter
+            // peut etre "mangee sur place".
+            eatInLater: type === 'TAKEAWAY' && Boolean(eatInLater),
             comment: comment ? comment.trim() : null,
             subtotal,
             discountAmount,
@@ -346,6 +350,7 @@ function serializeOrder(order) {
     status: order.status,
     customerName: order.customerName,
     customerPhone: order.customerPhone,
+    eatInLater: order.eatInLater,
     comment: order.comment,
     subtotal: toNumber(order.subtotal),
     discountAmount: toNumber(order.discountAmount) || 0,

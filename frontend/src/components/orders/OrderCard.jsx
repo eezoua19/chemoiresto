@@ -1,4 +1,4 @@
-import { Clock, User, StickyNote, Printer, ChevronRight, ShoppingBag, Phone } from 'lucide-react';
+import { Clock, User, StickyNote, Printer, ChevronRight, ShoppingBag, Phone, UtensilsCrossed } from 'lucide-react';
 import { ORDER_STATUS } from '../../utils/constants';
 import { formatMoney, timeAgo } from '../../utils/format';
 import { estAEmporter } from '../../utils/order';
@@ -32,9 +32,15 @@ export default function OrderCard({
             {emporter ? (
               // Le code de retrait est ce que la serveuse annonce à voix haute :
               // il doit se lire d'un coup d'oeil, comme un numéro de table.
+              // "Sur place" a sa propre icone (assiette, pas sac) : la cuisine
+              // et la serveuse ne doivent pas emballer un plat qui sera servi.
               <h3 className="flex items-center gap-1.5 font-bold text-ink-900 dark:text-ink-50">
-                <ShoppingBag size={15} className="text-brand-600" />
-                Emporter
+                {order.eatInLater ? (
+                  <UtensilsCrossed size={15} className="text-brand-600" />
+                ) : (
+                  <ShoppingBag size={15} className="text-brand-600" />
+                )}
+                {order.eatInLater ? 'Sur place' : 'Emporter'}
                 <span className="rounded-lg bg-brand-100 dark:bg-brand-900/40 px-2 py-0.5 tracking-widest text-brand-800 dark:text-brand-300">
                   {order.pickupCode}
                 </span>

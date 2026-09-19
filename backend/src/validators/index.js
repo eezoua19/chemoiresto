@@ -196,6 +196,9 @@ const createOrderSchema = z
     customerPhone: optionalText(30),
     comment: optionalText(500),
     promoCode: optionalText(40),
+    // Uniquement pertinent a emporter : le client dit qu'il compte manger sur
+    // place a son arrivee, plutot que reellement emporter le plat.
+    eatInLater: booleanish.optional(),
     items: z
       .array(
         z.object({

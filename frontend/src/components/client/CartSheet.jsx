@@ -5,7 +5,7 @@ import { X, Minus, Plus, Trash2, ShoppingBag, ChevronLeft, Tag } from 'lucide-re
 import { useCart } from '../../context/CartContext';
 import { formatMoney } from '../../utils/format';
 import { publicApi } from '../../services/endpoints';
-import { Button, EmptyState } from '../ui';
+import { Button, EmptyState, Toggle } from '../ui';
 
 /**
  * Panier du client, en deux étapes :
@@ -28,6 +28,7 @@ export default function CartSheet({
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [comment, setComment] = useState('');
+  const [eatInLater, setEatInLater] = useState(false);
 
   // Code promo : verifie aupres du serveur (apercu), reverifie a la commande.
   // Rien ici ne fait foi cote prix - seul le total renvoye par la commande compte.
@@ -74,6 +75,7 @@ export default function CartSheet({
       setCustomerName('');
       setCustomerPhone('');
       setComment('');
+      setEatInLater(false);
       setPromoInput('');
       setPromo(null);
       setPromoError('');
@@ -97,6 +99,7 @@ export default function CartSheet({
       customerPhone: customerPhone.trim(),
       comment: comment.trim(),
       promoCode: promo ? promo.code : undefined,
+      eatInLater,
     });
   };
 
@@ -343,6 +346,20 @@ export default function CartSheet({
                       : "Pour vous prévenir en cas de besoin."}
                 </p>
               </div>
+
+              {takeaway && (
+                <div className="rounded-xl border border-ink-200 dark:border-ink-700 px-3.5 py-3">
+                  <Toggle
+                    checked={eatInLater}
+                    onChange={setEatInLater}
+                    label="Je viendrai manger sur place"
+                  />
+                  <p className="mt-1.5 text-xs text-ink-500 dark:text-ink-400">
+                    La cuisine et la serveuse le sauront a l&apos;avance : votre plat vous sera
+                    servi a table au lieu d&apos;etre emballe.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="label" htmlFor="order-comment">

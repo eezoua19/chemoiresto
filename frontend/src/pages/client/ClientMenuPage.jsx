@@ -232,7 +232,7 @@ function ClientMenuContent({ token, service }) {
   useSocketEvent('menu_updated', () => load());
 
   // --------------------------- Commande ---------------------------------
-  const handleConfirmOrder = async ({ customerName, customerPhone, comment, promoCode }) => {
+  const handleConfirmOrder = async ({ customerName, customerPhone, comment, promoCode, eatInLater }) => {
     setSubmitting(true);
     try {
       const order = await publicApi.createOrder({
@@ -241,6 +241,7 @@ function ClientMenuContent({ token, service }) {
         customerPhone: customerPhone || undefined,
         comment: comment || undefined,
         promoCode: promoCode || undefined,
+        eatInLater: emporter ? Boolean(eatInLater) : undefined,
         items: cart.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -772,6 +773,11 @@ function ClientMenuContent({ token, service }) {
                 <p className="text-4xl font-extrabold tracking-widest text-brand-800 dark:text-brand-200">
                   {confirmation.pickupCode}
                 </p>
+                {confirmation.eatInLater && (
+                  <p className="mt-2 text-xs font-medium text-brand-800 dark:text-brand-300">
+                    Vous mangerez sur place : montrez ce code, on vous installe a table.
+                  </p>
+                )}
               </div>
             )}
 

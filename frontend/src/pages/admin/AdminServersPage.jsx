@@ -445,7 +445,11 @@ export default function AdminServersPage() {
                       <div>
                         <p className="font-medium text-ink-900 dark:text-ink-50">{order.orderNumber}</p>
                         <p className="text-xs text-ink-500 dark:text-ink-400">
-                          {order.tableNumber ? `Table ${order.tableNumber}` : 'À emporter'} -{' '}
+                          {order.tableNumber
+                            ? `Table ${order.tableNumber}`
+                            : order.eatInLater
+                              ? 'Sur place'
+                              : 'À emporter'} -{' '}
                           {formatDateTime(order.createdAt)}
                         </p>
                       </div>

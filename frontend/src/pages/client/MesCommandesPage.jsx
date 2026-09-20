@@ -108,7 +108,8 @@ export default function MesCommandesPage() {
                   </p>
                   <p className="font-bold text-ink-900 dark:text-ink-50">{commande.orderNumber}</p>
                   <p className="mt-0.5 text-xs text-ink-400 dark:text-ink-500">
-                    {commande.tableLabel || 'À emporter'} · {formatDateTime(commande.createdAt)}
+                    {commande.tableLabel || (commande.eatInLater ? 'Sur place' : 'À emporter')} ·{' '}
+                    {formatDateTime(commande.createdAt)}
                   </p>
                 </div>
                 <span className={`badge shrink-0 ${config.badge}`}>{config.clientLabel}</span>

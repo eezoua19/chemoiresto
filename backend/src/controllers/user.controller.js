@@ -181,6 +181,7 @@ const activity = asyncHandler(async (req, res) => {
         status: order.status,
         total: toNumber(order.total),
         tableNumber: order.table ? order.table.number : null,
+        eatInLater: order.eatInLater,
         createdAt: order.createdAt,
       })),
     },

@@ -267,6 +267,7 @@ function ClientMenuContent({ token, service }) {
         restaurantName: state.data.restaurant.name,
         type: order.type,
         tableLabel: emporter ? null : `Table ${state.data.table.number}`,
+        eatInLater: order.eatInLater,
         total: order.total,
         currency: order.currency,
         status: order.status,

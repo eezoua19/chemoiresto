@@ -59,6 +59,16 @@ const update = asyncHandler(async (req, res) => {
   });
   if (!existing) throw ApiError.notFound('Code promo introuvable');
 
+  // Le schema Zod ne valide que les champs presents dans CE corps de requete :
+  // une mise a jour partielle qui ne renvoie que `value` (sans `type`) passerait
+  // son propre refine. On revalide donc ici l'etat final, fusion de l'existant
+  // et du corps recu, avant d'ecrire.
+  const nextType = req.body.type ?? existing.type;
+  const nextValue = req.body.value ?? toNumber(existing.value);
+  if (nextType === 'PERCENT' && nextValue > 100) {
+    throw ApiError.badRequest('Un pourcentage ne peut pas dépasser 100');
+  }
+
   try {
     const promoCode = await prisma.promoCode.update({
       where: { id: existing.id },

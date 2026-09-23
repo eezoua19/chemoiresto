@@ -1,4 +1,4 @@
-import { Plus, Star } from 'lucide-react';
+import { Heart, Plus, Star } from 'lucide-react';
 import { imageUrl } from '../../services/api';
 import { formatMoney } from '../../utils/format';
 import PlatSansPhoto from './PlatSansPhoto';
@@ -12,18 +12,23 @@ const DERNIER_ECHELON = 8;
  * `index` sert a echelonner l'apparition : la carte se dresse plat par plat
  * au lieu d'apparaitre d'un bloc. Le decalage reste court et plafonne.
  */
-export default function ProductCard({ item, currency, onSelect, index = 0 }) {
+export default function ProductCard({
+  item,
+  currency,
+  onSelect,
+  index = 0,
+  favori = false,
+  onBasculerFavori,
+}) {
   const image = imageUrl(item.image);
   const disabled = !item.isAvailable;
   const retard = Math.min(index, DERNIER_ECHELON) * 45;
+  const avecCoeur = Boolean(onBasculerFavori);
 
   return (
-    <button
-      type="button"
-      onClick={() => !disabled && onSelect(item)}
-      disabled={disabled}
+    <div
       style={{ animationDelay: `${retard}ms` }}
-      className={`group flex w-full animate-entree gap-3 rounded-2xl border border-ink-100 dark:border-ink-700 bg-white dark:bg-ink-800 p-3 text-left transition
+      className={`group relative flex w-full animate-entree gap-3 rounded-2xl border border-ink-100 dark:border-ink-700 bg-white dark:bg-ink-800 p-3 text-left transition
                   ${disabled ? 'opacity-60' : 'active:scale-[0.99] hover:border-brand-200 hover:shadow-card'}`}
     >
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-ink-100 dark:bg-ink-800">
@@ -55,9 +60,17 @@ export default function ProductCard({ item, currency, onSelect, index = 0 }) {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <h3 className="font-semibold leading-tight text-ink-900 dark:text-ink-50">{item.name}</h3>
+        <h3
+          className={`font-semibold leading-tight text-ink-900 dark:text-ink-50 ${avecCoeur ? 'pr-9' : ''}`}
+        >
+          {item.name}
+        </h3>
         {item.description && (
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-500 dark:text-ink-400">{item.description}</p>
+          <p
+            className={`mt-1 line-clamp-2 text-xs leading-relaxed text-ink-500 dark:text-ink-400 ${avecCoeur ? 'pr-9' : ''}`}
+          >
+            {item.description}
+          </p>
         )}
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-2">
@@ -82,6 +95,30 @@ export default function ProductCard({ item, currency, onSelect, index = 0 }) {
           )}
         </div>
       </div>
-    </button>
+
+      {/* Toute la carte reste cliquable, mais le clic est porte par cette
+          couche plutot que par la carte elle-meme : le coeur garde ainsi le
+          sien, alors que deux boutons ne peuvent pas s'imbriquer. */}
+      <button
+        type="button"
+        onClick={() => onSelect(item)}
+        disabled={disabled}
+        aria-label={`Choisir ${item.name}`}
+        className="absolute inset-0 rounded-2xl"
+      />
+
+      {/* Un plat indisponible reste mis en favori : il reviendra a la carte. */}
+      {avecCoeur && (
+        <button
+          type="button"
+          onClick={() => onBasculerFavori(item)}
+          aria-pressed={favori}
+          aria-label={favori ? `Retirer ${item.name} des favoris` : `Mettre ${item.name} en favori`}
+          className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/85 dark:bg-ink-900/70 text-ink-400 dark:text-ink-500 backdrop-blur transition hover:text-rose-500 active:scale-90"
+        >
+          <Heart size={15} className={favori ? 'fill-rose-500 text-rose-500' : ''} />
+        </button>
+      )}
+    </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   History,
   Sun,
   Moon,
+  WifiOff,
 } from 'lucide-react';
 import { CartProvider, useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
@@ -36,6 +37,7 @@ import { Button, EmptyState, ErrorState, Footer, Modal } from '../../components/
 import { formatLongDate, formatMoney } from '../../utils/format';
 import { ORDER_STATUS, ordersKey } from '../../utils/constants';
 import { enregistrerCommande } from '../../utils/orderHistory';
+import { basculerFavori, listerFavoris } from '../../utils/favorites';
 import { applyBrandColor } from '../../utils/color';
 
 /** Le client peut relancer 90 s apres son appel, trois fois au plus. */
@@ -88,6 +90,8 @@ function ClientMenuContent({ token, service }) {
   const [orders, setOrders] = useState([]);
   const [requests, setRequests] = useState([]);
   const [requestPending, setRequestPending] = useState(null);
+  const [favoris, setFavoris] = useState([]);
+  const [horsLigne, setHorsLigne] = useState(() => !navigator.onLine);
   const syncRef = useRef(cart.syncWithMenu);
   syncRef.current = cart.syncWithMenu;
   const ordersRef = useRef(orders);
@@ -231,6 +235,45 @@ function ClientMenuContent({ token, service }) {
   }, [requests.length]);
   useSocketEvent('menu_updated', () => load());
 
+  // ----------------------------- Favoris ---------------------------------
+  const restaurantId = state.data?.restaurant?.id ?? null;
+
+  useEffect(() => {
+    setFavoris(restaurantId ? listerFavoris(restaurantId) : []);
+  }, [restaurantId]);
+
+  const basculerLeFavori = useCallback(
+    (item) => {
+      if (!restaurantId) return;
+      const suivants = basculerFavori(restaurantId, item.id);
+      setFavoris(suivants);
+      // L'onglet Favoris disparait avec le dernier favori : sans ce retour,
+      // le client resterait devant une liste vide sans onglet pour en sortir.
+      if (suivants.length === 0) {
+        setActiveCategory((actuelle) => (actuelle === 'favoris' ? 'all' : actuelle));
+      }
+    },
+    [restaurantId]
+  );
+
+  // ------------------------ Perte de connexion ---------------------------
+  // Le service worker sert alors la derniere carte connue : on le dit, et on
+  // recharge des que le reseau revient pour repartir sur des donnees fraiches.
+  useEffect(() => {
+    const revenu = () => {
+      setHorsLigne(false);
+      load();
+    };
+    const perdu = () => setHorsLigne(true);
+
+    window.addEventListener('online', revenu);
+    window.addEventListener('offline', perdu);
+    return () => {
+      window.removeEventListener('online', revenu);
+      window.removeEventListener('offline', perdu);
+    };
+  }, [load]);
+
   // --------------------------- Commande ---------------------------------
   const handleConfirmOrder = async ({ customerName, customerPhone, comment, promoCode, eatInLater }) => {
     setSubmitting(true);
@@ -353,14 +396,25 @@ function ClientMenuContent({ token, service }) {
   const { restaurant, table, menu, date } = state.data;
   const currency = restaurant.currency;
 
+  const favorisSet = new Set(favoris);
+  // Un favori mis de cote hier peut ne pas etre a la carte aujourd'hui :
+  // l'onglet ne s'affiche que s'il reste quelque chose a y montrer.
+  const aDesFavoris = menu ? menu.items.some((item) => favorisSet.has(item.id)) : false;
+
   const categories = menu
-    ? [{ id: 'all', name: 'Tous', slug: 'all' }, ...menu.categories]
+    ? [
+        { id: 'all', name: 'Tous', slug: 'all' },
+        ...(aDesFavoris ? [{ id: 'favoris', name: 'Favoris', slug: 'favoris' }] : []),
+        ...menu.categories,
+      ]
     : [];
 
   const visibleItems = menu
-    ? menu.items.filter(
-        (item) => activeCategory === 'all' || item.category?.id === activeCategory
-      )
+    ? menu.items.filter((item) => {
+        if (activeCategory === 'all') return true;
+        if (activeCategory === 'favoris') return favorisSet.has(item.id);
+        return item.category?.id === activeCategory;
+      })
     : [];
 
   const dishesOfDay = menu ? menu.items.filter((item) => item.isDishOfDay) : [];
@@ -476,9 +530,22 @@ function ClientMenuContent({ token, service }) {
       </div>
 
       <div className="mx-auto max-w-2xl px-4">
+        {/* --------------- Carte affichee depuis la memoire --------------- */}
+        {horsLigne && (
+          <div className="-mt-4 rounded-2xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
+            <p className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
+              <WifiOff size={16} /> Hors connexion
+            </p>
+            <p className="mt-1 text-xs text-amber-900/70 dark:text-amber-300/80">
+              Voici la carte telle que votre téléphone l&apos;a mémorisée. Les prix et les
+              disponibilités ont pu changer, et la commande ne partira qu&apos;au retour du réseau.
+            </p>
+          </div>
+        )}
+
         {/* ------------------ Commandes en cours ------------------ */}
         {activeOrders.length > 0 && (
-          <section className="-mt-4 space-y-3">
+          <section className={`${horsLigne ? 'mt-3' : '-mt-4'} space-y-3`}>
             {activeOrders.map((order) => (
               <div key={order.id} className="card p-4">
                 <div className="flex items-start justify-between gap-3">
@@ -608,6 +675,8 @@ function ClientMenuContent({ token, service }) {
                       index={index}
                       currency={currency}
                       onSelect={setSelectedItem}
+                      favori={favorisSet.has(item.id)}
+                      onBasculerFavori={basculerLeFavori}
                     />
                   ))}
                 </div>
@@ -676,6 +745,8 @@ function ClientMenuContent({ token, service }) {
                     index={index}
                     currency={currency}
                     onSelect={setSelectedItem}
+                    favori={favorisSet.has(item.id)}
+                    onBasculerFavori={basculerLeFavori}
                   />
                 ))
               )}

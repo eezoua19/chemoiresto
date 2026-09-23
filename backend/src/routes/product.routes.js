@@ -2,7 +2,7 @@ const express = require('express');
 const controller = require('../controllers/product.controller');
 const validate = require('../middleware/validate');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
-const { upload } = require('../middleware/upload');
+const { upload, optimiserImage } = require('../middleware/upload');
 const { idParam, createProductSchema, updateProductSchema } = require('../validators');
 
 const router = express.Router();
@@ -16,6 +16,7 @@ router.post(
   '/',
   roleMiddleware('ADMIN'),
   upload.single('image'),
+  optimiserImage,
   validate({ body: createProductSchema }),
   controller.create
 );
@@ -24,6 +25,7 @@ router.put(
   '/:id',
   roleMiddleware('ADMIN'),
   upload.single('image'),
+  optimiserImage,
   validate({ params: idParam, body: updateProductSchema }),
   controller.update
 );
